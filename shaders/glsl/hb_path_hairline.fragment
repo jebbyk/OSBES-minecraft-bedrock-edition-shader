@@ -1,0 +1,37 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#include "fragmentVersionSimple.h"
+
+#include "uniformUIStandardPrimitivePixelConstants.h"
+#include "uniformUIStandardPrimitiveAdditionalPixelConstants.h"
+
+varying vec2 ExtraParams;
+
+void main() {
+	if (SHADER_TYPE == 14) {
+		// Hairline quads
+#if defined(NO_DERIVATIVES)
+		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+#else
+		vec2 px = dFdx(ExtraParams);
+		vec2 py = dFdy(ExtraParams);
+
+		float fx = (2.0 * ExtraParams.x) * px.x - px.y;
+		float fy = (2.0 * ExtraParams.x) * py.x - py.y;
+
+		float edgeAlpha = (ExtraParams.x * ExtraParams.x - ExtraParams.y);
+		float sd = sqrt((edgeAlpha * edgeAlpha) / (fx * fx + fy * fy));
+
+		float alpha = 1.0 - sd;
+
+		gl_FragColor = PRIM_PROPS_0 * PRIM_PROPS_1.x * alpha;
+#endif
+	}
+	else {
+		// Hairline lines
+		gl_FragColor = PRIM_PROPS_0 * min(1.0, (1.0 - abs(ExtraParams.y)) * PRIM_PROPS_1.x);
+	}
+}

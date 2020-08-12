@@ -1,0 +1,74 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#if __VERSION__ >= 300
+	#include "fragmentVersionSimple.h"
+	#include "uniformMacro.h"
+
+	LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+	LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
+	LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
+
+	varying vec4 ColorOut;
+	varying vec4 AdditionalOut;
+	flat varying float ShaderTypeOut;
+
+	// Keep in sync w/ SDFGenerator
+	#define DISTANCE_FIELD_MULTIPLIER 7.96875
+	#define DISTANCE_FIELD_MULTIPLIER_DIV2 3.984375
+	#define DISTANCE_FIELD_THRESHOLD 0.50196078431
+
+	#define SHOW_DF 0
+
+	float GetLuminance(vec3 color) {
+		// https://en.wikipedia.org/wiki/Relative_luminance
+		return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+	}
+
+	void ShadeGeometry(inout vec4 color, inout float alpha) {
+		int ShaderType = int(ShaderTypeOut);
+
+		if (ShaderType == 0) {
+			// Rect/stroke rect
+			alpha = min(1.0, AdditionalOut.x * AdditionalOut.y);
+		} else if (ShaderType == 3) {
+			// Image
+			color = texture2D(TEXTURE_0, AdditionalOut.xy);
+			alpha = ColorOut.a * clamp(AdditionalOut.z, 0.0, 1.0);
+		} else if (ShaderType == 17) {
+			// Raster text
+			float dfValue = texture2D(TEXTURE_1, AdditionalOut.xy).r;
+			float lum = GetLuminance(ColorOut.xyz);
+			color = ColorOut * pow(dfValue, 1.45 - lum);
+		} else if (ShaderType == 18) {
+			// SDF Text
+			float dfValue = texture2D(TEXTURE_2, AdditionalOut.xy).r;
+
+			#if SHOW_DF
+				color = vec4(dfValue, dfValue, dfValue, 1);
+			#else
+				// Values should be in [-4, 4]
+				dfValue = (dfValue * DISTANCE_FIELD_MULTIPLIER) - DISTANCE_FIELD_MULTIPLIER_DIV2;
+				dfValue = smoothstep(-DISTANCE_FIELD_THRESHOLD / AdditionalOut.z, DISTANCE_FIELD_THRESHOLD / AdditionalOut.z, dfValue);
+
+				float lum = GetLuminance(ColorOut.xyz);
+				color = ColorOut * pow(dfValue, 1.45 - lum);
+			#endif
+		}
+	}
+
+	void main() {
+		float alpha = 1.0;
+		vec4 color = ColorOut;
+
+		ShadeGeometry(color, alpha);
+
+		gl_FragColor = color * alpha;
+	}
+#else
+	void main() {
+		gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+	}
+#endif

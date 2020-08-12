@@ -1,0 +1,33 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "vertexVersionCentroid.h"
+#if __VERSION__ >= 300
+
+_centroid out vec2 uv;
+_centroid out vec2 uv1;
+
+#else
+
+varying vec2 uv;
+varying vec2 uv1;
+
+#endif
+
+
+#include "uniformWorldConstants.h"
+#include "uniformFlipbookTextureConstants.h"
+
+attribute POS4 POSITION;
+attribute vec2 TEXCOORD_0;
+
+
+void main()
+{
+    gl_Position = WORLDVIEWPROJ * POSITION;
+
+    uv = TEXCOORD_0;
+	uv.y += V_OFFSET;
+    uv1 = TEXCOORD_0;
+	uv1.y += V_BLEND_OFFSET;
+}

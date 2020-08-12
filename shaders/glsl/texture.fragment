@@ -1,0 +1,18 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroidUV.h"
+#include "uniformMacro.h"
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+void main()
+{
+	vec4 color = texture2D( TEXTURE_0, uv );
+
+#ifdef ALPHA_TEST
+	if(color.a < 0.5)
+		discard;
+#endif
+	gl_FragColor = color;
+}

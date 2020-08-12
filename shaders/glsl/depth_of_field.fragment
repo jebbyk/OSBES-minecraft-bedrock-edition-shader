@@ -1,0 +1,13 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroidUV.h"
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+void main()
+{
+	//TODO: Implement
+	//Default to no depth of field
+	gl_FragColor = texture2D(TEXTURE_0, uv);
+}

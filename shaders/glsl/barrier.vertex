@@ -1,0 +1,61 @@
+// __multiversion__
+
+#include "vertexVersionCentroid.h"
+
+#include "uniformWorldConstants.h"
+#include "uniformPerFrameConstants.h"
+#include "uniformShaderConstants.h"
+#include "uniformRenderChunkConstants.h"
+
+attribute mediump vec4 POSITION;
+
+attribute vec4 COLOR;
+attribute vec2 TEXCOORD_0;
+attribute vec2 TEXCOORD_1;
+
+#if __VERSION__ >= 300
+	#ifndef BYPASS_PIXEL_SHADER
+		_centroid out vec2 uv0;
+		_centroid out vec2 uv1;
+	#endif
+#else
+	#ifndef BYPASS_PIXEL_SHADER
+		varying vec2 uv0;
+		varying vec2 uv1;
+	#endif
+#endif
+// passing color so we can avoid having an extra shader and just use renderchunk.fragment
+varying vec4 color;
+
+
+void main() {
+	vec3 inputPos = POSITION.xyz * CHUNK_ORIGIN_AND_SCALE.w + CHUNK_ORIGIN_AND_SCALE.xyz;
+	vec3 center = inputPos + vec3(0.5, 0.5, 0.5);
+
+	// the view position needs to be in sortof-steve space
+	// the translation seems to be already embedded for some reason.
+	vec3 viewPos = VIEW_POS * CHUNK_ORIGIN_AND_SCALE.w;
+
+	vec3 forward = normalize(center - viewPos);
+	// not orthogonal so need to normalize
+	vec3 right = normalize(cross(vec3(0.0, 1.0, 0.0), forward));
+	// orthogonal so dont need to normalize
+	vec3 up = cross(forward, right);
+
+
+	// color is only positive, so we have to offset by .5
+	// we have to subtract because we passed in uvs
+
+	// we multiply our offsets by the basis vectors and subtract them to get our verts
+	vec3 vertPos = center - up * (COLOR.z - 0.5) - right * (COLOR.x - 0.5);
+
+
+	gl_Position = WORLDVIEW * vec4( vertPos, 1.0 );
+	gl_Position = PROJ * gl_Position;
+
+	uv0 = TEXCOORD_0;
+	uv1 = TEXCOORD_1;
+
+	// color is hardcoded white
+	color = vec4(1.0, 1.0, 1.0, 1.0);
+}

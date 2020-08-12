@@ -1,0 +1,32 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#include "fragmentVersionSimple.h"
+
+#include "uniformUIEffectsPixelConstants.h"
+
+varying vec4 ColorOut;
+varying vec4 AdditionalOut;
+// We need this here even if we do not use it as some drivers require
+// the verying variables to match between the vertex and fragment shaders.
+varying vec3 ScreenNormalPosition;
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+void main() {
+	vec4 baseColor = texture2D(TEXTURE_0, AdditionalOut.xy);
+	float nonZeroAlpha = max(baseColor.a, 0.00001);
+	baseColor = vec4(baseColor.rgb / nonZeroAlpha, nonZeroAlpha);
+	// TODO: Rename the members of the constant buffer so they are not weird for non-blurs
+	vec4 finalColor;
+	finalColor.r = dot(baseColor, vec4(COEFFICIENTS[0].x, COEFFICIENTS[0].y, COEFFICIENTS[0].z, COEFFICIENTS[0].w));
+	finalColor.g = dot(baseColor, vec4(COEFFICIENTS[1].x, COEFFICIENTS[1].y, COEFFICIENTS[1].z, COEFFICIENTS[1].w));
+	finalColor.b = dot(baseColor, vec4(COEFFICIENTS[2].x, COEFFICIENTS[2].y, COEFFICIENTS[2].z, COEFFICIENTS[2].w));
+	finalColor.a = dot(baseColor, vec4(PIXEL_OFFSETS[0].x, PIXEL_OFFSETS[0].y, PIXEL_OFFSETS[0].z, PIXEL_OFFSETS[0].w));
+	finalColor += vec4(PIXEL_OFFSETS[1].x, PIXEL_OFFSETS[1].y, PIXEL_OFFSETS[1].z, PIXEL_OFFSETS[1].w);
+	finalColor.rgb *= finalColor.a;
+	finalColor.rgba *= ColorOut.a;
+	gl_FragColor = finalColor;
+}

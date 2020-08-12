@@ -1,0 +1,34 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "vertexVersionCentroidUV.h"
+
+#include "uniformWorldConstants.h"
+#include "uniformEntityConstants.h"
+#ifdef USE_SKINNING
+#include "uniformAnimationConstants.h"
+#endif
+
+attribute mediump vec4 POSITION;
+attribute vec2 TEXCOORD_0;
+#if defined(USE_SKINNING)
+#ifdef MCPE_PLATFORM_NX
+attribute uint BONEID_0;
+#else
+attribute float BONEID_0;
+#endif
+#endif
+
+void main()
+{
+#ifdef USE_SKINNING
+#if defined(LARGE_VERTEX_SHADER_UNIFORMS)
+	gl_Position = WORLDVIEWPROJ * (BONES[int(BONEID_0)] * POSITION);
+#else
+	gl_Position = WORLDVIEWPROJ * (BONE * POSITION);
+#endif
+#else
+    gl_Position = WORLDVIEWPROJ * POSITION;
+#endif
+    uv = TEXCOORD_0 * GLINT_UV_SCALE.xy;
+}

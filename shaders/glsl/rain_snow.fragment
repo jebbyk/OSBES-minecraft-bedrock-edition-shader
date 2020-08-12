@@ -1,0 +1,72 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionSimple.h"
+#include "uniformMacro.h"
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
+LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
+
+varying vec2 uv;
+varying vec4 color;
+varying vec4 worldPosition;
+varying vec4 fogColor;
+
+void main()
+{
+	vec4 albedo = texture2D( TEXTURE_0, uv);
+
+#ifdef ALPHA_TEST
+	if (albedo.a < 0.5)
+		discard;
+#endif
+
+	albedo.a *= color.a;
+
+	vec2 occlusionUV = worldPosition.xz;
+	vec4 occlusionTexture = texture2D( TEXTURE_1, occlusionUV);
+
+#ifndef FLIP_OCCLUSION
+#define OCCLUSION_OPERATOR <
+#else
+#define OCCLUSION_OPERATOR >
+#endif
+
+#ifdef SNOW
+#define OCCLUSION_HEIGHT occlusionTexture.g
+#define OCCLUSION_LUMINANCE occlusionTexture.r
+#else
+#define OCCLUSION_HEIGHT occlusionTexture.a
+#define OCCLUSION_LUMINANCE occlusionTexture.b
+#endif
+
+	// clamp the uvs
+#ifndef NO_OCCLUSION
+	if ( occlusionUV.x >= 0.0 && occlusionUV.x <= 1.0 && 
+		 occlusionUV.y >= 0.0 && occlusionUV.y <= 1.0 && 
+		 worldPosition.y OCCLUSION_OPERATOR OCCLUSION_HEIGHT) {
+		albedo.a = 0.0;
+	}
+#endif
+
+	float mixAmount = (worldPosition.y - OCCLUSION_HEIGHT)*25.0;
+	vec2 lightingUVs = vec2(OCCLUSION_LUMINANCE, 1.0);
+	lightingUVs.x = mix(lightingUVs.x, 0.0, mixAmount);
+
+	vec3 lighting = texture2D( TEXTURE_2, lightingUVs ).rgb;
+	
+	float albedoR = albedo.r;
+	float albedoG = albedo.g;
+	float albedoB = albedo.b;
+	
+	albedo.rgb = vec3(albedoR + albedoG + albedoB)/3.0;
+	vec4 finalOutput = albedo;
+	finalOutput.rgb *= lighting.rgb;
+
+	//apply fog
+	gl_FragColor.rgb = mix( finalOutput.rgb, fogColor.rgb, fogColor.a );
+	gl_FragColor.a = finalOutput.a;
+}
+
+

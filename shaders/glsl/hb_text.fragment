@@ -1,0 +1,25 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#include "fragmentVersionSimple.h"
+#include "uniformMacro.h"
+
+varying vec4 ColorOut;
+varying vec4 AdditionalOut;
+// We need this here even if we do not use it as some drivers require
+// the verying variables to match between the vertex and fragment shaders.
+varying vec3 ScreenNormalPosition;
+
+LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
+
+float GetLuminance(vec3 color) {
+	return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+}
+
+void main() {
+	float dfValue = texture2D(TEXTURE_1, AdditionalOut.xy).r;
+	float lum = 1.45 - GetLuminance(ColorOut.xyz);
+	gl_FragColor = ColorOut * pow(dfValue, lum);
+}

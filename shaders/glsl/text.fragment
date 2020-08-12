@@ -1,0 +1,61 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroidUV.h"
+
+#include "uniformShaderConstants.h"
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+varying vec4 color;
+
+float median(float a, float b, float c) {
+    return max(min(a, b), min(max(a, b), c));
+}
+
+#include "uniformTextConstants.h"
+
+const float GLYPH_UV_SIZE = 1.0 / 16.0;
+
+void main()
+{
+	vec4 diffuse = texture2D( TEXTURE_0,  uv );
+
+#ifdef SMOOTH
+	const float center = 0.4;
+	const float radius = 0.1;
+
+	diffuse = smoothstep(center - radius, center + radius, diffuse);
+#endif
+
+#ifdef ALPHA_TEST
+	if(diffuse.a < 0.5) {
+		discard;
+	}
+#endif
+
+#ifdef MSDF
+    vec4 resultColor = color;
+
+    float sampleDistance = median(diffuse.r, diffuse.g, diffuse.b);
+
+    float outerEdgeAlpha = smoothstep(max(0.0, OUTLINE_CUTOFF - GLYPH_SMOOTH_RADIUS), min(1.0, OUTLINE_CUTOFF + GLYPH_SMOOTH_RADIUS), sampleDistance);
+    // Apply stroke (outline) cutoff
+    resultColor = vec4(resultColor.rgb, resultColor.a * outerEdgeAlpha);
+
+    vec2 topLeft = floor(uv / GLYPH_UV_SIZE) * GLYPH_UV_SIZE;
+    vec2 bottomRight = floor(uv / GLYPH_UV_SIZE) * GLYPH_UV_SIZE + vec2(GLYPH_UV_SIZE, GLYPH_UV_SIZE);
+
+    vec4 shadowSample = texture2D(TEXTURE_0, clamp(uv - SHADOW_OFFSET, topLeft, bottomRight));
+    float shadowDistance = shadowSample.a;
+    float shadowAlpha = smoothstep(max(0.0, OUTLINE_CUTOFF - SHADOW_SMOOTH_RADIUS), min(1.0, OUTLINE_CUTOFF + SHADOW_SMOOTH_RADIUS), shadowDistance);
+    // Apply shadow past the stroke
+    resultColor = mix(vec4(SHADOW_COLOR.rgb, SHADOW_COLOR.a * shadowAlpha), resultColor, outerEdgeAlpha);
+
+	  diffuse = resultColor;
+#else
+    diffuse *= color;
+#endif
+
+	gl_FragColor = diffuse * DARKEN;
+}

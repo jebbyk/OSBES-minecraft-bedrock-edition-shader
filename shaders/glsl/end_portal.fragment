@@ -1,0 +1,66 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroid.h"
+#include "uniformMacro.h"
+
+#if __VERSION__ >= 300
+	#ifndef BYPASS_PIXEL_SHADER
+		#if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
+			_centroid in highp vec2 colorLookupUV;
+			_centroid in highp vec2 parallaxUV;
+		#else
+			_centroid in vec2 colorLookupUV;
+			_centroid in highp vec2 parallaxUV;
+		#endif
+	#endif
+#else
+	#ifndef BYPASS_PIXEL_SHADER
+		varying vec2 colorLookupUV;
+		varying highp vec2 parallaxUV;
+	#endif
+#endif
+
+#ifndef BYPASS_PIXEL_SHADER
+	varying lowp vec4 encodedPlane;
+	#ifdef FOG
+		varying vec4 fogColor;
+	#endif
+#endif
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
+
+const float MAX_LAYER_DEPTH = 32.0;
+
+void main()
+{
+	#ifdef BYPASS_PIXEL_SHADER
+		gl_FragColor = vec4(0, 0, 0, 0);
+	#else
+
+	///// Color Assembly
+	vec4 colorSample = texture2D(TEXTURE_1, colorLookupUV);
+	vec4 textureSample = texture2D(TEXTURE_0, parallaxUV);
+	float brightness = 1.0 - (encodedPlane.w);
+	vec3 result = textureSample.rgb * colorSample.rgb * brightness;
+
+	#ifdef FOG
+		if(encodedPlane.w * MAX_LAYER_DEPTH > MAX_LAYER_DEPTH - 1.0) {
+			gl_FragColor = vec4(mix(vec3(0,0,0), fogColor.rgb, fogColor.a), 0);
+		}
+		else {
+			gl_FragColor = vec4(result * (1.0 - fogColor.a), 1);
+		}
+	#else
+		// Look for hard-coded value to clear the portal first
+		if(encodedPlane.w * MAX_LAYER_DEPTH > MAX_LAYER_DEPTH - 1.0) {
+			gl_FragColor = vec4(0, 0, 0, 0);
+		}
+		else {
+			gl_FragColor = vec4(result, 1);
+		}
+	#endif
+
+	#endif
+}

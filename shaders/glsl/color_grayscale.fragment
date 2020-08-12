@@ -1,0 +1,25 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroidUV.h"
+
+#include "uniformShaderConstants.h"
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+void main()
+{
+	vec4 diffuse = texture2D( TEXTURE_0, uv );
+
+#ifdef ALPHA_TEST
+	if(diffuse.a < 0.5)
+		discard;
+#endif
+
+	float grayscale = (CURRENT_COLOR.r * diffuse.r * 0.3 + CURRENT_COLOR.g * diffuse.g * 0.59 + CURRENT_COLOR.b * diffuse.b * 0.11);
+	vec4 gray_color = vec4(grayscale, grayscale, grayscale, CURRENT_COLOR.a * diffuse.a);
+	gl_FragColor = gray_color;
+}
+
+
+

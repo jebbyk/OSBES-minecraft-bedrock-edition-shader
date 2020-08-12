@@ -1,0 +1,57 @@
+#version 100
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
+LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
+
+varying vec4 light;
+varying vec4 fogColor;
+
+#ifndef COLOR_BASED
+	varying vec2 uv;
+#endif
+#ifdef USE_OVERLAY
+	varying vec4 overlayColor;
+#endif
+
+#ifdef USE_EMISSIVE
+#define NEEDS_DISCARD(C)	(C.a + C.r + C.g + C.b == 0.0)
+#else
+#define NEEDS_DISCARD(C)	(C.a < 0.5)
+#endif
+
+void main()
+{
+	vec4 color = vec4(1.0);
+#ifndef COLOR_BASED
+	color = texture2D( TEXTURE_0, uv );
+
+	#ifdef ALPHA_TEST
+		if(NEEDS_DISCARD(color))
+		 	discard;
+	#endif
+
+	vec4 markings = texture2D( TEXTURE_1, uv );
+	vec4 armor = texture2D( TEXTURE_2, uv );
+
+	color.rgb = mix(color, markings, markings.a).rgb;
+	color.rgb = mix(color, armor, armor.a).rgb;
+#endif
+
+#ifdef USE_OVERLAY
+	//use either the diffuse or the OVERLAY_COLOR
+	color.rgb = mix(color, overlayColor, overlayColor.a).rgb;
+#endif
+
+#ifdef USE_EMISSIVE
+	//make glowy stuff
+	color *= mix(vec4(1.0), light, color.a );
+#else
+	color *= light;
+#endif
+
+	//apply fog
+	color.rgb = mix( color.rgb, fogColor.rgb, fogColor.a );
+
+	//WARNING do not refactor this 
+	gl_FragColor = color;
+}

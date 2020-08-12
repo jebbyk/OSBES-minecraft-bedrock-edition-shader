@@ -1,0 +1,24 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#include "fragmentVersionSimple.h"
+
+varying vec4 ColorOut;
+varying vec4 AdditionalOut;
+varying vec3 ScreenNormalPosition;
+
+void main() {
+	float alpha = 1.0;
+	vec4 outColor = ColorOut;
+
+	vec2 posPixels = ScreenNormalPosition.xy;
+	float de = length(posPixels - AdditionalOut.xy);
+	float distance2OuterEdge = de - (AdditionalOut.z + AdditionalOut.w / 2.0);
+	float distance2InnerEdge = de - (AdditionalOut.z - AdditionalOut.w / 2.0);
+	alpha = clamp(0.5 - distance2OuterEdge, 0.0, 1.0);
+	alpha *= 1.0 - clamp(0.5 - distance2InnerEdge, 0.0, 1.0);
+
+	gl_FragColor = outColor * alpha;
+}

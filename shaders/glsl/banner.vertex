@@ -1,0 +1,122 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "vertexVersionCentroid.h"
+
+#include "uniformWorldConstants.h"
+#include "uniformEntityConstants.h"
+#include "uniformPerFrameConstants.h"
+#include "uniformBannerConstants.h"
+#ifdef USE_SKINNING
+#include "uniformAnimationConstants.h"
+#endif
+
+attribute mediump vec4 POSITION;
+attribute vec2 TEXCOORD_0;
+attribute vec4 NORMAL;
+attribute vec4 COLOR;
+#if defined(USE_SKINNING)
+#ifdef MCPE_PLATFORM_NX
+attribute uint BONEID_0;
+#else
+attribute float BONEID_0;
+#endif
+#endif
+
+#if __VERSION__ >= 300
+_centroid varying vec4 uv;
+#else
+varying vec4 uv;
+#endif
+
+#ifdef ENABLE_FOG
+varying vec4 fogColor;
+#endif
+
+#ifdef ENABLE_LIGHT
+varying vec4 light;
+#endif
+
+#ifndef DISABLE_TINTING
+varying vec4 color;
+#endif
+
+const float AMBIENT = 0.45;
+
+const float XFAC = -0.1;
+const float ZFAC = 0.1;
+
+float lightIntensity() {
+#ifdef FANCY
+#ifdef USE_SKINNING
+#if defined(LARGE_VERTEX_SHADER_UNIFORMS)
+    vec3 N = normalize(BONES[int(BONEID_0)] * NORMAL).xyz;
+#else
+    vec3 N = normalize(BONE * NORMAL).xyz;
+#endif
+#else
+    vec3 N = normalize(WORLD * NORMAL).xyz;
+#endif
+
+    N.y *= TILE_LIGHT_COLOR.w; //TILE_LIGHT_COLOR.w contains the direction of the light
+
+    //take care of double sided polygons on materials without culling
+#ifdef FLIP_BACKFACES
+#ifdef USE_SKINNING
+#if defined(LARGE_VERTEX_SHADER_UNIFORMS)
+    vec3 viewDir = normalize((BONES[int(BONEID_0)] * POSITION).xyz);
+#else
+	vec3 viewDir = normalize((BONE * POSITION).xyz);
+#endif
+#else
+    vec3 viewDir = normalize((WORLD * POSITION).xyz);
+#endif
+    if( dot(N, viewDir) > 0.0 ) {
+        N *= -1.0;
+    }
+#endif
+
+    float yLight = (1.0+N.y) * 0.5;
+    return yLight * (1.0-AMBIENT) + N.x*N.x * XFAC + N.z*N.z * ZFAC + AMBIENT;
+#else
+    return 1.0;
+#endif
+}
+
+
+void main()
+{
+#ifdef USE_SKINNING
+#if defined(LARGE_VERTEX_SHADER_UNIFORMS)
+    POS4 pos = WORLDVIEWPROJ * BONES[int(BONEID_0)] * POSITION;
+#else
+	POS4 pos = WORLDVIEWPROJ * BONE * POSITION;
+#endif
+#else
+    POS4 pos = WORLDVIEWPROJ * POSITION;
+#endif
+    gl_Position = pos;
+
+#ifdef ENABLE_LIGHT
+    float L = lightIntensity();
+    light = vec4(vec3(L) * TILE_LIGHT_COLOR.xyz, 1.0);
+#endif
+   
+	int frameIndex = int((COLOR.a * 255.0) + 0.5);
+	uv.xy = (TEXCOORD_0.xy * BANNER_UV_OFFSETS_AND_SCALES[frameIndex].zw) + BANNER_UV_OFFSETS_AND_SCALES[frameIndex].xy;
+	uv.zw = (TEXCOORD_0.xy * BANNER_UV_OFFSETS_AND_SCALES[0].zw) + BANNER_UV_OFFSETS_AND_SCALES[0].xy;
+
+#ifndef DISABLE_TINTING
+	color = BANNER_COLORS[frameIndex];
+	color.a = 1.0;
+	if (frameIndex > 0) {
+		color.a = 0.0;
+	}
+#endif
+    
+#ifdef ENABLE_FOG
+//fog
+    fogColor.rgb = FOG_COLOR.rgb;
+    fogColor.a = clamp(((pos.z / RENDER_DISTANCE) - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
+#endif
+}

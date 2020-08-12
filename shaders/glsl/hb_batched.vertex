@@ -1,0 +1,36 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#if __VERSION__ >= 300
+	#include "vertexVersionSimple.h"
+
+	attribute highp vec3 HB_POSITION;
+	attribute vec4 HB_COLOR;
+	attribute vec4 HB_ADDITIONAL;
+
+	varying vec4 ColorOut;
+	varying vec4 AdditionalOut;
+	flat varying float ShaderTypeOut;
+
+	void main() {
+		ShaderTypeOut = HB_ADDITIONAL.w;
+
+		vec4 outPos = vec4(HB_POSITION, 1.0);
+
+		// Translate to -1..1 with perspective correction
+		float w = outPos.w;
+		outPos.x = outPos.x * 2.0 - w;
+		outPos.y = (w - outPos.y) * 2.0 - w;
+
+		ColorOut = HB_COLOR;
+		AdditionalOut = HB_ADDITIONAL;
+
+		gl_Position = outPos;
+	}
+#else
+	void main() {
+		gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+	}
+#endif

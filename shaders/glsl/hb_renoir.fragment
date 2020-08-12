@@ -1,0 +1,52 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#include "fragmentVersionSimple.h"
+
+#include "uniformUIRenoirShaderPSConstants.h"
+
+varying vec4 ColorOut;
+varying vec4 AdditionalOut;
+// We need this here even if we do not use it as some drivers require
+// the verying variables to match between the vertex and fragment shaders.
+varying vec3 ScreenNormalPosition;
+varying vec4 VaryingParam0;
+varying vec4 VaryingParam1;
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1; // Mask texture
+LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2; // Gradient texture
+
+void main() {
+	float tVal;
+#if defined(GRADIENT_LINEAR)
+	tVal = VaryingParam0.x;
+#elif defined(GRADIENT_RADIAL)
+	tVal = length(VaryingParam0.xy);
+#endif
+
+	vec4 colorTemp;
+#if defined(GRADIENT_2PT)
+	colorTemp = mix(RENOIR_SHADER_PS_PROPS_0, RENOIR_SHADER_PS_PROPS_2, clamp(tVal, 0.0, 1.0));
+#elif defined(GRADIENT_3PTSYMM)
+	float oneMinus2t = 1.0 - (2.0 * tVal);
+	colorTemp = clamp(oneMinus2t, 0.0, 1.0) * RENOIR_SHADER_PS_PROPS_0;
+	colorTemp += (1.0 - min(abs(oneMinus2t), 1.0)) * RENOIR_SHADER_PS_PROPS_1;
+	colorTemp += clamp(-oneMinus2t, 0.0, 1.0) * RENOIR_SHADER_PS_PROPS_2;
+#elif defined(GRADIENT_FROMTEX)
+	vec2 coord = vec2(tVal, RENOIR_SHADER_PS_PROPS_3.x);
+	colorTemp = texture2D(TEXTURE_2, coord);
+#elif defined(COLOR_FROMTEX)
+	colorTemp = texture2D(TEXTURE_0, AdditionalOut.xy);
+#endif
+
+#if defined(HAS_MASK)
+	float mask = texture2D(TEXTURE_1, vec2(VaryingParam1.x, 1.0 - VaryingParam1.y)).r;
+	colorTemp *= mask;
+#endif
+
+	gl_FragColor = colorTemp;
+}
+

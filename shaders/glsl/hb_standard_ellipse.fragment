@@ -1,0 +1,51 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#include "fragmentVersionSimple.h"
+
+#include "uniformUIGlobalPixelConstants.h"
+
+varying vec4 ColorOut;
+varying vec4 AdditionalOut;
+varying vec3 ScreenNormalPosition;
+
+void main() {
+#if defined(NO_DERIVATIVES)
+	float alpha = 1.0;
+	vec4 outColor = ColorOut;
+	vec2 pixel_step = vec2( 1.0 / VIEWPORT_SIZE.x, 1.0 / VIEWPORT_SIZE.y);
+
+	vec2 offset = (ScreenNormalPosition.xy - AdditionalOut.xy) / AdditionalOut.zw;
+	float test = dot(offset, offset) - 1.0;
+	vec2 newOffset = (ScreenNormalPosition.xy + vec2(pixel_step.x, 0) - AdditionalOut.xy) / (AdditionalOut.zw);
+	vec2 dudx = newOffset - offset;
+	newOffset = (ScreenNormalPosition.xy + vec2(0, pixel_step.y) - AdditionalOut.xy) / (AdditionalOut.zw);
+	vec2 dudy = newOffset - offset;
+	vec2 gradient = vec2(2.0 * offset.x * dudx.x + 2.0 * offset.y * dudx.y,
+							2.0 * offset.x * dudy.x + 2.0 * offset.y * dudy.y);
+	float grad_dot = max(dot(gradient, gradient), 1.0e-4);
+	float invlen = inversesqrt(grad_dot);
+
+	alpha = clamp(0.5 - test * invlen, 0.0, 1.0);
+
+	gl_FragColor = outColor * alpha;
+#else
+	float alpha = 1.0;
+	vec4 outColor = ColorOut;
+
+	vec2 offset = (ScreenNormalPosition.xy - AdditionalOut.xy) / AdditionalOut.zw;
+	float test = dot(offset, offset) - 1.0;
+	vec2 dudx = dFdx(offset);
+	vec2 dudy = dFdy(offset);
+	vec2 gradient = vec2(2.0 * offset.x * dudx.x + 2.0 * offset.y * dudx.y,
+							2.0 * offset.x * dudy.x + 2.0 * offset.y * dudy.y);
+	float grad_dot = max(dot(gradient, gradient), 1.0e-4);
+	float invlen = inversesqrt(grad_dot);
+
+	alpha = clamp(0.5 - test * invlen, 0.0, 1.0);
+
+	gl_FragColor = outColor * alpha;
+#endif
+}

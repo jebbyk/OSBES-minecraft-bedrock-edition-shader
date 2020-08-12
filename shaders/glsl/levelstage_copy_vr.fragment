@@ -1,0 +1,11 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroidUV.h"
+
+// This shader isn't actually used in OGL, we have to have an OGL shader since a material refers to the DX version
+// and thus this also needs to exist on the OGL side.
+void main()
+{
+	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}

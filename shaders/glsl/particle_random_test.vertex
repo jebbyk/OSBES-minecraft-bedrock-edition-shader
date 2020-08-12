@@ -1,0 +1,61 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "vertexVersionCentroidUV.h"
+
+#include "uniformWorldConstants.h"
+#include "uniformEntityConstants.h"
+#include "uniformPerFrameConstants.h"
+
+attribute mediump vec4 POSITION;
+attribute vec4 COLOR;
+attribute vec4 NORMAL;
+attribute vec2 TEXCOORD_0;
+
+varying vec4 color;
+
+#ifdef ENABLE_FOG
+varying vec4 fogColor;
+#endif
+
+#ifdef GLINT
+varying vec2 layer1UV;
+varying vec2 layer2UV;
+
+vec2 calculateLayerUV(float offset, float rotation) {
+	vec2 uv = TEXCOORD_0;
+	uv -= 0.5;
+	float rsin = sin(rotation);
+	float rcos = cos(rotation);
+	uv = mat2(rcos, -rsin, rsin, rcos) * uv;
+	uv.x += offset;
+	uv += 0.5;
+
+	return uv * GLINT_UV_SCALE;
+}
+#endif
+
+void main()
+{
+	gl_Position = WORLDVIEWPROJ * POSITION;
+
+	color = COLOR;
+	uv = TEXCOORD_0;
+
+#ifdef ENABLE_FOG
+	//fog
+    fogColor.rgb = FOG_COLOR.rgb;
+	fogColor.a = clamp(((gl_Position.z / RENDER_DISTANCE) - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
+#endif
+
+#ifdef USE_LIGHTING
+	color *= vec4(TILE_LIGHT_COLOR.xyz, 1.0);
+#endif
+
+	color *= NORMAL;
+
+#ifdef GLINT
+	layer1UV = calculateLayerUV(UV_OFFSET.x, UV_ROTATION.x);
+	layer2UV = calculateLayerUV(UV_OFFSET.y, UV_ROTATION.y);
+#endif
+}

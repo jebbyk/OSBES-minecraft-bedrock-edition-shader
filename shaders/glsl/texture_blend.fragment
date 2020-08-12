@@ -1,0 +1,33 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroid.h"
+#include "uniformMacro.h"
+
+#if __VERSION__ >= 300
+_centroid in vec2 uv;
+_centroid in vec2 uv1;
+#else
+varying vec2 uv;
+varying vec2 uv1;
+#endif
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+#include "uniformShaderConstants.h"
+
+void main()
+{
+	vec4 color = texture2D( TEXTURE_0, uv );
+	vec4 color1 = texture2D( TEXTURE_0, uv1 );
+
+	if (color.a < 0.01)
+	{
+		color = color1;
+	}
+	else if (color1.a >= 0.01) {
+		color = mix(color, color1, CURRENT_COLOR.a);
+	}
+
+	gl_FragColor = color;
+}

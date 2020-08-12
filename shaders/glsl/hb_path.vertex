@@ -1,0 +1,24 @@
+// __multiversion__
+// This shader is from the Gameface library modified to work in the
+// Bedrock engine and heavily depends on Gameface's functionality, why
+// some numbers and values seem arbitrary or "magic".
+
+#include "vertexVersionSimple.h"
+#include "uniformUITransformsConstants.h"
+
+attribute highp vec4 HB_POSITION;
+
+varying vec2 ExtraParams;
+
+void main() {
+	vec4 outPos = vec4(HB_POSITION.xy, 0.0, 1.0) * TRANSFORM;
+
+	// Translate to -1..1 with perspective correction
+	float w = outPos.w;
+	outPos.x = outPos.x * 2.0 - w;
+	outPos.y = (w - outPos.y) * 2.0 - w;
+
+	ExtraParams = HB_POSITION.zw;
+
+	gl_Position = outPos;
+}
