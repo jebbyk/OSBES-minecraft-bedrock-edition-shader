@@ -23,7 +23,7 @@
 varying vec4 color;//TODO what is this color??
 vec4 normalColor;// fake normal vector will be stored here or may be later will be passed from vertex shader
 varying vec4 position;// get pixel position in world space (used for calculate fake normals)
-varying vec3 relativePosition;//calculates from vec4 position
+varying highp vec3 relativePosition;//calculates from vec4 position
 #ifdef FOG
 	varying vec4 fogColor;
 #endif //FOG
@@ -77,6 +77,8 @@ vec4 inColor = color;
 
 #if !defined(ALWAYS_LIT)
 
+	//diffuse.rgb *= inColor.rgb;
+	//diffuse.a = inColor.a;
 
 	//TODO try to calculate not doublesided normals
 	//TODO or try to get normals from vertex shader (currently it is not available or just returns messy stuff) 
@@ -88,25 +90,21 @@ vec4 inColor = color;
 
 
 	
-	vec4 skyLightColor = vec4(0.25,0.5,1.0,0.0);//todo connect with time attribute
+	vec4 skyLightColor = vec4(0.5,0.75,1.0,0.0);//todo connect with time attribute
 	vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
 	float skyLightWrapping = 4.0;//make sky lighting from sides too
-	//TODO try to use normal maps (but our fake normals are "doublesided" -x = x, -y = y, -z = z)
+	//TODO try to use normal maps 
 	float dotAngle = max((dot(skyLightDirection, normalColor.rgb) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
 	vec4 skyLightPerPixel = skyLightColor * dotAngle;
-	skyLightPerPixel.a = 1.0; 
+	skyLightPerPixel.a = 1.0;
 
 
 
-	vec3 sunLightDirection = vec3(0.5,0.8,0.0);//todo connect with time attribute
-	vec3 sunLightColor = vec3(1.75,1.0, 0.75);//todo connect with time attribute
+	vec3 sunLightDirection = vec3(0.5,0.5,0.0);//todo connect with time attribute
+	vec3 sunLightColor = vec3(1.0, 0.9, 0.8);//todo connect with time attribute
 	float sunDotAngle = max(dot(sunLightDirection, normalColor.rgb), 0.0);//todo use normalmaps to represent surface details
 	vec4 sunLightPerPixel = vec4(sunLightColor * sunDotAngle, 0.0);
 
-
-
-	vec4 gameLightsTint = vec4(1.0,0.75,0.5,0.0);
-	vec4 rawDiffuseColor = diffuse;//save diffuse color before apply lighting
 
 	vec4 pointLights = pow(texture2D(TEXTURE_1, vec2(uv1.x, 0.0)), vec4(4.0,4.0,4.0,4.0));
 
@@ -116,69 +114,40 @@ vec4 inColor = color;
 
 
 	//fake effect when light bounses from surface if hits it with very small angle	
-	float fresnelFactor = 0.05;
-	vec4 fresnelColor = vec4(0.25,0.5,1.0,1.0);
-	vec3 V = normalize(relativePosition.xyz);
+	float fresnelFactor = 5.0;
+	highp vec3 V = normalize(relativePosition.xyz);
 	vec3 N = normalize(normalColor.rgb);
-	float fresnel = pow(1.0 - dot(N, V), fresnelFactor * pow(3.0 - length(diffuse.rgb),4.0));
+	float fresnel = pow(1.0 - dot(N, V), fresnelFactor);
 
 	if(fresnel > 1.0) { //because of our fake normals we should do this trick
 		V = normalize(-relativePosition.xyz);//minus relative position
 		N = normalize(normalColor.rgb);
-		//TODO now texture pixel brightness used to calculate fresnel power
 		//TODO use specular maps to represent material roughness
 		//todo use normal maps to represent surface details
-		//fresnel = pow(1.0 - dot(N, V), fresnelFactor * pow(3.0 - length(rawDiffuseColor.rgb),4.0));
-		//this one more correct, but the variant below hides fake normals grid issue
-		fresnel = pow(1.0 - dot(N, V), fresnelFactor * pow(3.0 - length(diffuse.rgb),4.0));
+		fresnel = pow(1.0 - dot(N, V), fresnelFactor);
 	}
-	if(fresnel < 0.0){//for plants and water (cant calculater normals for them :-/)
-		fresnel = 0.0;
-	}
-	vec4 perPixelFresnel = vec4(fresnel, fresnel, fresnel,1.0) * fresnelColor;
-
 
 
 	//mix lighting
-	vec4 resultLighting = ambientOclusion * 0.5;
-	resultLighting += skyLightPerPixel * 0.5 * pow(ambientOclusion, vec4(1.3, 1.3, 1.3, 0.0));
-	resultLighting += pointLights * 2.0;
-	resultLighting += sunLightPerPixel * fakeShadow;
-	diffuse *= resultLighting;
-	diffuse += perPixelFresnel * (pow(ambientOclusion, vec4(1.3, 1.3, 1.3, 0.0)) + pointLights);
-
-	//debug section
-	//diffuse = fakeShadow;
-	//diffuse = ambientOclusion;
-	//diffuse = pointLights;
-	//diffuse *= gameLight * gameLightsTint;
-	//diffuse = /*sunLightPerPixel /*+ skyColorPerPixel */ gameLight /** gameLightsTint.rrrr*/;
-	//diffuse *= /*sunLightPerPixel + skyColorPerPixel +*/ gameLight /** gameLightsTint*/;
-
+	vec4 resultLighting = ambientOclusion * 0.5 * skyLightPerPixel;
+	vec4 perPixelFresnel = vec4(resultLighting.rgb * 2.0, fresnel);
+	resultLighting += sunLightPerPixel * fakeShadow * 2.0;
+	resultLighting += pointLights;
+	diffuse.rgb *= resultLighting.rgb * 2.0;
+	diffuse.rgb += perPixelFresnel.rgb * perPixelFresnel.a * 0.5;
 
 #endif //ALWAYS_LIT
 
 
-//what is this seasons??????? what the f*** is this huh?
+
 #ifndef SEASONS
 	#if !USE_ALPHA_TEST && !defined(BLEND)
 		diffuse.a = inColor.a;//with this parameter we can detirmane if it's water, or leaves or a ground
 	#endif //USE_ALPHA_TEST
-		//I don't know why it's here but it's a "ssao" of blocks corners and I make them to be like shadows
-		//if((inColor.r + inColor.g + inColor.b)/3.0 < 0.4){
-		//	inColor.rgb = vec3(0.3,0.3,0.3);
-		//}
-		//if(inColor.a < 0.5){
-		//	inColor.rgb = vec3(0.1,0.1,0.1);
-		//}
-		//diffuse.rgb = inColor.rgb;
 		diffuse.rgb *= inColor.rgb;
 #else
 	//vec2 uv = inColor.xy;
 	//diffuse.rgb *= mix(vec3(1.0,1.0,1.0), texture2D( TEXTURE_2, uv).rgb*2.0, inColor.b);
-	/*if(inColor.a < 0.9){
-		inColor.a = 0.1;
-	}*/
 	//diffuse.rgb *= inColor.aaa;
 	//diffuse.a = 1.0;
 #endif //SESONS;
@@ -196,14 +165,11 @@ vec4 inColor = color;
 #endif //FOG
 
 	vec4 colorCorrectionContrast = vec4(1.5, 1.25, 1.0, 1.0);
-    vec4 colorCorrectionTint = vec4(1.5,1.25,1.0,1.0);
-    float colorCorrectionSaturation = 0.9;
-    float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)/3.0;
-    diffuse = atan(pow(diffuse * colorCorrectionTint, colorCorrectionContrast));//avoid super bright areas (atan(x) can't be grater then 1.0)
-    diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);
-
-
-	//diffuse = normalColor;
+	vec4 colorCorrectionTint = vec4(1.5,1.25,1.0,1.0);
+	float colorCorrectionSaturation = 0.9;
+	float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)/3.0;
+	diffuse = atan(pow(diffuse * colorCorrectionTint, colorCorrectionContrast));//avoid super bright areas (atan(x) can't be grater then 1.0)
+	diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);
 
 	gl_FragColor = diffuse;	
 #endif // BYPASS_PIXEL_SHADER
