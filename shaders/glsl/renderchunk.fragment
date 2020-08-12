@@ -170,7 +170,6 @@ vec4 inColor = color;
 	float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)/3.0;
 	diffuse = atan(pow(diffuse * colorCorrectionTint, colorCorrectionContrast));//avoid super bright areas (atan(x) can't be grater then 1.0)
 	diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);
-
 	gl_FragColor = diffuse;	
 #endif // BYPASS_PIXEL_SHADER
 }
