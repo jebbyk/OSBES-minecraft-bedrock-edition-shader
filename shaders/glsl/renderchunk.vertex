@@ -42,6 +42,7 @@ const float DIST_DESATURATION = 56.0 / 255.0; //WARNING this value is also hardc
 
 void main()
 {
+
     POS4 worldPos;
 #ifdef AS_ENTITY_RENDERER
 		POS4 pos = WORLDVIEWPROJ * POSITION;
