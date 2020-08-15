@@ -160,11 +160,10 @@ vec4 inColor = color;
 
 	//TODO user actual position instead of relativePosition;
 	vec4 milkyFogColor = vec4 (0.8, 0.9, 1.0, 0.0);
-	float milkyFogHeightOffset = 4.0 ;
-	float milkyFogHeightAtenuation = 16.0;
-	milkyFogColor.a = (relativePosition.y + milkyFogHeightOffset) / milkyFogHeightAtenuation;
+	float milkyFogHeightAtenuation = 32.0;
+	milkyFogColor.a = relativePosition.y / milkyFogHeightAtenuation;
 	milkyFogColor.a = pow(clamp(milkyFogColor.a, 0.0, 1.0), 1.5);
-	milkyFogColor.a *= ownFogAlpha/ (RENDER_DISTANCE / 2.0);
+	milkyFogColor.a *= ownFogAlpha / (RENDER_DISTANCE / 2.0);
 	milkyFogColor.a = clamp(milkyFogColor.a, 0.0, 0.75);
 	diffuse.rgb = mix(diffuse.rgb, milkyFogColor.rgb, milkyFogColor.a);
 #ifdef FOG
