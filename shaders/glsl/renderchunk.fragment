@@ -105,6 +105,13 @@ vec4 inColor = color;
 	float sunDotAngle = max(dot(sunLightDirection, normalColor.rgb), 0.0);//todo use normalmaps to represent surface details
 	vec4 sunLightPerPixel = vec4(sunLightColor * sunDotAngle, 0.0);
 
+	//specular phong lighting
+	highp vec3 viewDir = normalize(relativePosition.xyz);
+	vec3 reflectDir = reflect(normalize(-vec3(0.0,0.2,0.8)), normalize(normalColor.rgb));
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0 * length(diffuse.rgb));
+	vec3 perPixelSpecular = spec * sunLightColor;
+	//vec3 perPixelSpecular = reflectDir;
+
 
 	vec4 pointLights = pow(texture2D(TEXTURE_1, vec2(uv1.x, 0.0)), vec4(4.0,4.0,4.0,4.0));
 
@@ -141,8 +148,21 @@ vec4 inColor = color;
 #ifndef SEASONS
 	#if !USE_ALPHA_TEST && !defined(BLEND)
 		diffuse.a = inColor.a;//with this parameter we can detirmane if it's water, or leaves or a ground
+		if(inColor.b > inColor.r && inColor.b > inColor.g){
+			diffuse.a += perPixelFresnel.a * 10.0;
+		}
 	#endif //USE_ALPHA_TEST
 		//there we can get fake "ssao" (maybe)
+
+		if(inColor.b > inColor.r && inColor.b > inColor.g){
+			float len = length(inColor.rgb);
+			inColor.rgb = vec3(len,len,len);
+			vec3 waterLight = perPixelFresnel.a * perPixelFresnel.rgb + perPixelFresnel.a * perPixelSpecular;
+			inColor.rgb = (inColor.rgb / 8.0) + waterLight;
+			diffuse.a = 1.0;
+			//diffuse.a = perPixelFresnel.a;
+		}
+		
 		diffuse.rgb *= inColor.rgb;
 #else
 	//vec2 uv = inColor.xy;
@@ -155,16 +175,17 @@ vec4 inColor = color;
 	//TODO connect FOG_COLOR.rgb (available here 100%) and TIME attribute (hope is available) with ownFogColor value
 	//to change its color depending on day/night cicle and weater
 	vec3 ownFogColor = vec3(0.25,0.35,1.0);
-	diffuse.rgb = mix(diffuse.rgb, ownFogColor, clamp(atan(ownFogAlpha / (RENDER_DISTANCE/2.0)),0.0,0.75));
+	diffuse.rgb = mix(diffuse.rgb, ownFogColor, clamp(atan(ownFogAlpha / (RENDER_DISTANCE / 1.5)),0.0,0.75));
 
 
 	//TODO user actual position instead of relativePosition;
-	vec4 milkyFogColor = vec4 (0.8, 0.9, 1.0, 0.0);
+	vec4 milkyFogColor = vec4 (0.6, 0.8, 1.4, 0.0);
+	float milkyFogHeightOffset = 6.0;
 	float milkyFogHeightAtenuation = 32.0;
-	milkyFogColor.a = relativePosition.y / milkyFogHeightAtenuation;
+	milkyFogColor.a = (relativePosition.y + milkyFogHeightOffset) / milkyFogHeightAtenuation;
 	milkyFogColor.a = pow(clamp(milkyFogColor.a, 0.0, 1.0), 1.5);
 	milkyFogColor.a *= ownFogAlpha / (RENDER_DISTANCE / 2.0);
-	milkyFogColor.a = clamp(milkyFogColor.a, 0.0, 0.75);
+	milkyFogColor.a = clamp(milkyFogColor.a, 0.0, 1.0);
 	diffuse.rgb = mix(diffuse.rgb, milkyFogColor.rgb, milkyFogColor.a);
 #ifdef FOG
 
@@ -175,7 +196,7 @@ vec4 inColor = color;
 
 	vec4 colorCorrectionContrast = vec4(1.5, 1.25, 1.0, 1.0);
 	vec4 colorCorrectionTint = vec4(1.5,1.25,1.0,1.0);
-	float colorCorrectionSaturation = 0.9;
+	float colorCorrectionSaturation = 0.8;
 	float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)/3.0;
 	diffuse = atan(pow(diffuse * colorCorrectionTint, colorCorrectionContrast));//avoid super bright areas (atan(x) can't be grater then 1.0)
 	diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);

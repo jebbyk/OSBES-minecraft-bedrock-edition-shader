@@ -18,5 +18,12 @@ void main()
 {
     gl_Position = WORLDVIEWPROJ * POSITION;
 
+	//color = COLOR;
+
+	//color = POSITION;
+
+	//vec4 milkyFogColor = vec4(0.8, 0.9, 1.0, 1.0);
+	//color = mix(CURRENT_COLOR, milkyFogColor, COLOR.r);
+
     color = mix( CURRENT_COLOR, FOG_COLOR, COLOR.r );
 }
