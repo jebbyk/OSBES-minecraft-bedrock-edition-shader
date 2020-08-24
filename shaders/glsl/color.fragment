@@ -7,11 +7,6 @@ varying vec4 color;
 
 void main()
 {
-	/*float r = color.r;
-	float g = color.g;
-	float b = color.b;
-	
-	float l = (color.r + color.g + color.b)/3.0;
-	*/
+	// it is about the sky
 	gl_FragColor = color;
 }

@@ -22,7 +22,7 @@
 
 varying vec4 color;//TODO what is this color??
 vec4 normalColor;// fake normal vector will be stored here or may be later will be passed from vertex shader
-varying vec4 position;// get pixel position in world space (used for calculate fake normals)
+varying highp vec4 position;// get pixel position in world space (used for calculate fake normals)
 varying highp vec3 relativePosition;//calculates from vec4 position
 #ifdef FOG
 	varying vec4 fogColor;
@@ -40,20 +40,40 @@ varying highp float ownFogAlpha;
 void main()
 {
 #ifdef BYPASS_PIXEL_SHADER
-	gl_FragColor = vec4(0, 0, 0, 0);
+	gl_FragColor = vec4(1.0, 0, 0, 1.0);
 	return;
 #else 
 
-
-//texture_0 - diffuse texture (grass, stone, sand, wood etc.)
+float num = 0.08;//texture_0 - diffuse texture (grass, stone, sand, wood etc.)
 #if USE_TEXEL_AA
-	vec4 diffuse = texture2D_AA(TEXTURE_0, uv0);
-#else
-	vec4 diffuse = texture2D(TEXTURE_0, uv0);
+	
+	vec4 diffuse = texture2D_AA(TEXTURE_0,uv0);
+	//vec4 normalMap = texture2D_AA(TEXTURE_0, vec2(uv0.x*0.016, uv0.y*0.016 + 0.5));
+	//vec4 specularMap = texture2D_AA(TEXTURE_0, uv0 * 3.0);
+	#else
+	//TODO try to add normalmaps
+	//vec2 coordScale = vec2(64.0, 32.0);
+	//vec4 diffuse = texture2D(TEXTURE_0,uv0);
+	
+
+	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 32.0);
+
+	//by default texture demensions 1.0, 0.5
+	highp vec2 textureScale = vec2(32.0,32.0);//but here we has 1.0, 1.0. with custom texuture pack you should check result texture  dimensions
+	//top left texture - default diffuse
+	highp vec2 localDiffuseCoord = fract(uv0 * textureScale)/(textureScale * 2.0);
+	//bottom left  texture - normalmap
+	highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 1.0/64.0);
+	//top right texture - specular map
+	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(1.0/64.0, 0.0);
+
+	vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
+	vec4 normalMap = texture2D(TEXTURE_0, uv0 - localNormalCoord);
+	vec4 specularMap = texture2D(TEXTURE_0, uv0 - localSpecularCoord);
 #endif //USE_TEXEL_AA
 
 
-//what is this? can anyone explane?
+//maybe it's about LOD (far trees and water becomes opaque)
 #ifdef SEASONS_FAR
 	diffuse.a = 1.0;
 #endif //SEASONS_FAR
@@ -66,13 +86,13 @@ void main()
 	#define ALPHA_THRESHOLD 0.5
 	#endif //APLPHA_TO_COVERAGE
 	if(diffuse.a < ALPHA_THRESHOLD)
-		discard;
+		discard;//catout leaves and grass
 #endif //USE_ALPHA_TEST
 	
 vec4 inColor = color;
 
 #if defined(BLEND)
-	diffuse.a *= inColor.a;
+	//diffuse.a *= inColor.a;
 #endif //BLEND
 
 #if !defined(ALWAYS_LIT)
@@ -83,12 +103,27 @@ vec4 inColor = color;
 	//TODO try to calculate not doublesided normals
 	//TODO or try to get normals from vertex shader (currently it is not available or just returns messy stuff) 
 	normalColor = vec4(1.0 - ceil(fract(position.xyz)), 1.0);//calculate fake normals
+	//normalColor.rgb = normalize(vec3(normalColor.rg * normalMap.b + normalMap.rg*normalColor.b, normalColor.b * normalMap.b));
+	//normalColor = normalize(normalColor);
 	//after previos calculation normalColor for plants and water is black
+	//todo maybe it can be used to derirmine if there is a water;
 	if(length(normalColor.rgb) < 1.0){
 		normalColor.rgb = vec3(0.0,1.0,0.0);//make them green like they are locking on top
 	}
 
 
+	//if(length(normalMap.rgb) > 0.5){
+		//simple blending
+		//normalColor.rgb = normalize(normalColor.rgb + normalMap.rgb);
+		//normalColor.rgb = noramlMap.rgb * 0.5 + 0.5;
+		
+		//complex blending
+		//normalColor.rgb = normalColor.rgb * 2.0 - 1.0;
+		//normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+		//vec2 pd = normalColor.rg/normalColor.b + normalMap.rg/normalMap.b;
+		//normalColor.rgb = normalize(vec3(pd, 1.0));
+		//normalColor.rgb = normalize(normalColor.rgb * 0.5 + 0.5);
+	//}
 	
 	vec4 skyLightColor = vec4(0.5,0.75,1.0,0.0);//todo connect with time attribute
 	vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
@@ -107,9 +142,9 @@ vec4 inColor = color;
 
 	//specular phong lighting
 	highp vec3 viewDir = normalize(relativePosition.xyz);
-	vec3 reflectDir = reflect(normalize(-vec3(0.0,0.2,0.8)), normalize(normalColor.rgb));
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0 * length(diffuse.rgb));
-	vec3 perPixelSpecular = spec * sunLightColor;
+	vec3 reflectDir = reflect(normalize(-vec3(0.8,0.2,0.0)), normalize(normalColor.rgb));
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0 * length(specularMap.rgb));
+	vec4 perPixelSpecular = vec4(sunLightColor * 1.5, spec * length(specularMap.rgb));
 	//vec3 perPixelSpecular = reflectDir;
 
 
@@ -121,49 +156,40 @@ vec4 inColor = color;
 
 
 	//fake effect when light bounses from surface if hits it with very small angle
-	float fresnelFactor = 5.0;
+	float fresnelFactor = 1.0;
 	highp vec3 V = normalize(relativePosition.xyz);
 	vec3 N = normalize(normalColor.rgb);
-	float fresnel = pow(1.0 - dot(N, V), fresnelFactor);
+	float fresnel = pow(1.0 - dot(N, V), fresnelFactor / length(specularMap.rgb));
 
 	if(fresnel > 1.0) {//because of our fake normals we should do this trick
 		V = normalize(-relativePosition.xyz);//minus relative position
 		N = normalize(normalColor.rgb);
-		fresnel = pow(1.0 - dot(N, V), fresnelFactor);
+		fresnel = pow(1.0 - dot(N, V), fresnelFactor / length(specularMap.rgb));
 	}
 
 
 	//mix lighting
 	vec4 resultLighting = ambientOclusion * 0.5 * skyLightPerPixel;
-	vec4 perPixelFresnel = vec4(resultLighting.rgb * 2.0, fresnel);
+	vec4 perPixelFresnel = vec4(resultLighting.rgb * 2.0, fresnel * length(specularMap.rgb));
 	resultLighting += sunLightPerPixel * fakeShadow * 2.0;
 	resultLighting += pointLights;
+	//perPixelSpecular.a += perPixelSpecular.a * length(resultLighting.rgb);
 	diffuse.rgb *= resultLighting.rgb * 1.8;
-	diffuse.rgb += perPixelFresnel.rgb * perPixelFresnel.a * 0.75;
-
+	diffuse.rgb += perPixelFresnel.rgb * perPixelFresnel.a * length(specularMap.rgb);
+	//diffuse.rgb += perPixelSpecular.rgb * perPixelSpecular.a;
 #endif //ALWAYS_LIT
 
 
 
 #ifndef SEASONS
 	#if !USE_ALPHA_TEST && !defined(BLEND)
-		diffuse.a = inColor.a;//with this parameter we can detirmane if it's water, or leaves or a ground
-		if(inColor.b > inColor.r && inColor.b > inColor.g){
-			diffuse.a += perPixelFresnel.a * 10.0;
-		}
+		//diffuse.a = inColor.a;//with this parameter we can detirmane if it's water, or leaves or a ground
 	#endif //USE_ALPHA_TEST
-		//there we can get fake "ssao" (maybe)
-
-		if(inColor.b > inColor.r && inColor.b > inColor.g){
-			float len = length(inColor.rgb);
-			inColor.rgb = vec3(len,len,len);
-			vec3 waterLight = perPixelFresnel.a * perPixelFresnel.rgb + perPixelFresnel.a * perPixelSpecular;
-			inColor.rgb = (inColor.rgb / 8.0) + waterLight;
-			diffuse.a = 1.0;
-			//diffuse.a = perPixelFresnel.a;
-		}
-		
 		diffuse.rgb *= inColor.rgb;
+		if(diffuse.a < 1.0 && inColor.b > inColor.r && inColor.b > inColor.g * 0.85){
+			diffuse.rgb = mix(diffuse.rgb * 0.2, perPixelFresnel.rgb, perPixelFresnel.a * 1.5);
+			diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a * 0.25);
+		}
 #else
 	//vec2 uv = inColor.xy;
 	//diffuse.rgb *= mix(vec3(1.0,1.0,1.0), texture2D( TEXTURE_2, uv).rgb*2.0, inColor.b);
@@ -188,19 +214,25 @@ vec4 inColor = color;
 	milkyFogColor.a = clamp(milkyFogColor.a, 0.0, 1.0);
 	diffuse.rgb = mix(diffuse.rgb, milkyFogColor.rgb, milkyFogColor.a);
 #ifdef FOG
-
-	//fogColor.rgb = vec3(0.1,0.3,1.0);
-	//fogColor.a -= relativePosityon.y;
-	//diffuse.rgb = mix( diffuse.rgb, fogColor.rgb, clamp(fogColor.a, 0.0, 1.0) );
+//we dont have realativePosityon here, so it brakes everything
+	/*fogColor.rgb = vec3(0.1,0.3,1.0);
+	fogColor.a -= relativePosityon.y;
+	diffuse.rgb = mix( diffuse.rgb, fogColor.rgb, clamp(fogColor.a, 0.0, 1.0) );
+*/
 #endif //FOG
 
 	vec4 colorCorrectionContrast = vec4(1.5, 1.25, 1.0, 1.0);
 	vec4 colorCorrectionTint = vec4(1.5,1.25,1.0,1.0);
 	float colorCorrectionSaturation = 0.8;
 	float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)/3.0;
-	diffuse = atan(pow(diffuse * colorCorrectionTint, colorCorrectionContrast));//avoid super bright areas (atan(x) can't be grater then 1.0)
+	diffuse.rgb = atan(pow(diffuse.rgb * colorCorrectionTint.rgb, colorCorrectionContrast.rgb));//avoid super bright areas (atan(x) can't be grater then 1.0)
 	diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);
 
+	//diffuse.rgb *= vec3(fract(uv0.x*32.0), fract(uv0.y*32.0), 1.0);
+	//diffuse.rgb = normalColor.rgb;
+
+	//diffuse.rgb = perPixelFresnel.aaa + perPixelSpecular.aaa;
+	
 	gl_FragColor = diffuse;	
 #endif // BYPASS_PIXEL_SHADER
 }
