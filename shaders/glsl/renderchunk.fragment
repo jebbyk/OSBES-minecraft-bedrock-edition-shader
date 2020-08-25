@@ -69,7 +69,7 @@ float num = 0.08;//texture_0 - diffuse texture (grass, stone, sand, wood etc.)
 
 	vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
 	vec4 normalMap = texture2D(TEXTURE_0, uv0 - localNormalCoord);
-	vec4 specularMap = texture2D(TEXTURE_0, uv0 - localSpecularCoord);
+	vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
 #endif //USE_TEXEL_AA
 
 
@@ -125,7 +125,7 @@ vec4 inColor = color;
 		//normalColor.rgb = normalize(normalColor.rgb * 0.5 + 0.5);
 	//}
 	
-	vec4 skyLightColor = vec4(0.5,0.75,1.0,0.0);//todo connect with time attribute
+	vec4 skyLightColor = vec4(0.45,0.7,1.1,0.0);//todo connect with time attribute
 	vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
 	float skyLightWrapping = 4.0;//make sky lighting from sides too
 	//TODO try to use normal maps 
@@ -143,8 +143,9 @@ vec4 inColor = color;
 	//specular phong lighting
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	vec3 reflectDir = reflect(normalize(-vec3(0.8,0.2,0.0)), normalize(normalColor.rgb));
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0 * length(specularMap.rgb));
-	vec4 perPixelSpecular = vec4(sunLightColor * 1.5, spec * length(specularMap.rgb));
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 128.0 * specularMap.r);
+	//spec = clamp(spec,0.0,1.0);
+	//vec4 perPixelSpecular = vec4(sunLightColor * 1.0, spec * length(specularMap.rgb));
 	//vec3 perPixelSpecular = reflectDir;
 
 
@@ -156,27 +157,28 @@ vec4 inColor = color;
 
 
 	//fake effect when light bounses from surface if hits it with very small angle
-	float fresnelFactor = 1.0;
+	float fresnelFactor = 5.0;
 	highp vec3 V = normalize(relativePosition.xyz);
 	vec3 N = normalize(normalColor.rgb);
-	float fresnel = pow(1.0 - dot(N, V), fresnelFactor / length(specularMap.rgb));
+	float fresnel = pow(1.0 - dot(N, V), fresnelFactor * specularMap.r);
 
 	if(fresnel > 1.0) {//because of our fake normals we should do this trick
 		V = normalize(-relativePosition.xyz);//minus relative position
 		N = normalize(normalColor.rgb);
-		fresnel = pow(1.0 - dot(N, V), fresnelFactor / length(specularMap.rgb));
+		fresnel = pow(1.0 - dot(N, V), fresnelFactor * specularMap.r);
 	}
+
+	vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r * fakeShadow.r );
 
 
 	//mix lighting
 	vec4 resultLighting = ambientOclusion * 0.5 * skyLightPerPixel;
-	vec4 perPixelFresnel = vec4(resultLighting.rgb * 2.0, fresnel * length(specularMap.rgb));
+	vec4 perPixelFresnel = vec4(resultLighting.rgb, fresnel * specularMap.r);
 	resultLighting += sunLightPerPixel * fakeShadow * 2.0;
 	resultLighting += pointLights;
-	//perPixelSpecular.a += perPixelSpecular.a * length(resultLighting.rgb);
 	diffuse.rgb *= resultLighting.rgb * 1.8;
-	diffuse.rgb += perPixelFresnel.rgb * perPixelFresnel.a * length(specularMap.rgb);
-	//diffuse.rgb += perPixelSpecular.rgb * perPixelSpecular.a;
+	diffuse.rgb = mix(diffuse.rgb, perPixelFresnel.rgb * 4.0, perPixelFresnel.a);
+	diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb * 2.0, pow(perPixelSpecular.a, 1.5));
 #endif //ALWAYS_LIT
 
 
@@ -231,7 +233,8 @@ vec4 inColor = color;
 	//diffuse.rgb *= vec3(fract(uv0.x*32.0), fract(uv0.y*32.0), 1.0);
 	//diffuse.rgb = normalColor.rgb;
 
-	//diffuse.rgb = perPixelFresnel.aaa + perPixelSpecular.aaa;
+	//diffuse.rgb = mix(vec3(0.0), perPixelFresnel.rgb, perPixelFresnel.a);
+	//diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a);
 	
 	gl_FragColor = diffuse;	
 #endif // BYPASS_PIXEL_SHADER
