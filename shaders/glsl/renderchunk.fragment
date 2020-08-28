@@ -109,28 +109,41 @@ vec4 inColor = color;
 		normalColor.rgb = vec3(0.0,1.0,0.0);//make them green like they are locking on top
 	}
 
-	//fake tangent transformations to make  normalmapping looking good
-	if(length(normalMap.rgb) > 0.5){
+	//fake TBN transformations to make  normalmapping looking good
+ if(length(normalMap.rgb) > 0.5){
+
+   float normalMapStrength = 0.5;
+   
+
 		if (normalColor.b == 1.0){
 			normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
-			normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+    normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+    normalMap.rg *= normalMapStrength;
+    normalColor.rgb = normalize(normalMap.rgb);
+ 
 		}
 		if(normalColor.g == 1.0){
 			float temp = normalMap.g;
 			normalMap.g = normalMap.b;
 			normalMap.b = temp;
-			normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+    normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+    normalMap.rb *= normalMapStrength;
+    normalColor.rgb = normalize(normalMap.rgb);
 		}
 		if(normalColor.r == 1.0){
 			normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
 			float temp = normalMap.r;
 			normalMap.r = normalMap.b;
 			normalMap.b = temp;
-			normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+    normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+    normalMap.gb *= normalMapStrength;
+    normalColor.rgb = normalize(normalMap.rgb);
 		}
 	}
 	
 	
+
+
 	vec4 skyLightColor = vec4(0.45,0.7,1.1,0.0);//todo connect with time attribute
 	vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
 	float skyLightWrapping = 4.0;//make sky lighting from sides too
