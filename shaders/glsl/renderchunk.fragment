@@ -67,6 +67,10 @@ float num = 0.08;//texture_0 - diffuse texture (grass, stone, sand, wood etc.)
 	//top right texture - specular map
 	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(1.0/64.0, 0.0);
 
+
+	//debug check result texture (you should find block with texture in top left corner and place it somewhere in the world)
+	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 16.0 - vec2(0.5, 0.0));
+	
 	vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
 	highp vec4 normalMap = texture2D(TEXTURE_0, uv0 - localNormalCoord);
 	vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
@@ -102,42 +106,47 @@ vec4 inColor = color;
 
 	//TODO try to calculate not doublesided normals
 	//TODO or try to get normals from vertex shader (currently it is not available or just returns messy stuff) 
+	highp float posMult = 2.0;
 	normalColor = vec4(1.0 - ceil(fract(position.xyz)), 1.0);//calculate fake normals
-	//after previos calculation normalColor for plants and water is black
-	//todo maybe it can be used to derirmine if there is a water;
-	if(length(normalColor.rgb) < 1.0){
-		normalColor.rgb = vec3(0.0,1.0,0.0);//make them green like they are locking on top
+	while(length(normalColor.rgb) < 0.5 && posMult < 128.0){// decrease position fraction scale intyl normal color isn't 0
+		normalColor.rgb = vec3(1.0 - ceil(fract(position.xyz * posMult)));
+		posMult *= 2.0;
+	}
+	//after previous calculation normalColor for plants is black
+	//todo maybe it can be used to derirmine if there is a plant;
+	if(length(normalColor.rgb) < 0.5){
+		normalColor.rgb = vec3(0.0,1.0,0.0);//make them green like they are locking forward		
 	}
 
-	//fake TBN transformations to make  normalmapping looking good
- if(length(normalMap.rgb) > 0.5){
+	//fake TBN transformations for normalmapps
+ 	if(length(normalMap.rgb) > 0.5){
 
-   float normalMapStrength = 0.5;
+   		float normalMapStrength = 0.5;
    
 
 		if (normalColor.b == 1.0){
 			normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
-    normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-    normalMap.rg *= normalMapStrength;
-    normalColor.rgb = normalize(normalMap.rgb);
+    		normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+    		normalMap.rg *= normalMapStrength;
+    		normalColor.rgb = normalize(normalMap.rgb);
  
 		}
 		if(normalColor.g == 1.0){
 			float temp = normalMap.g;
 			normalMap.g = normalMap.b;
 			normalMap.b = temp;
-    normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-    normalMap.rb *= normalMapStrength;
-    normalColor.rgb = normalize(normalMap.rgb);
+    		normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+    		normalMap.rb *= normalMapStrength;
+    		normalColor.rgb = normalize(normalMap.rgb);
 		}
 		if(normalColor.r == 1.0){
 			normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
 			float temp = normalMap.r;
 			normalMap.r = normalMap.b;
 			normalMap.b = temp;
-    normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-    normalMap.gb *= normalMapStrength;
-    normalColor.rgb = normalize(normalMap.rgb);
+    		normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+    		normalMap.gb *= normalMapStrength;
+    		normalColor.rgb = normalize(normalMap.rgb);
 		}
 	}
 	
@@ -147,7 +156,6 @@ vec4 inColor = color;
 	vec4 skyLightColor = vec4(0.45,0.7,1.1,0.0);//todo connect with time attribute
 	vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
 	float skyLightWrapping = 4.0;//make sky lighting from sides too
-	//TODO try to use normal maps 
 	float dotAngle = max((dot(skyLightDirection, normalColor.rgb) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
 	vec4 skyLightPerPixel = skyLightColor * dotAngle;
 	skyLightPerPixel.a = 1.0;
@@ -188,9 +196,6 @@ vec4 inColor = color;
 		fresnel = pow(1.0 - dot(N, V), fresnelFactor * specularMap.r);
 	}
 
-	//vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r * fakeShadow.r );
-
-
 	//mix lighting
 	vec4 resultLighting = ambientOclusion * 0.5 * skyLightPerPixel;
 	vec4 perPixelFresnel = vec4(resultLighting.rgb, fresnel * specularMap.r);
@@ -205,7 +210,7 @@ vec4 inColor = color;
 
 #ifndef SEASONS
 	#if !USE_ALPHA_TEST && !defined(BLEND)
-		//diffuse.a = inColor.a;//with this parameter we can detirmane if it's water, or leaves or a ground
+		//diffuse.a = inColor.a;//with this parameter we can detirmane if it's water or leaves 
 	#endif //USE_ALPHA_TEST
 		diffuse.rgb *= inColor.rgb;
 		if(diffuse.a < 1.0 && inColor.b > inColor.r && inColor.b > inColor.g * 0.85){
@@ -255,8 +260,12 @@ vec4 inColor = color;
 	//diffuse.rgb *= vec3(fract(uv0.x*32.0), fract(uv0.y*32.0), 1.0);
 
 	//debug all lighting 
-	//diffuse.rgb = sunLightPerPixel.rgb /*+ skyLightPerPixel.rgb*/;
+	//diffuse.rgb = sunLightPerPixel.rgb + skyLightPerPixel.rgb;
 	//diffuse.rgb = mix(diffuse.rgb, perPixelFresnel.rgb, perPixelFresnel.a);
+	//diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a);
+
+	//debug only reflective components
+	//diffuse.rgb = mix(vec3(0.0), perPixelFresnel.rgb, perPixelFresnel.a);
 	//diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a);
 
 	

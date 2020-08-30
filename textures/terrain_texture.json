@@ -4,6 +4,26 @@
   "padding": 0,
   "num_mip_levels": 0,
   "texture_data": {
+  	"grass_side": {
+  	  "textures": [
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side",	
+  		"textures/blocks/grass_block_side"
+  	  ]
+  	},
     "lodestone_top": {
       "textures": [
         "textures/blocks/lodestone_top"
