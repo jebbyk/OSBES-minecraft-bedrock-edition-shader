@@ -78,6 +78,23 @@ void main()
 	#endif
 #endif //// FOG or BLEND
 
+#if defined ALPHA_TEST
+//wind waves
+vec3 localPosition = POSITION.xyz;
+float t = TIME;
+vec2 wavesScale = vec2(0.02, 0.04);
+float wavesSpeed = 16.0;
+float wavesFreq  = 4.0;
+
+//wind impulses
+float varyingSpeed = 2.0;
+float varyingScale = 0.125;
+float f = sin(localPosition.x * varyingScale + varyingSpeed * t) * 0.5 + 0.5;
+f = clamp(pow(f, 3.0), 0.2, 1.0);
+wavesScale *= f;
+
+gl_Position.xy += sin(t * wavesSpeed + gl_Position.x * wavesFreq) * wavesScale;  
+#endif
 
 ///// apply fog
 
