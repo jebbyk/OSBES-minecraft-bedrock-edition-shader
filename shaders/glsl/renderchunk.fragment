@@ -276,7 +276,10 @@ vec4 inColor = color;
 
 	//debug normals
 	//diffuse.rgb = normalColor.rgb;
-	
+
+	//dbug position
+	//diffuse.rgb = sin(position.xyz/2.55) * 0.5 + 0.5;
+
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
