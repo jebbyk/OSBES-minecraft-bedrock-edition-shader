@@ -61,24 +61,37 @@ void main()
 	ownFogAlpha =  length(-worldPos.xyz);
 	relativePosition = -worldPos.xyz; //used in fresnel calculation
 #ifndef BYPASS_PIXEL_SHADER
-    	/*float t = TIME;
-	float wavesMovingSpeed = 1.0;
-	float wavesFreq = 1.0;
-	float wavesScale = 1.0;
-	vec4 pos = WORLDVIEW * worldPos;
-	gl_Position.y = sin(t * wavesMovingSpeed + pos.xyz * wavesFreq) * wavesScale;
-*/
-
 	uv0 = TEXCOORD_0;
     	uv1 = TEXCOORD_1;
 	color = COLOR;
+
+    	if(color.b > color.g){
+		highp float t = TIME;
+		highp vec3 pos = POSITION.xyz / 2.5463;//2.5463 - chunk scale (detaching prevention)
+		highp vec2 impulsesMovingSpeed = vec2(1.0, 1.0);
+		highp vec2 impulsesFreq = vec2(1.0, 1.0);
+		
+		highp float wavesMovingSpeed = 4.0;
+		highp float wavesFreq = 10.0;
+		highp float wavesScale = 0.09;
+
+		highp vec2 i = sin(t * impulsesMovingSpeed + pos.xz * impulsesFreq);
+		highp vec2 f = sin(t * wavesMovingSpeed + pos.xz * wavesFreq) * wavesScale * i;
+
+		gl_Position.y += f.x + f.y;
+
+		//debug positigon
+		//gl_Position.y += sin(pos.x * 4.0);
+		//gl_Position.y += sin(pos.z * 4.0);
+	}
 #endif //BYPASS_PIXEL_SHADER
 
 ///// find distance from the camera
 
 #if defined(FOG) || defined(BLEND)
 //#if defined(BLEND)
-	#ifdef FANCY
+	
+#ifdef FANCY
 		vec3 relPos = -worldPos.xyz;
 		float cameraDepth = length(relPos);
 	#else
@@ -87,21 +100,27 @@ void main()
 #endif //// FOG or BLEND
 
 #if defined ALPHA_TEST
-//wind waves
-vec3 localPosition = POSITION.xyz * 2.55;
-float t = TIME;
-vec2 wavesScale = vec2(0.02, 0.04);
-float wavesSpeed = 16.0;
-float wavesFreq  = 4.0;
+	if(color.g > color.b){
+		//wind waves
+		vec3 localPosition = POSITION.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
+		float t = TIME;
+		vec2 wavesScale = vec2(0.02, 0.04);
+		float wavesMovingSpeed = 16.0;
+		float wavesFreq  = 4.0;
 
-//wind impulses
-float varyingSpeed = 2.0;
-float varyingScale = 0.125;
-float f = sin(localPosition.x * varyingScale + varyingSpeed * t) * 0.5 + 0.5;
-f = clamp(pow(f, 3.0), 0.2, 1.0);
-wavesScale *= f;
+		//wind impulses
+		float impulsesMovingSpeed = 1.0;
+		float impulsesScaleDevider = 1.0;//should be grater then 1.0
+		float impulseDuration = 4.0;//bigger number - shorter impulse
+		float f = sin(localPosition.x * impulsesScaleDevider + impulsesMovingSpeed * t) * 0.5 + 0.5;
+		f = clamp(pow(f, impulseDuration), 0.1, 1.0);
+		wavesScale *= f;
 
-gl_Position.xy += sin(t * wavesSpeed + gl_Position.x * wavesFreq) * wavesScale;  
+		gl_Position.xy += sin(t * wavesMovingSpeed + gl_Position.x * wavesFreq) * wavesScale;  
+
+		//debug impulses
+		//gl_Position.x += f;
+	}
 #endif
 
 ///// apply fog
