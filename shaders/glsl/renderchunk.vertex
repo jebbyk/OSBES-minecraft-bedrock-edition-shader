@@ -65,7 +65,7 @@ void main()
     	uv1 = TEXCOORD_1;
 	color = COLOR;
 
-    	if(color.b > color.g){
+    	if(color.b > color.g * 0.8 && color.b > color.r){
 		highp float t = TIME;
 		highp vec3 pos = POSITION.xyz / 2.5463;//2.5463 - chunk scale (detaching prevention)
 		highp vec2 impulsesMovingSpeed = vec2(1.0, 1.0);
@@ -92,6 +92,7 @@ void main()
 //#if defined(BLEND)
 	
 #ifdef FANCY
+
 		vec3 relPos = -worldPos.xyz;
 		float cameraDepth = length(relPos);
 	#else
@@ -166,6 +167,7 @@ void main()
 #endif //BLEND
 
 #ifndef BYPASS_PIXEL_SHADER
+
 	#ifndef FOG
 		//If the FOG_COLOR isn't used, the reflection on NVN fails to compute the correct size of the constant buffer as the uniform will also be gone from the reflection data
 		color.rgb += FOG_COLOR.rgb * 0.00001;

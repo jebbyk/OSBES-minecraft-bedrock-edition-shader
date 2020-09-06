@@ -37,43 +37,69 @@ LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 
 varying highp float ownFogAlpha;
 
+
+float noise(highp vec2 coord){
+	return fract(sin(dot(coord.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+float smoothNoise(vec2 o){
+	vec2 a = fract(o.xy);
+	vec2 b = floor(o.xy);
+	
+	float t = noise(b);
+	float tt = noise(b + vec2(1.0, 0.0));
+	float d = mix(t, tt, a.x);
+
+	float k = noise(b + vec2(0.0, 1.0));
+	float kk = noise(b + vec2(1.0, 1.0));
+	float e = mix(k, kk, a.x);
+	return mix(d, e, a.y);
+}
+
 void main()
-{
+{	
+	vec4 inColor = color;
 #ifdef BYPASS_PIXEL_SHADER
 	gl_FragColor = vec4(1.0, 0, 0, 1.0);
 	return;
 #else 
 
-float num = 0.08;//texture_0 - diffuse texture (grass, stone, sand, wood etc.)
 #if USE_TEXEL_AA
-	
 	vec4 diffuse = texture2D_AA(TEXTURE_0,uv0);
-	//vec4 normalMap = texture2D_AA(TEXTURE_0, vec2(uv0.x*0.016, uv0.y*0.016 + 0.5));
-	//vec4 specularMap = texture2D_AA(TEXTURE_0, uv0 * 3.0);
-	#else
-	//TODO try to add normalmaps
-	//vec2 coordScale = vec2(64.0, 32.0);
-	//vec4 diffuse = texture2D(TEXTURE_0,uv0);
-	
-
-	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 32.0);
+#else
 
 	//by default texture demensions 1.0, 0.5
 	highp vec2 textureScale = vec2(32.0,32.0);//but here we has 1.0, 1.0. with custom texuture pack you should check result texture  dimensions
 	//top left texture - default diffuse
 	highp vec2 localDiffuseCoord = fract(uv0 * textureScale)/(textureScale * 2.0);
-	//bottom left  texture - normalmap
-	highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 1.0/64.0);
 	//top right texture - specular map
 	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(1.0/64.0, 0.0);
 
 
-	//debug check result texture (you should find block with texture in top left corner and place it somewhere in the world)
+	//debug check result texture (you should find block with top left corner texture  and place it somewhere in the world)
 	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 16.0 - vec2(0.5, 0.0));
 	
 	vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
-	highp vec4 normalMap = texture2D(TEXTURE_0, uv0 - localNormalCoord);
 	vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
+	highp vec4 normalMap = vec4(0.0);
+	
+	normalColor.rgb = vec3(0.0,0.0,0.0);
+	if(inColor.b > inColor.g * 0.8 && inColor.b > inColor.r * 1.1){
+		normalColor.rgb = vec3(0.0,1.0,0.0);
+		highp float t = TIME * 0.25;
+		vec2 waterNormalMapPosition = vec2(1.5/32.0);	
+
+		normalMap = texture2D(TEXTURE_0, fract(position.xz + t)/64.0 + waterNormalMapPosition);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.5 - t * 0.5)/64.0 + waterNormalMapPosition);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25 + t * 0.2)/64.0 + waterNormalMapPosition);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125 - t * 0.1)/64.0 + waterNormalMapPosition);
+		normalMap *= 0.25;
+	}else{
+		//bottom left  texture - normalmap
+		highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 1.0/64.0);
+		normalMap = texture2D(TEXTURE_0, uv0 - localNormalCoord);
+	}
+	
 #endif //USE_TEXEL_AA
 
 
@@ -93,21 +119,15 @@ float num = 0.08;//texture_0 - diffuse texture (grass, stone, sand, wood etc.)
 		discard;//catout leaves and grass
 #endif //USE_ALPHA_TEST
 	
-vec4 inColor = color;
 
 #if defined(BLEND)
 	//diffuse.a *= inColor.a;
 #endif //BLEND
 
-#if !defined(ALWAYS_LIT)
-
-	//diffuse.rgb *= inColor.rgb;
-	//diffuse.a = inColor.a;
-
+#if !defined(ALWAYS_LI)
 	//TODO try to calculate not doublesided normals
 	//TODO or try to get normals from vertex shader (currently it is not available or just returns messy stuff) 
-	highp float posMult = 2.0;
-	normalColor = vec4(1.0 - ceil(fract(position.xyz)), 1.0);//calculate fake normals
+	highp float posMult = 1.0;
 	while(length(normalColor.rgb) < 0.5 && posMult < 128.0){// decrease position fraction scale intyl normal color isn't 0
 		normalColor.rgb = vec3(1.0 - ceil(fract(position.xyz * posMult)));
 		posMult *= 2.0;
@@ -121,7 +141,7 @@ vec4 inColor = color;
 	//fake TBN transformations for normalmapps
  	if(length(normalMap.rgb) > 0.5){
 
-   		float normalMapStrength = 0.5;
+   		float normalMapStrength = 1.0;
    
 
 		if (normalColor.b == 1.0){
@@ -149,8 +169,6 @@ vec4 inColor = color;
     		normalColor.rgb = normalize(normalMap.rgb);
 		}
 	}
-	
-	
 
 
 	vec4 skyLightColor = vec4(0.45,0.7,1.1,0.0);//todo connect with time attribute
@@ -172,7 +190,7 @@ vec4 inColor = color;
 	vec3 debugLightDir = vec3(0.9, 0.1, 0.0);
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-	float shininess = 10.0 * specularMap.r;
+	float shininess = 16.0 * specularMap.r;
 	float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
 	vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r);
 
@@ -181,8 +199,13 @@ vec4 inColor = color;
 
 	vec4 ambientOclusion = texture2D(TEXTURE_1, vec2(0.0, uv1.y));
 
-	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.025, vec4(500.0, 500.0, 500.0, 500.0)),0.0,1.0); 
-
+	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.025, vec4(500.0, 500.0, 500.0, 500.0)),0.0,1.0);
+	
+	
+	if(fakeShadow.r < 1.0 && fakeShadow.r > 0.0){
+		fakeShadow.rgb *= noise(position.xy) + 0.5;
+ 	}
+	
 
 	//fake effect when light bounses from surface if hits it with very small angle
 	float fresnelFactor = 5.0;
@@ -196,6 +219,13 @@ vec4 inColor = color;
 		fresnel = pow(1.0 - dot(N, V), fresnelFactor * specularMap.r);
 	}
 
+
+	if(inColor.b > inColor.g * 0.8 && inColor.b > inColor.r * 1.1){
+		V  = normalize(relativePosition.xyz);
+		float farWaterFresnel = pow(1.0 - dot(vec3(0.0,1.0,0.0), V), fresnelFactor);
+		fresnel = mix(fresnel, 1.0, farWaterFresnel);
+	}
+
 	//mix lighting
 	vec4 resultLighting = ambientOclusion * 0.5 * skyLightPerPixel;
 	vec4 perPixelFresnel = vec4(resultLighting.rgb, fresnel * specularMap.r);
@@ -207,17 +237,20 @@ vec4 inColor = color;
 #endif //ALWAYS_LIT
 
 
-
+//here is a water
 #ifndef SEASONS
 	#if !USE_ALPHA_TEST && !defined(BLEND)
 		//diffuse.a = inColor.a;//with this parameter we can detirmane if it's water or leaves 
 	#endif //USE_ALPHA_TEST
 		diffuse.rgb *= inColor.rgb;
-		if(diffuse.a < 1.0 && inColor.b > inColor.r && inColor.b > inColor.g * 0.85){
-			diffuse.rgb = mix(diffuse.rgb * 0.2, perPixelFresnel.rgb, perPixelFresnel.a * 1.5);
-			diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a * 0.25);
+		if(diffuse.a < 1.0 && inColor.b > inColor.r && inColor.b > inColor.g * 0.83){
+			diffuse.rgb = mix(diffuse.rgb * 0.25, vec3(0.16, 0.24, 0.6) * 2.8, perPixelFresnel.a);
+			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * vec3(1.0,1.0,1.5), pow(perPixelSpecular.a, 2.0) * 1.0);
 		}
+
+		diffuse.a = perPixelFresnel.a + 0.5 + perPixelSpecular.a, 2.0;
 #else
+
 	//vec2 uv = inColor.xy;
 	//diffuse.rgb *= mix(vec3(1.0,1.0,1.0), texture2D( TEXTURE_2, uv).rgb*2.0, inColor.b);
 	//diffuse.rgb *= inColor.aaa;
@@ -228,8 +261,9 @@ vec4 inColor = color;
 	//TODO connect FOG_COLOR.rgb (available here 100%) and TIME attribute (hope is available) with ownFogColor value
 	//to change its color depending on day/night cicle and weater
 	vec3 ownFogColor = vec3(0.25,0.35,1.0);
-	diffuse.rgb = mix(diffuse.rgb, ownFogColor, clamp(atan(ownFogAlpha / (RENDER_DISTANCE / 1.5)),0.0,0.75));
-
+	if(inColor.b <= inColor.g && inColor.b <= inColor.r){
+		diffuse.rgb = mix(diffuse.rgb, ownFogColor, clamp(atan(ownFogAlpha / (RENDER_DISTANCE / 1.5)),0.0,0.75));
+	}
 
 	//TODO user actual position instead of relativePosition;
 	vec4 milkyFogColor = vec4 (0.6, 0.8, 1.4, 0.0);
@@ -256,6 +290,9 @@ vec4 inColor = color;
 	diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);
 
 
+
+	///////////////////////debuging section//////////////////////
+
 	//debug texture coordinates
 	//diffuse.rgb *= vec3(fract(uv0.x*32.0), fract(uv0.y*32.0), 1.0);
 
@@ -277,8 +314,13 @@ vec4 inColor = color;
 	//debug normals
 	//diffuse.rgb = normalColor.rgb;
 
+	//debug normalsOffset
+	//diffuse.rg = localNormalCoord * 64.0;
+	//diffuse.b = 0.0;
+	//diffuse.a = 1.0;
+
 	//dbug position
-	//diffuse.rgb = sin(position.xyz/2.55) * 0.5 + 0.5;
+	//diffuse.rgb = sin(position.xyz/2.545) * 0.5 + 0.5;
 
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
