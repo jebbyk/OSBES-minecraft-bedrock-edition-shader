@@ -32,7 +32,9 @@ attribute POS4 POSITION;
 attribute vec4 COLOR;
 attribute vec2 TEXCOORD_0;
 attribute vec2 TEXCOORD_1;
-varying highp float ownFogAlpha;
+
+varying vec4 blueFog;
+varying vec4 milkyFog;
 varying vec4 position;
 varying vec3 relativePosition;
 const float rA = 1.0;
@@ -57,9 +59,12 @@ void main()
     POS4 pos = WORLDVIEW * worldPos;
     pos = PROJ * pos;
 #endif // AS_ENTITY_RENDERER
-    gl_Position = pos;
-	ownFogAlpha =  length(-worldPos.xyz);
-	relativePosition = -worldPos.xyz; //used in fresnel calculation
+
+
+gl_Position = pos;
+
+
+//here is a water
 #ifndef BYPASS_PIXEL_SHADER
 	uv0 = TEXCOORD_0;
     	uv1 = TEXCOORD_1;
@@ -91,7 +96,7 @@ void main()
 #if defined(FOG) || defined(BLEND)
 //#if defined(BLEND)
 	
-#ifdef FANCY
+	#ifdef FANCY
 
 		vec3 relPos = -worldPos.xyz;
 		float cameraDepth = length(relPos);
@@ -100,6 +105,10 @@ void main()
 	#endif
 #endif //// FOG or BLEND
 
+
+
+
+//here is a leaves and grass
 #if defined ALPHA_TEST
 	if(color.g > color.b){
 		//wind waves
@@ -133,12 +142,24 @@ void main()
 		len += RENDER_CHUNK_FOG_ALPHA;
 	#endif //ALLOW_FADE
 
-    fogColor.rgb = FOG_COLOR.rgb;
+    	fogColor.rgb = FOG_COLOR.rgb;
 	fogColor.a = clamp((len - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
-	//fogColor.a  = clamp(len, 0.0, 1.0);
 #endif //FOG
 
 	position = POSITION;
+	relativePosition = -worldPos.xyz; 
+
+	blueFog.rgb = vec3(0.25,0.35,1.0);
+	blueFog.a =  clamp(length(-worldPos.xyz) / (RENDER_DISTANCE * 0.5), 0.0, 0.75);
+	
+	milkyFog.rgb = vec3(0.6, 0.8, 1.4);
+	const float milkyFogHeightShift = 6.0;
+	const float milkyFogHeightAtenuation = 0.03125;// 1.0/32.0 = 0.03125
+	milkyFog.a = (relativePosition.y + milkyFogHeightShift) * milkyFogHeightAtenuation;
+	milkyFog.a = pow(clamp(milkyFog.a, 0.0, 1.0), 1.5);
+	milkyFog.a *= blueFog.a;
+	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
+
 
 ///// blended layer (mostly water) magic
 #ifdef BLEND

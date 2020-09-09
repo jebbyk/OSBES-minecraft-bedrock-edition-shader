@@ -35,7 +35,8 @@ LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
 LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 
-varying highp float ownFogAlpha;
+varying vec4 blueFog;
+varying vec4 milkyFog;
 
 
 float noise(highp vec2 coord){
@@ -58,7 +59,6 @@ float smoothNoise(vec2 o){
 
 void main()
 {	
-	vec4 inColor = color;
 #ifdef BYPASS_PIXEL_SHADER
 	gl_FragColor = vec4(1.0, 0, 0, 1.0);
 	return;
@@ -68,36 +68,47 @@ void main()
 	vec4 diffuse = texture2D_AA(TEXTURE_0,uv0);
 #else
 
-	//by default texture demensions 1.0, 0.5
-	highp vec2 textureScale = vec2(32.0,32.0);//but here we has 1.0, 1.0. with custom texuture pack you should check result texture  dimensions
+
+	////////////////////////////mapping section///////////////////////////////////
+
+	//by default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
+	//but wtih my texture pack I have 1.0 x 1.0. with your custom texuture pack you should check result texture  dimensions
+	
 	//top left texture - default diffuse
-	highp vec2 localDiffuseCoord = fract(uv0 * textureScale)/(textureScale * 2.0);
+	highp vec2 localDiffuseCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
 	//top right texture - specular map
-	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(1.0/64.0, 0.0);
+	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
 
 
-	//debug check result texture (you should find block with top left corner texture  and place it somewhere in the world)
-	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 16.0 - vec2(0.5, 0.0));
+	//debug checking result texture (you should find block with top left corner texture  and place it somewhere in the world)
+	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 32.0 - vec2(0.5, 0.0));
 	
 	vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
 	vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
-	highp vec4 normalMap = vec4(0.0);
-	
-	normalColor.rgb = vec3(0.0,0.0,0.0);
-	if(inColor.b > inColor.g * 0.8 && inColor.b > inColor.r * 1.1){
+	vec4 normalMap = vec4(0.0);	
+	normalColor.rgb = vec3(0.0);
+	bool isWater = false;
+
+	if(color.b > color.g * 0.8 && color.b > color.r * 1.1){
+		isWater = true;
 		normalColor.rgb = vec3(0.0,1.0,0.0);
 		highp float t = TIME * 0.25;
-		vec2 waterNormalMapPosition = vec2(1.5/32.0);	
 
-		normalMap = texture2D(TEXTURE_0, fract(position.xz + t)/64.0 + waterNormalMapPosition);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.5 - t * 0.5)/64.0 + waterNormalMapPosition);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25 + t * 0.2)/64.0 + waterNormalMapPosition);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125 - t * 0.1)/64.0 + waterNormalMapPosition);
-		normalMap *= 0.25;
+		// 1.0/64.0 = 0.0156251          1.5 / 32.0 =  0.046875 (water normal map offset)
+		normalMap = texture2D(TEXTURE_0, fract(position.xz + t)*0.015625 + 0.046875);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.5 - t * 0.5)*0.015625 + 0.046875);// 
+		//normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25 + t * 0.2)*0.015625 + 0.046875);
+		//normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125 - t * 0.1)*0.015625 + 0.046875);
+		normalMap *= 0.5;
+		//normalMap *= 0.33;
+		//normalMap *= 0.25;
+
 	}else{
 		//bottom left  texture - normalmap
-		highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 1.0/64.0);
+		highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 0.015625);
 		normalMap = texture2D(TEXTURE_0, uv0 - localNormalCoord);
+
+		//normalMap = texture2D(TEXTURE_0, uv0);
 	}
 	
 #endif //USE_TEXEL_AA
@@ -127,10 +138,10 @@ void main()
 #if !defined(ALWAYS_LI)
 	//TODO try to calculate not doublesided normals
 	//TODO or try to get normals from vertex shader (currently it is not available or just returns messy stuff) 
-	highp float posMult = 1.0;
+	float posMult = 1.0;
 	while(length(normalColor.rgb) < 0.5 && posMult < 128.0){// decrease position fraction scale intyl normal color isn't 0
 		normalColor.rgb = vec3(1.0 - ceil(fract(position.xyz * posMult)));
-		posMult *= 2.0;
+		posMult += posMult;
 	}
 	//after previous calculation normalColor for plants is black
 	//todo maybe it can be used to derirmine if there is a plant;
@@ -139,98 +150,77 @@ void main()
 	}
 
 	//fake TBN transformations for normalmapps
- 	if(length(normalMap.rgb) > 0.5){
-
-   		float normalMapStrength = 1.0;
-   
-
-		if (normalColor.b == 1.0){
-			normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
-    		normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-    		normalMap.rg *= normalMapStrength;
-    		normalColor.rgb = normalize(normalMap.rgb);
- 
-		}
+ 	if(length(normalMap.rgb) > 0.9){
 		if(normalColor.g == 1.0){
-			float temp = normalMap.g;
-			normalMap.g = normalMap.b;
-			normalMap.b = temp;
-    		normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-    		normalMap.rb *= normalMapStrength;
-    		normalColor.rgb = normalize(normalMap.rgb);
-		}
-		if(normalColor.r == 1.0){
-			normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
-			float temp = normalMap.r;
-			normalMap.r = normalMap.b;
-			normalMap.b = temp;
-    		normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-    		normalMap.gb *= normalMapStrength;
-    		normalColor.rgb = normalize(normalMap.rgb);
+			normalMap.gb = normalMap.bg;
+    			normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+		}else{
+
+			if (normalColor.b == 1.0){
+				normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
+    				normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+ 
+			}else{
+
+				if(normalColor.r == 1.0){
+					normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
+					normalMap.rb = normalMap.br;
+    					normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+				}
+			}
 		}
 	}
 
 
-	vec4 skyLightColor = vec4(0.45,0.7,1.1,0.0);//todo connect with time attribute
-	vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
-	float skyLightWrapping = 4.0;//make sky lighting from sides too
-	float dotAngle = max((dot(skyLightDirection, normalColor.rgb) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
-	vec4 skyLightPerPixel = skyLightColor * dotAngle;
-	skyLightPerPixel.a = 1.0;
+	const vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
+	const float skyLightWrapping = 4.0;//make sky lighting from sides too
+	float skyDot = max((dot(skyLightDirection, normalColor.rgb) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
+	const vec3 skyLightColor = vec3(0.45,0.7,1.1);//todo connect with time attribute
 
-
-
-	vec3 sunLightDirection = vec3(0.5,0.4,0.1);//todo connect with time attribute
-	vec3 sunLightColor = vec3(1.0, 0.9, 0.8);//todo connect with time attribute
-	float sunDotAngle = max(dot(sunLightDirection, normalColor.rgb), 0.0);//todo use normalmaps to represent surface details
-	vec4 sunLightPerPixel = vec4(sunLightColor * sunDotAngle, 0.0);
+	const vec3 sunLightDirection = vec3(0.5,0.4,0.1);//todo connect with time attribute
+	float sunDot = max(dot(sunLightDirection, normalColor.rgb), 0.0);//todo use normalmaps to represent surface details	
+	const vec3 sunLightColor = vec3(1.0, 0.9, 0.8);//todo connect with time attribute
 
 	//blinn-phong
 	//float time = -TIME / 200.0;
-	vec3 debugLightDir = vec3(0.9, 0.1, 0.0);
-	highp vec3 viewDir = normalize(relativePosition.xyz);
+	const vec3 debugLightDir = vec3(0.9, 0.1, 0.0);
+	vec3 viewDir = normalize(relativePosition.xyz);
 	vec3 halfwayDir = normalize(debugLightDir + viewDir); 
 	float shininess = 16.0 * specularMap.r;
 	float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
 	vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r);
 
 
-	vec4 pointLights = pow(texture2D(TEXTURE_1, vec2(uv1.x, 0.0)), vec4(4.0,4.0,4.0,4.0));
+	vec4 pointLights = pow(texture2D(TEXTURE_1, vec2(uv1.x, 0.0)), vec4(4.0));
 
 	vec4 ambientOclusion = texture2D(TEXTURE_1, vec2(0.0, uv1.y));
 
-	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.025, vec4(500.0, 500.0, 500.0, 500.0)),0.0,1.0);
+	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.025, vec4(500.0)),0.0,1.0);
 	
 	
-	if(fakeShadow.r < 1.0 && fakeShadow.r > 0.0){
+	/*if(fakeShadow.r < 1.0 && fakeShadow.r > 0.0){
 		fakeShadow.rgb *= noise(position.xy) + 0.5;
- 	}
+ 	}*/
 	
 
 	//fake effect when light bounses from surface if hits it with very small angle
-	float fresnelFactor = 5.0;
-	highp vec3 V = normalize(relativePosition.xyz);
-	vec3 N = normalize(normalColor.rgb);
-	float fresnel = pow(1.0 - dot(N, V), fresnelFactor * specularMap.r);
+	const float fresnelFactor = 5.0;
+	float fresnel = pow(1.0 - dot(normalColor.rgb, viewDir), fresnelFactor * specularMap.r);
 
 	if(fresnel > 1.0) {//because of our fake normals we should do this trick
-		V = normalize(-relativePosition.xyz);//minus relative position
-		N = normalize(normalColor.rgb);
-		fresnel = pow(1.0 - dot(N, V), fresnelFactor * specularMap.r);
+		fresnel = pow(1.0 - dot(normalColor.rgb, -viewDir), fresnelFactor * specularMap.r);
 	}
 
-
-	if(inColor.b > inColor.g * 0.8 && inColor.b > inColor.r * 1.1){
-		V  = normalize(relativePosition.xyz);
-		float farWaterFresnel = pow(1.0 - dot(vec3(0.0,1.0,0.0), V), fresnelFactor);
+	if(isWater){
+		float farWaterFresnel = pow(1.0 - dot(vec3(0.0,1.0,0.0), viewDir), fresnelFactor);
 		fresnel = mix(fresnel, 1.0, farWaterFresnel);
 	}
 
 	//mix lighting
-	vec4 resultLighting = ambientOclusion * 0.5 * skyLightPerPixel;
-	vec4 perPixelFresnel = vec4(resultLighting.rgb, fresnel * specularMap.r);
-	resultLighting += sunLightPerPixel * fakeShadow * 2.0;
-	resultLighting += pointLights;
+	vec3 resultLighting = ambientOclusion.rgb * skyLightColor * skyDot * 0.5;
+	vec4 perPixelFresnel = vec4(resultLighting, fresnel * specularMap.r);
+	resultLighting += sunLightColor * sunDot * fakeShadow.rgb * 2.0;
+	resultLighting += pointLights.rgb;
 	diffuse.rgb *= resultLighting.rgb * 1.8;
 	diffuse.rgb = mix(diffuse.rgb, perPixelFresnel.rgb * 4.0, perPixelFresnel.a);
 	diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb * 2.0, pow(perPixelSpecular.a, 1.5) * fakeShadow.r);
@@ -242,13 +232,13 @@ void main()
 	#if !USE_ALPHA_TEST && !defined(BLEND)
 		//diffuse.a = inColor.a;//with this parameter we can detirmane if it's water or leaves 
 	#endif //USE_ALPHA_TEST
-		diffuse.rgb *= inColor.rgb;
-		if(diffuse.a < 1.0 && inColor.b > inColor.r && inColor.b > inColor.g * 0.83){
+		diffuse.rgb *= color.rgb;
+		if(isWater){
 			diffuse.rgb = mix(diffuse.rgb * 0.25, vec3(0.16, 0.24, 0.6) * 2.8, perPixelFresnel.a);
-			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * vec3(1.0,1.0,1.5), pow(perPixelSpecular.a, 2.0) * 1.0);
+			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * vec3(1.0,1.0,1.5), perPixelSpecular.a);
+			diffuse.a = perPixelFresnel.a + 0.5 + perPixelSpecular.a, 2.0;
 		}
 
-		diffuse.a = perPixelFresnel.a + 0.5 + perPixelSpecular.a, 2.0;
 #else
 
 	//vec2 uv = inColor.xy;
@@ -260,20 +250,13 @@ void main()
 
 	//TODO connect FOG_COLOR.rgb (available here 100%) and TIME attribute (hope is available) with ownFogColor value
 	//to change its color depending on day/night cicle and weater
-	vec3 ownFogColor = vec3(0.25,0.35,1.0);
-	if(inColor.b <= inColor.g && inColor.b <= inColor.r){
-		diffuse.rgb = mix(diffuse.rgb, ownFogColor, clamp(atan(ownFogAlpha / (RENDER_DISTANCE / 1.5)),0.0,0.75));
+	if(!isWater){
+		//add blue fog everywhere except water;
+		diffuse.rgb = mix(diffuse.rgb, blueFog.rgb, blueFog.a);// 1.0/1.5 = 0.6666667
 	}
 
-	//TODO user actual position instead of relativePosition;
-	vec4 milkyFogColor = vec4 (0.6, 0.8, 1.4, 0.0);
-	float milkyFogHeightOffset = 6.0;
-	float milkyFogHeightAtenuation = 32.0;
-	milkyFogColor.a = (relativePosition.y + milkyFogHeightOffset) / milkyFogHeightAtenuation;
-	milkyFogColor.a = pow(clamp(milkyFogColor.a, 0.0, 1.0), 1.5);
-	milkyFogColor.a *= ownFogAlpha / (RENDER_DISTANCE / 2.0);
-	milkyFogColor.a = clamp(milkyFogColor.a, 0.0, 1.0);
-	diffuse.rgb = mix(diffuse.rgb, milkyFogColor.rgb, milkyFogColor.a);
+	//TODO user actual position instead of relativePosition;	
+	diffuse.rgb = mix(diffuse.rgb, milkyFog.rgb, milkyFog.a);
 #ifdef FOG
 //we dont have realativePosityon here, so it brakes everything
 	/*fogColor.rgb = vec3(0.1,0.3,1.0);
@@ -285,7 +268,7 @@ void main()
 	vec4 colorCorrectionContrast = vec4(1.5, 1.25, 1.0, 1.0);
 	vec4 colorCorrectionTint = vec4(1.75,1.5,1.0,1.0);
 	float colorCorrectionSaturation = 0.75;
-	float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)/3.0;
+	float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)*0.3333333;
 	diffuse.rgb = atan(pow(diffuse.rgb * colorCorrectionTint.rgb, colorCorrectionContrast.rgb));//avoid super bright areas (atan(x) can't be grater then 1.0)
 	diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);
 
@@ -318,6 +301,7 @@ void main()
 	//diffuse.rg = localNormalCoord * 64.0;
 	//diffuse.b = 0.0;
 	//diffuse.a = 1.0;
+
 
 	//dbug position
 	//diffuse.rgb = sin(position.xyz/2.545) * 0.5 + 0.5;
