@@ -43,19 +43,51 @@ float noise(highp vec2 coord){
 	return fract(sin(dot(coord.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
-float smoothNoise(vec2 o){
-	vec2 a = fract(o.xy);
-	vec2 b = floor(o.xy);
-	
-	float t = noise(b);
-	float tt = noise(b + vec2(1.0, 0.0));
-	float d = mix(t, tt, a.x);
+vec4 texture2D_b(sampler2D t, highp vec2 uv)
+{
 
-	float k = noise(b + vec2(0.0, 1.0));
-	float kk = noise(b + vec2(1.0, 1.0));
-	float e = mix(k, kk, a.x);
-	return mix(d, e, a.y);
+	vec2 textureSize = vec2(1024.0);
+	vec2 texelSize = 1.0/textureSize;
+	vec2 f = fract( uv * textureSize );
+	//uv += ( .5 - f ) * texelSize;    // move uv to texel centre
+
+	vec4 tl = texture2D(t, uv);
+
+
+
+	highp vec2 tr_coord = uv + vec2(texelSize.x, 0.0);
+	if(tr_coord.x > 4.0/64.0){
+		tr_coord.x -= 1.0/64.0;
+	}
+    	vec4 tr = texture2D(t, tr_coord);
+	
+	
+
+	highp vec2 bl_coord = uv + vec2(0.0, texelSize.y);
+	if(bl_coord.y > 4.0/64.0){
+		bl_coord.y -= 1.0/64.0;
+	}
+	vec4 bl = texture2D(t, bl_coord);
+
+	
+
+	highp vec2 br_coord = uv + vec2(texelSize.x, texelSize.y);
+	if(br_coord.x > 4.0/64.0){
+		br_coord.x -= 1.0/64.0;
+	}
+	if(br_coord.y > 4.0/64.0){
+		br_coord.y -= 1.0/64.0;
+	}
+	vec4 br = texture2D(t, br_coord);
+	
+	
+
+	vec4 tA = mix( tl, tr, f.x );
+	vec4 tB = mix( bl, br, f.x );
+	//return vec4(0.5);
+	return mix( tA, tB, f.y );
 }
+
 
 void main()
 {	
@@ -92,23 +124,30 @@ void main()
 	if(color.b > color.g * 0.8 && color.b > color.r * 1.1){
 		isWater = true;
 		normalColor.rgb = vec3(0.0,1.0,0.0);
-		highp float t = TIME * 0.25;
+		highp float t = TIME * 0.5;
+
+
+
+		//normalMap = texture2D_b(TEXTURE_0, fract(position.xz + t) * 0.015625 + 1.5/32.0);
+		//normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.5 - t*0.5) * 0.015625 + 1.5/32.0);
+		//normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.25 + t*0.2) * 0.015625 + 1.5/32.0);
+		//normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.125 - t * 0.1) * 0.015625 + 1.5/32.0);
 
 		// 1.0/64.0 = 0.0156251          1.5 / 32.0 =  0.046875 (water normal map offset)
 		normalMap = texture2D(TEXTURE_0, fract(position.xz + t)*0.015625 + 0.046875);
 		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.5 - t * 0.5)*0.015625 + 0.046875);// 
-		//normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25 + t * 0.2)*0.015625 + 0.046875);
-		//normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125 - t * 0.1)*0.015625 + 0.046875);
-		normalMap *= 0.5;
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25 + t * 0.2)*0.015625 + 0.046875);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125 - t * 0.1)*0.015625 + 0.046875);
+	
+		//normalMap *= 0.5;
 		//normalMap *= 0.33;
-		//normalMap *= 0.25;
+		normalMap *= 0.25;
+		//normalMap.b = clamp(normalMap.b, 0.5, 1.0);
 
 	}else{
 		//bottom left  texture - normalmap
 		highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 0.015625);
 		normalMap = texture2D(TEXTURE_0, uv0 - localNormalCoord);
-
-		//normalMap = texture2D(TEXTURE_0, uv0);
 	}
 	
 #endif //USE_TEXEL_AA
