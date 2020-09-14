@@ -20,6 +20,8 @@
 	#endif	//BYPASS_PIXEL_SHADER
 #endif //VERSION
 
+
+varying float isWater;
 varying vec4 color;//TODO what is this color??
 vec4 normalColor;// fake normal vector will be stored here or may be later will be passed from vertex shader
 varying highp vec4 position;// get pixel position in world space (used for calculate fake normals)
@@ -119,25 +121,28 @@ void main()
 	vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
 	vec4 normalMap = vec4(0.0);	
 	normalColor.rgb = vec3(0.0);
-	bool isWater = false;
 
-	if(color.b > color.g * 0.8 && color.b > color.r * 1.1){
-		isWater = true;
+
+	if(isWater >  0.9){
 		normalColor.rgb = vec3(0.0,1.0,0.0);
-		highp float t = TIME * 0.5;
+		highp float t = TIME * 0.1;
+		
+		float wnScale = 1.0;
+
+		/*
+		normalMap = texture2D_b(TEXTURE_0, fract(position.xz* 0.5 *wnScale + t * wnScale  ) * 0.015625 + 1.5/32.0);
+		normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.25 * wnScale - t * wnScale) * 0.015625 + 1.5/32.0);
+		normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.125 * wnScale - t * wnScale) * 0.015625 + 1.5/32.0);
+		normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.0625 * wnScale - t * wnScale) * 0.015625 + 1.5/32.0);
+		*/
 
 
-
-		//normalMap = texture2D_b(TEXTURE_0, fract(position.xz + t) * 0.015625 + 1.5/32.0);
-		//normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.5 - t*0.5) * 0.015625 + 1.5/32.0);
-		//normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.25 + t*0.2) * 0.015625 + 1.5/32.0);
-		//normalMap += texture2D_b(TEXTURE_0, fract(position.xz*0.125 - t * 0.1) * 0.015625 + 1.5/32.0);
-
+		
 		// 1.0/64.0 = 0.0156251          1.5 / 32.0 =  0.046875 (water normal map offset)
-		normalMap = texture2D(TEXTURE_0, fract(position.xz + t)*0.015625 + 0.046875);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.5 - t * 0.5)*0.015625 + 0.046875);// 
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25 + t * 0.2)*0.015625 + 0.046875);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125 - t * 0.1)*0.015625 + 0.046875);
+		normalMap = texture2D(TEXTURE_0, fract(position.xz*0.5*wnScale + t*wnScale)*0.015625 + 0.046875);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25*wnScale - t*wnScale)*0.015625 + 0.046875);// 
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125*wnScale + t*wnScale)*0.015625 + 0.046875);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.0625*wnScale - t*wnScale*0.0625)*0.015625 + 0.046875);
 	
 		//normalMap *= 0.5;
 		//normalMap *= 0.33;
@@ -174,7 +179,10 @@ void main()
 	//diffuse.a *= inColor.a;
 #endif //BLEND
 
-#if !defined(ALWAYS_LI)
+#if !defined(ALWAYS_LIT)
+	
+	////////////////////////////normal maps section////////////////////////////////
+
 	//TODO try to calculate not doublesided normals
 	//TODO or try to get normals from vertex shader (currently it is not available or just returns messy stuff) 
 	float posMult = 1.0;
@@ -190,26 +198,41 @@ void main()
 
 	//fake TBN transformations for normalmapps
  	if(length(normalMap.rgb) > 0.9){
+		
+		float normalMapStrength = 0.5;
+
 		if(normalColor.g == 1.0){
 			normalMap.gb = normalMap.bg;
-    			normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+			normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+			normalMap.rb *= normalMapStrength;
+    			normalColor.rgb = normalize(normalMap.rgb);
 		}else{
 
 			if (normalColor.b == 1.0){
 				normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
-    				normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+				normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+				normalMap.rg *= normalMapStrength;
+    				normalColor.rgb = normalize(normalMap.rgb);
  
 			}else{
 
 				if(normalColor.r == 1.0){
 					normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
 					normalMap.rb = normalMap.br;
-    					normalColor.rgb = normalize(normalMap.rgb * 2.0 - 1.0);
+					normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+					normalMap.gb *= normalMapStrength;
+    					normalColor.rgb = normalize(normalMap.rgb);
 				}
 			}
 		}
 	}
 
+
+
+
+
+
+	///////////////////////lighting section//////////////////////////
 
 	const vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
 	const float skyLightWrapping = 4.0;//make sky lighting from sides too
@@ -222,10 +245,28 @@ void main()
 
 	//blinn-phong
 	//float time = -TIME / 200.0;
-	const vec3 debugLightDir = vec3(0.9, 0.1, 0.0);
+/*
+float bilinearFilter(sampler2D texture, vec2 coord,  vec2 textureResolutions){i
+
+	vec2 a = fract(coord.xy);
+	vec2 b = floor(o.xy);
+	
+	float t = noise(b);
+	float tt = noise(b + vec2(1.0, 0.0));
+	float d = mix(t, tt, a.x);
+
+	float k = noise(b + vec2(0.0, 1.0));
+	float kk = noise(b + vec2(1.0, 1.0));
+	float e = mix(k, kk, a.x);
+	return mix(d, e, a.y);
+}
+
+*/
+
+	const vec3 debugLightDir = vec3(0.95, 0.05, 0.0);
 	vec3 viewDir = normalize(relativePosition.xyz);
 	vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-	float shininess = 16.0 * specularMap.r;
+	float shininess = 128.0 * specularMap.r;
 	float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
 	vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r);
 
@@ -237,9 +278,9 @@ void main()
 	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.025, vec4(500.0)),0.0,1.0);
 	
 	
-	/*if(fakeShadow.r < 1.0 && fakeShadow.r > 0.0){
-		fakeShadow.rgb *= noise(position.xy) + 0.5;
- 	}*/
+	if(fakeShadow.r < 1.0 && fakeShadow.r > 0.0){
+		fakeShadow.rgb *= noise(position.xy) + 0.75;
+ 	}
 	
 
 	//fake effect when light bounses from surface if hits it with very small angle
@@ -249,8 +290,9 @@ void main()
 	if(fresnel > 1.0) {//because of our fake normals we should do this trick
 		fresnel = pow(1.0 - dot(normalColor.rgb, -viewDir), fresnelFactor * specularMap.r);
 	}
-
-	if(isWater){
+	
+	//far water tweak
+	if(isWater >  0.9){
 		float farWaterFresnel = pow(1.0 - dot(vec3(0.0,1.0,0.0), viewDir), fresnelFactor);
 		fresnel = mix(fresnel, 1.0, farWaterFresnel);
 	}
@@ -271,11 +313,12 @@ void main()
 	#if !USE_ALPHA_TEST && !defined(BLEND)
 		//diffuse.a = inColor.a;//with this parameter we can detirmane if it's water or leaves 
 	#endif //USE_ALPHA_TEST
+		//todo move to default pipeline with default fog and sun colors
 		diffuse.rgb *= color.rgb;
-		if(isWater){
+		if(isWater > 0.9){
 			diffuse.rgb = mix(diffuse.rgb * 0.25, vec3(0.16, 0.24, 0.6) * 2.8, perPixelFresnel.a);
-			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * vec3(1.0,1.0,1.5), perPixelSpecular.a);
-			diffuse.a = perPixelFresnel.a + 0.5 + perPixelSpecular.a, 2.0;
+			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * vec3(1.0,1.0,1.5), clamp(perPixelSpecular.a * 2.0, 0.0, 1.0));
+			diffuse.a = perPixelFresnel.a + 0.5 + clamp(perPixelSpecular.a * 2.0, 0.0, 1.0);
 		}
 
 #else
@@ -289,7 +332,7 @@ void main()
 
 	//TODO connect FOG_COLOR.rgb (available here 100%) and TIME attribute (hope is available) with ownFogColor value
 	//to change its color depending on day/night cicle and weater
-	if(!isWater){
+	if(isWater < 0.1){
 		//add blue fog everywhere except water;
 		diffuse.rgb = mix(diffuse.rgb, blueFog.rgb, blueFog.a);// 1.0/1.5 = 0.6666667
 	}
@@ -304,12 +347,17 @@ void main()
 */
 #endif //FOG
 
+	///////////////////color correction section////////////////////
+
 	vec4 colorCorrectionContrast = vec4(1.5, 1.25, 1.0, 1.0);
 	vec4 colorCorrectionTint = vec4(1.75,1.5,1.0,1.0);
 	float colorCorrectionSaturation = 0.75;
 	float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)*0.3333333;
 	diffuse.rgb = atan(pow(diffuse.rgb * colorCorrectionTint.rgb, colorCorrectionContrast.rgb));//avoid super bright areas (atan(x) can't be grater then 1.0)
 	diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);
+
+
+	
 
 
 
@@ -344,6 +392,12 @@ void main()
 
 	//dbug position
 	//diffuse.rgb = sin(position.xyz/2.545) * 0.5 + 0.5;
+	
+	//debug inColor
+	//diffuse = color;
+//	if(color.r > 0.59 && color.b > 0.99 && color.g > 0.11){
+//		diffuse = color;
+//	}
 
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
