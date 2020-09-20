@@ -28,6 +28,8 @@ varying vec4 fogColor;
 	}
 #endif
 
+///////////////////// ingame UI fragment shader ////////////////////////////
+
 void main()
 {
 #ifdef EFFECTS_OFFSET

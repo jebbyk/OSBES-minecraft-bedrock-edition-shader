@@ -39,6 +39,11 @@ varying vec4 blueFog;
 varying vec4 milkyFog;
 varying vec4 position;
 varying vec3 relativePosition;
+
+varying float isDay;
+varying float isSunrise;
+varying float isNight;
+varying float isRain;
 const float rA = 1.0;
 const float rB = 1.0;
 const vec3 UNIT_Y = vec3(0,1,0);
@@ -46,6 +51,13 @@ const float DIST_DESATURATION = 56.0 / 255.0; //WARNING this value is also hardc
 
 void main()
 {
+	isDay = (FOG_COLOR.b - FOG_COLOR.r) * 3.0;
+	isSunrise = FOG_COLOR.r  - FOG_COLOR.b;
+	isNight = 1.0 - (FOG_COLOR.r + FOG_COLOR.g + FOG_COLOR.b);
+	if(FOG_COLOR.r > FOG_COLOR.b - 0.05 && FOG_COLOR.r < FOG_COLOR.b + 0.05){
+		isRain = FOG_COLOR.r * 3.0;
+	}
+    
 	isWater = 0.0;
 	POS4 worldPos;
 #ifdef AS_ENTITY_RENDERER
@@ -73,7 +85,7 @@ gl_Position = pos;
 	color = COLOR;
 
 
-    	if(color.b > color.g * 0.82 && color.b > color.r * 1.1){
+    	if(color.b > color.g * 0.82 && color.b > color.r * 1.2){
 		isWater = 1.0;
 	}
 	if(color.b > 0.9 && color.r > 0.5 && color.g > 0.1 && color.g < 0.2 && color.r < 0.6){
@@ -130,7 +142,7 @@ gl_Position = pos;
 //here is a leaves and grass
 #if defined ALPHA_TEST
 
-	if(isWater < 0.1){
+	if(isWater < 0.1 && color.g > color.r){
 		//wind waves
 		vec3 localPosition = POSITION.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
 		float t = TIME;
@@ -163,21 +175,23 @@ gl_Position = pos;
 	#endif //ALLOW_FADE
 
     	fogColor.rgb = FOG_COLOR.rgb;
-	fogColor.a = clamp((len - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
+	    fogColor.a = clamp((len - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
 #endif //FOG
 
 	position = POSITION;
 	relativePosition = -worldPos.xyz; 
+	
 
 	blueFog.rgb = vec3(0.25,0.35,1.0);
-	blueFog.a =  clamp(length(-worldPos.xyz) / (RENDER_DISTANCE * 0.5), 0.0, 0.75);
+	float ownFogAlpha = length(-worldPos.xyz) / RENDER_DISTANCE;
+	blueFog.a = clamp(ownFogAlpha, 0.0, 0.75);
 	
-	milkyFog.rgb = vec3(0.6, 0.8, 1.4);
-	const float milkyFogHeightShift = 6.0;
-	const float milkyFogHeightAtenuation = 0.03125;// 1.0/32.0 = 0.03125
-	milkyFog.a = (relativePosition.y + milkyFogHeightShift) * milkyFogHeightAtenuation;
+	milkyFog.rgb = vec3(0.85, 0.85, 0.85);
+	const float milkyFogHeightShift = 12.0;
+	const float milkyFogHeightAtenuation = 1.0/32.0;
+	milkyFog.a = (relativePosition.y + milkyFogHeightShift * ownFogAlpha) * milkyFogHeightAtenuation;
 	milkyFog.a = pow(clamp(milkyFog.a, 0.0, 1.0), 1.5);
-	milkyFog.a *= blueFog.a;
+	//milkyFog.a *= ownFogAlpha;
 	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
 
 

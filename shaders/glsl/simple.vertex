@@ -15,4 +15,5 @@ void main()
     gl_Position = WORLDVIEWPROJ * POSITION;
 
     color = CURRENT_COLOR;
+    //color.rgb = vec3(1.0, 0.0, 0.0);
 }

@@ -21,6 +21,11 @@
 #endif //VERSION
 
 
+varying float isDay;
+varying float isNight;
+varying float isSunrise;
+varying float isRain;
+
 varying float isWater;
 varying vec4 color;//TODO what is this color??
 vec4 normalColor;// fake normal vector will be stored here or may be later will be passed from vertex shader
@@ -45,8 +50,9 @@ float noise(highp vec2 coord){
 	return fract(sin(dot(coord.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
-vec4 texture2D_b(sampler2D t, highp vec2 uv)
+vec4 texture2D_b(sampler2D t, highp vec2 uv, vec2 baseOffset)
 {
+	uv += baseOffset;
 
 	vec2 textureSize = vec2(1024.0);
 	vec2 texelSize = 1.0/textureSize;
@@ -58,7 +64,7 @@ vec4 texture2D_b(sampler2D t, highp vec2 uv)
 
 
 	highp vec2 tr_coord = uv + vec2(texelSize.x, 0.0);
-	if(tr_coord.x > 4.0/64.0){
+	if(tr_coord.x > baseOffset.x + 1.0/64.0){
 		tr_coord.x -= 1.0/64.0;
 	}
     	vec4 tr = texture2D(t, tr_coord);
@@ -66,7 +72,7 @@ vec4 texture2D_b(sampler2D t, highp vec2 uv)
 	
 
 	highp vec2 bl_coord = uv + vec2(0.0, texelSize.y);
-	if(bl_coord.y > 4.0/64.0){
+	if(bl_coord.y > baseOffset.y + 1.0/64.0){
 		bl_coord.y -= 1.0/64.0;
 	}
 	vec4 bl = texture2D(t, bl_coord);
@@ -74,10 +80,10 @@ vec4 texture2D_b(sampler2D t, highp vec2 uv)
 	
 
 	highp vec2 br_coord = uv + vec2(texelSize.x, texelSize.y);
-	if(br_coord.x > 4.0/64.0){
+	if(br_coord.x > baseOffset.x + 1.0/64.0){
 		br_coord.x -= 1.0/64.0;
 	}
-	if(br_coord.y > 4.0/64.0){
+	if(br_coord.y > baseOffset.y + 1.0/64.0){
 		br_coord.y -= 1.0/64.0;
 	}
 	vec4 br = texture2D(t, br_coord);
@@ -115,13 +121,25 @@ void main()
 
 
 	//debug checking result texture (you should find block with top left corner texture  and place it somewhere in the world)
-	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 32.0 - vec2(0.5, 0.0));
+	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 32.0 - vec2(1.0, 0.0));
 	
 	vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
 	vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
 	vec4 normalMap = vec4(0.0);	
 	normalColor.rgb = vec3(0.0);
+	
+	vec4  puddles = vec4(0.0, 0.0, 0.0, 0.0);
 
+	if(isRain > 0.5 && isWater < 0.1){
+	
+		vec2 noiseTextureOffset = vec2(5.0/64.0, 1.0/64.0); 
+		puddles = texture2D_b(TEXTURE_0, fract(position.xz * 0.0625)*0.015625, noiseTextureOffset);
+		//puddles = texture2D(TEXTURE_0, fract(position.xz * 0.0625)*0.015625 + noiseTextureOffset);
+		//puddles.rgb = pow(puddles.rgb, vec3(2.0));
+		puddles.rgb = pow(puddles.rgb * 1.5, vec3(8.0));
+		puddles.rgb = clamp(puddles.rgb, 0.25, 1.0);
+
+	}
 
 	if(isWater >  0.9){
 		normalColor.rgb = vec3(0.0,1.0,0.0);
@@ -181,7 +199,7 @@ void main()
 
 #if !defined(ALWAYS_LIT)
 	
-	////////////////////////////normal maps section////////////////////////////////
+	////////////////////////////normal maps and lighting section////////////////////////////////
 
 	//TODO try to calculate not doublesided normals
 	//TODO or try to get normals from vertex shader (currently it is not available or just returns messy stuff) 
@@ -195,6 +213,17 @@ void main()
 	if(length(normalColor.rgb) < 0.5){
 		normalColor.rgb = vec3(0.0,1.0,0.0);//make them green like they are locking forward		
 	}
+
+
+
+	diffuse.rgb *= color.rgb;
+
+	if(normalColor.g == 1.0){	
+		diffuse.rgb = mix(diffuse.rgb, vec3(0.1,0.1,0.1),puddles.r * 0.75);
+	}else{
+		puddles.r = 0.5;
+	}
+
 
 	//fake TBN transformations for normalmapps
  	if(length(normalMap.rgb) > 0.9){
@@ -235,40 +264,27 @@ void main()
 	///////////////////////lighting section//////////////////////////
 
 	const vec3 skyLightDirection  = vec3(0.0,1.0,0.0);//todo connect with time attribute
-	const float skyLightWrapping = 4.0;//make sky lighting from sides too
+	const float skyLightWrapping = 2.0;//make sky lighting from sides too
 	float skyDot = max((dot(skyLightDirection, normalColor.rgb) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
-	const vec3 skyLightColor = vec3(0.45,0.7,1.1);//todo connect with time attribute
+	
+	vec3 rainSkyLightColor = vec3(0.5, 0.5, 0.5) * isRain * 2.5;
+	vec3 clearSkyLightColor = vec3(0.65, 0.85, 1.1) * clamp(isDay, 0.0, 1.0) * 2.0;
+
+	vec3 skyLightColor = rainSkyLightColor + clearSkyLightColor;
 
 	const vec3 sunLightDirection = vec3(0.5,0.4,0.1);//todo connect with time attribute
 	float sunDot = max(dot(sunLightDirection, normalColor.rgb), 0.0);//todo use normalmaps to represent surface details	
-	const vec3 sunLightColor = vec3(1.0, 0.9, 0.8);//todo connect with time attribute
+	const vec3 sunLightColor = vec3(1.2, 1.1, 0.9);//todo connect with time attribute
 
 	//blinn-phong
 	//float time = -TIME / 200.0;
-/*
-float bilinearFilter(sampler2D texture, vec2 coord,  vec2 textureResolutions){i
-
-	vec2 a = fract(coord.xy);
-	vec2 b = floor(o.xy);
-	
-	float t = noise(b);
-	float tt = noise(b + vec2(1.0, 0.0));
-	float d = mix(t, tt, a.x);
-
-	float k = noise(b + vec2(0.0, 1.0));
-	float kk = noise(b + vec2(1.0, 1.0));
-	float e = mix(k, kk, a.x);
-	return mix(d, e, a.y);
-}
-
-*/
 
 	const vec3 debugLightDir = vec3(0.95, 0.05, 0.0);
 	vec3 viewDir = normalize(relativePosition.xyz);
 	vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-	float shininess = 128.0 * specularMap.r;
+	float shininess = 128.0 * clamp(specularMap.r + isRain, 0.0, 1.0);
 	float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
-	vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r);
+	vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r * isDay);
 
 
 	vec4 pointLights = pow(texture2D(TEXTURE_1, vec2(uv1.x, 0.0)), vec4(4.0));
@@ -285,7 +301,7 @@ float bilinearFilter(sampler2D texture, vec2 coord,  vec2 textureResolutions){i
 
 	//fake effect when light bounses from surface if hits it with very small angle
 	const float fresnelFactor = 5.0;
-	float fresnel = pow(1.0 - dot(normalColor.rgb, viewDir), fresnelFactor * specularMap.r);
+	float fresnel = pow(1.0 - dot(normalColor.rgb, viewDir), fresnelFactor * clamp(specularMap.r + isRain, 0.0, 1.0));
 
 	if(fresnel > 1.0) {//because of our fake normals we should do this trick
 		fresnel = pow(1.0 - dot(normalColor.rgb, -viewDir), fresnelFactor * specularMap.r);
@@ -297,14 +313,24 @@ float bilinearFilter(sampler2D texture, vec2 coord,  vec2 textureResolutions){i
 		fresnel = mix(fresnel, 1.0, farWaterFresnel);
 	}
 
+	//the same tweak with puddles
+	if(isRain > 0.5 && normalColor.g > 0.5 && isWater < 0.1){
+		float farPuddlesFresnel = pow(1.0 - dot(vec3(0.0, 1.0, 0.0), viewDir), fresnelFactor/ 4.0);
+		if(farPuddlesFresnel > 1.0){
+			farPuddlesFresnel = pow(1.0 - dot(vec3(0.0, 1.0, 0.0), -viewDir), fresnelFactor / 4.0);	
+		}	
+		fresnel = mix(fresnel, 1.0, farPuddlesFresnel);
+	}
+
+
 	//mix lighting
 	vec3 resultLighting = ambientOclusion.rgb * skyLightColor * skyDot * 0.5;
-	vec4 perPixelFresnel = vec4(resultLighting, fresnel * specularMap.r);
-	resultLighting += sunLightColor * sunDot * fakeShadow.rgb * 2.0;
+	vec4 perPixelFresnel = vec4(resultLighting, fresnel * (clamp(specularMap.r + isRain * puddles.r, 0.0, 1.0)));
+	resultLighting += sunLightColor * sunDot * fakeShadow.r * 2.0;
 	resultLighting += pointLights.rgb;
 	diffuse.rgb *= resultLighting.rgb * 1.8;
-	diffuse.rgb = mix(diffuse.rgb, perPixelFresnel.rgb * 4.0, perPixelFresnel.a);
-	diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb * 2.0, pow(perPixelSpecular.a, 1.5) * fakeShadow.r);
+	diffuse.rgb = mix(diffuse.rgb, perPixelFresnel.rgb, perPixelFresnel.a);
+	diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a * fakeShadow.r);
 #endif //ALWAYS_LIT
 
 
@@ -314,10 +340,10 @@ float bilinearFilter(sampler2D texture, vec2 coord,  vec2 textureResolutions){i
 		//diffuse.a = inColor.a;//with this parameter we can detirmane if it's water or leaves 
 	#endif //USE_ALPHA_TEST
 		//todo move to default pipeline with default fog and sun colors
-		diffuse.rgb *= color.rgb;
+		//diffuse.rgb *= color.rgb;
 		if(isWater > 0.9){
-			diffuse.rgb = mix(diffuse.rgb * 0.25, vec3(0.16, 0.24, 0.6) * 2.8, perPixelFresnel.a);
-			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * vec3(1.0,1.0,1.5), clamp(perPixelSpecular.a * 2.0, 0.0, 1.0));
+			diffuse.rgb = mix(diffuse.rgb * 0.25, perPixelFresnel.rgb, perPixelFresnel.a);
+			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor, perPixelSpecular.a);
 			diffuse.a = perPixelFresnel.a + 0.5 + clamp(perPixelSpecular.a * 2.0, 0.0, 1.0);
 		}
 
@@ -334,28 +360,29 @@ float bilinearFilter(sampler2D texture, vec2 coord,  vec2 textureResolutions){i
 	//to change its color depending on day/night cicle and weater
 	if(isWater < 0.1){
 		//add blue fog everywhere except water;
-		diffuse.rgb = mix(diffuse.rgb, blueFog.rgb, blueFog.a);// 1.0/1.5 = 0.6666667
+		diffuse.rgb = mix(diffuse.rgb, blueFog.rgb, blueFog.a * isDay);// 1.0/1.5 = 0.6666667
 	}
 
 	//TODO user actual position instead of relativePosition;	
-	diffuse.rgb = mix(diffuse.rgb, milkyFog.rgb, milkyFog.a);
+	diffuse.rgb = mix(diffuse.rgb, milkyFog.rgb, milkyFog.a * isRain * 1.3);
 #ifdef FOG
 //we dont have realativePosityon here, so it brakes everything
-	/*fogColor.rgb = vec3(0.1,0.3,1.0);
-	fogColor.a -= relativePosityon.y;
-	diffuse.rgb = mix( diffuse.rgb, fogColor.rgb, clamp(fogColor.a, 0.0, 1.0) );
-*/
+	//fogColor.rgb = vec3(0.1,0.3,1.0);
+	//fogColor.a -= relativePosityon.y;
+	//fogColor.rgb = FOG_COLOR.rgb;
+	diffuse.rgb = mix( diffuse.rgb, fogColor.rgb, fogColor.a);
+
 #endif //FOG
 
 	///////////////////color correction section////////////////////
-
+/*
 	vec4 colorCorrectionContrast = vec4(1.5, 1.25, 1.0, 1.0);
 	vec4 colorCorrectionTint = vec4(1.75,1.5,1.0,1.0);
 	float colorCorrectionSaturation = 0.75;
 	float grayScaleDiffuse = (diffuse.r + diffuse.g + diffuse.b)*0.3333333;
 	diffuse.rgb = atan(pow(diffuse.rgb * colorCorrectionTint.rgb, colorCorrectionContrast.rgb));//avoid super bright areas (atan(x) can't be grater then 1.0)
 	diffuse.rgb = mix(vec3(grayScaleDiffuse, grayScaleDiffuse, grayScaleDiffuse), diffuse.rgb, colorCorrectionSaturation);
-
+*/
 
 	
 
@@ -398,6 +425,17 @@ float bilinearFilter(sampler2D texture, vec2 coord,  vec2 textureResolutions){i
 //	if(color.r > 0.59 && color.b > 0.99 && color.g > 0.11){
 //		diffuse = color;
 //	}
+
+	//debug fog
+	//diffuse.rgb = mix(vec3(0.0), blueFog.rgb, blueFog.a);
+	//diffuse.rgb = mix(diffuse.rgb, milkyFog.rgb, milkyFog.a);
+	//diffuse.rgb = mix(vec3(0.0), fogColor.rgb, fogColor.a);
+   
+   	//debug daytime and weather
+	//diffuse.rgb = vec3(isDay, isSunrise, isNight);
+//	diffuse.rgb = vec3(isDay);
+   	//diffuse.rgb = vec3(isNight);
+	//diffuse.rgb = vec3(isRain);
 
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
