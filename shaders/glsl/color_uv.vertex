@@ -57,5 +57,5 @@ void main()
 	layer2UV = calculateLayerUV(UV_OFFSET.y, UV_ROTATION.y);
 #endif
 
-	color.rgb = vec3(1.0, 0.0, 0.0);
+//	color.rgb = vec3(1.0, 0.0, 0.0);
 }

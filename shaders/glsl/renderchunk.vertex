@@ -40,9 +40,6 @@ varying vec4 milkyFog;
 varying vec4 position;
 varying vec3 relativePosition;
 
-varying float isDay;
-varying float isSunrise;
-varying float isNight;
 varying float isRain;
 const float rA = 1.0;
 const float rB = 1.0;
@@ -51,13 +48,14 @@ const float DIST_DESATURATION = 56.0 / 255.0; //WARNING this value is also hardc
 
 void main()
 {
-	isDay = (FOG_COLOR.b - FOG_COLOR.r) * 3.0;
-	isSunrise = FOG_COLOR.r  - FOG_COLOR.b;
-	isNight = 1.0 - (FOG_COLOR.r + FOG_COLOR.g + FOG_COLOR.b);
-	if(FOG_COLOR.r > FOG_COLOR.b - 0.05 && FOG_COLOR.r < FOG_COLOR.b + 0.05){
-		isRain = FOG_COLOR.r * 3.0;
+   	isRain = 1.0 - length(normalize(vec3(1.0, 1.0, 1.0)) - normalize(FOG_COLOR.rgb));//calculate how complimentary fog color wiht gray color
+	isRain = pow(isRain, 16.0);
+
+
+	if(length(FOG_COLOR.rgb) < 0.4 || length(FOG_COLOR.rgb) > 0.6){
+		isRain = 0.0;
 	}
-    
+
 	isWater = 0.0;
 	POS4 worldPos;
 #ifdef AS_ENTITY_RENDERER

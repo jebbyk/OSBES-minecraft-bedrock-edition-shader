@@ -16,8 +16,20 @@ const float fogNear = 0.3;
 
 void main()
 {
-    gl_Position = WORLDVIEWPROJ * POSITION;
 
-    color = mix( CURRENT_COLOR, FOG_COLOR, COLOR.r );
-    //color.rgb = vec3(1.0, 0.0, 0.0);
+	vec4 clearSkyColorMult = vec4(0.5, 0.75, 1.0, 1.0);
+	vec4 rainSkyColorMult = vec4(0.25, 0.25, 0.25, 1.0);
+	float isDay = 1.0;
+	
+    vec4 pos = POSITION;
+    pos.y -= length(pos.xyz)/3.0;
+    gl_Position = WORLDVIEWPROJ * pos;
+
+    color = mix( CURRENT_COLOR * (clearSkyColorMult * isDay + rainSkyColorMult * (1.0 - isDay)), FOG_COLOR, COLOR.r);
+    
+   color *= 4.0; 
+    
+    
+
+	
 }
