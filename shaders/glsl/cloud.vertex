@@ -19,7 +19,7 @@ const float ambient = 0.7;
 
 void main()
 {
-    POS4 pos = WORLDVIEWPROJ * POSITION;
+	POS4 pos = WORLDVIEWPROJ * POSITION;
 	POS4 worldPos = WORLD * POSITION;
  	gl_Position = pos;
 

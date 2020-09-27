@@ -9,11 +9,11 @@ attribute mediump vec4 POSITION;
 attribute vec4 COLOR;
 
 varying vec4 color;
-
+// underground vignette tint (maybe not only underground)
 void main()
 {
     gl_Position = WORLDVIEWPROJ * POSITION;
     color = COLOR;
 
-    color.rgb = vec3(1.0, 0.0, 0.0);
+   // color.rgb = vec3(1.0, 0.0, 0.0);
 }

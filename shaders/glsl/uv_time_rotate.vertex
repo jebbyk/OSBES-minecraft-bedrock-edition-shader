@@ -9,9 +9,8 @@
 attribute POS4 POSITION;
 attribute vec2 TEXCOORD_0;
 
-
+/////////////////////////// cubemap rotation in the menu////////////////////////////
 void main() {   
-    gl_Position = WORLDVIEWPROJ * CUBE_MAP_ROTATION * POSITION;
-
-    uv = TEXCOORD_0;
+	gl_Position = WORLDVIEWPROJ * CUBE_MAP_ROTATION * POSITION;
+	uv = TEXCOORD_0;
 }

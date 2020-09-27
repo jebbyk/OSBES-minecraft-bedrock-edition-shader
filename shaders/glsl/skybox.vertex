@@ -7,14 +7,15 @@
 
 attribute POS4 POSITION;
 attribute vec2 TEXCOORD_0;
-
-//some ui and cubemap uv coord
+//varying vec4 position;
+//varying vec2 uv;
+////////////////////// ingame skybox vertex shader ////////////////
 
 void main()
 {
-    gl_Position = WORLDVIEWPROJ * POSITION;
+	gl_Position = WORLDVIEWPROJ * POSITION;
     
-    
+	//position = POSITION; 
 
-    uv = TEXCOORD_0;
+	uv = TEXCOORD_0;
 }

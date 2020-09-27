@@ -22,7 +22,9 @@ void main()
 	float isDay = 1.0;
 	
     vec4 pos = POSITION;
-    pos.y -= length(pos.xyz)/3.0;
+    
+    pos.y -= 0.03;
+    pos.y -= length(pos.xyz)/2.0;
     gl_Position = WORLDVIEWPROJ * pos;
 
     color = mix( CURRENT_COLOR * (clearSkyColorMult * isDay + rainSkyColorMult * (1.0 - isDay)), FOG_COLOR, COLOR.r);

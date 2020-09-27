@@ -14,15 +14,18 @@ _centroid in vec2 uv;
 #else
 
 varying vec2 uv;
-varying vec3 color;
+varying vec4 position;
 #endif
 
 #include "uniformShaderConstants.h"
 #include "util.h"
 
+#include "uniformInterFrameConstants.h"
+
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 
+//varying vec4 posiion;
 
 /////////////////////// some UI and skybox shader ////////////////////////
 void main()
@@ -38,6 +41,9 @@ void main()
 		discard;
 #endif
 
+	//diffuse.rgb = position.xyz;
 	gl_FragColor = CURRENT_COLOR * diffuse;
-	//gl_FragColor = color;
+	//////////////gl_FragColor.rgb = position.xyz
+	//gl_FragColor = POSITION;
+	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
