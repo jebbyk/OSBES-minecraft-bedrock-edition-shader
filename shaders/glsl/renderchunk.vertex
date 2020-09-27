@@ -83,11 +83,14 @@ gl_Position = pos;
 	color = COLOR;
 
 
-    	if(color.b > color.g * 0.81 && color.b > color.r * 1.17){
+    	if(color.b > color.g * 0.84 && color.b > color.r * 1.17){
 		isWater = 1.0;
 	}
+	float spruce = 0.0;
 	if(color.b > 0.9 && color.r > 0.5 && color.g > 0.1 && color.g < 0.2 && color.r < 0.6){
 		isWater = 0.0;
+		spruce = 1.0;
+		color.rgb = vec3(1.0);
 	}
 
 	if(isWater > 0.9){
@@ -140,7 +143,7 @@ gl_Position = pos;
 //here is a leaves and grass
 #if defined ALPHA_TEST
 
-	if(isWater < 0.1 && color.g > color.r){
+	if((isWater < 0.1 && color.g > color.r) || spruce > 0.5){
 		//wind waves
 		vec3 localPosition = POSITION.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
 		float t = TIME;

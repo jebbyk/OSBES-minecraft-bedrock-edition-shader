@@ -167,6 +167,7 @@ void main()
 		puddles.rgb = pow(puddles.rgb * isRain * puddlesCovering, vec3(puddlesSharpness));
 		puddles.rgb = clamp(puddles.rgb, 0.25, 1.0);
 
+		puddles.rgb *= pow(texture2D(TEXTURE_1, vec2(0.0, uv1.y)).rgb * 1.01, vec3(2.0));
 	}
 
 	if(isWater >  0.9){
@@ -411,7 +412,8 @@ void main()
 
 	//TODO user actual position instead of relativePosition;	
 	vec3 mf= mix(vec3(-0.4), milkyFog.rgb, isDay);
-	diffuse.rgb = mix(diffuse.rgb, mf, milkyFog.a);
+	//milkyFog.a *= ambientOclusion.r;
+	diffuse.rgb = mix(diffuse.rgb, mf, milkyFog.a * ambientOclusion.r);
 #ifdef FOG
 //we dont have realativePosityon here, so it brakes everything
 	//fogColor.rgb = vec3(0.1,0.3,1.0);
