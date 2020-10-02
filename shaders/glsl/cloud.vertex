@@ -15,7 +15,7 @@ varying vec4 color;
 const float fogNear = 0.9;
 
 const vec3 inverseLightDirection = vec3(0.62, 0.78, 0.0);
-const float ambient = 0.7;
+const float ambient = 0.2;
 
 void main()
 {

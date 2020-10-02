@@ -18,9 +18,9 @@
 	varying vec4 color;
 #endif //BYPAS_PIXEL_SHADER
 
-#ifdef FOG
+//#ifdef FOG
 	varying vec4 fogColor;
-#endif //FOG
+//#endif //FOG
 
 
 #include "uniformWorldConstants.h"
@@ -48,6 +48,7 @@ const float DIST_DESATURATION = 56.0 / 255.0; //WARNING this value is also hardc
 
 void main()
 {
+	fogColor = vec4(0.0);
    	isRain = 1.0 - length(normalize(vec3(1.0, 1.0, 1.0)) - normalize(FOG_COLOR.rgb));//calculate how complimentary fog color wiht gray color
 	isRain = pow(isRain, 16.0);
 

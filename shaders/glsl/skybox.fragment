@@ -4,6 +4,7 @@
 #include "fragmentVersionCentroid.h"
 
 #if __VERSION__ >= 300
+//#extension GL_EXT_shader_framebuffer_fetch : require
 
 #if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
 _centroid in highp vec2 uv;
