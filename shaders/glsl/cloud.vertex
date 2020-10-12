@@ -15,7 +15,7 @@ varying vec4 color;
 const float fogNear = 0.9;
 
 const vec3 inverseLightDirection = vec3(0.62, 0.78, 0.0);
-const float ambient = 0.2;
+const float ambient = 0.1;
 
 void main()
 {
@@ -24,6 +24,8 @@ void main()
  	gl_Position = pos;
 
  	color = COLOR * CURRENT_COLOR;
+
+	 color *= length(FOG_COLOR.rgb) * 3.0;
 
  	float depth = length(worldPos.xyz) / RENDER_DISTANCE;
  	float fog = max(depth - fogNear, 0.0);

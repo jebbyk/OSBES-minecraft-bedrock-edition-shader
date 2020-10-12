@@ -46,6 +46,8 @@ const float rB = 1.0;
 const vec3 UNIT_Y = vec3(0,1,0);
 const float DIST_DESATURATION = 56.0 / 255.0; //WARNING this value is also hardcoded in the water color, don'tchange
 
+float isLeaves;
+float isPlantTop;
 void main()
 {
 	fogColor = vec4(0.0);
@@ -59,6 +61,8 @@ void main()
 
 	isWater = 0.0;
 	POS4 worldPos;
+
+
 #ifdef AS_ENTITY_RENDERER
 		POS4 pos = WORLDVIEWPROJ * POSITION;
 		worldPos = pos;
@@ -83,8 +87,20 @@ gl_Position = pos;
     	uv1 = TEXCOORD_1;
 	color = COLOR;
 
+	isLeaves = 0.0;
+	if(fract(POSITION.y) <  0.01){
+		isLeaves = 1.0;
+	}
 
-    	if(color.b > color.g * 0.84 && color.b > color.r * 1.17){
+
+	isPlantTop = 0.0;
+	if(isLeaves < 0.1 && fract(uv0.y * 16.0) > 0.5){
+		isPlantTop = 1.0;
+	}
+
+
+
+    if(color.b > color.g * 0.84 && color.b > color.r * 1.17){
 		isWater = 1.0;
 	}
 	float spruce = 0.0;
@@ -113,9 +129,6 @@ gl_Position = pos;
 
 		//debug positigon
 		//gl_Position.y += sin(pos.x * 4.0);
-		//gl_Position.y += sin(pos.z * 4.0);
-				
-
 	}
 
 
@@ -126,7 +139,7 @@ gl_Position = pos;
 
 ///// find distance from the camera
 
-#if defined(FOG) || defined(BLEND)
+//#if defined(FOG) || defined(BLEND)
 //#if defined(BLEND)
 	
 	#ifdef FANCY
@@ -136,7 +149,7 @@ gl_Position = pos;
 	#else
 		float cameraDepth = pos.z;
 	#endif
-#endif //// FOG or BLEND
+//#endif //// FOG or BLEND
 
 
 
@@ -144,11 +157,12 @@ gl_Position = pos;
 //here is a leaves and grass
 #if defined ALPHA_TEST
 
-	if((isWater < 0.1 && color.g > color.r) || spruce > 0.5){
+	//if((isWater < 0.1 && color.g > color.r) || spruce > 0.5 ){
+	if((isLeaves > 0.5 || isPlantTop > 0.5) && isWater < 0.1 && color.g > color.r){
 		//wind waves
 		vec3 localPosition = POSITION.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
 		float t = TIME;
-		vec2 wavesScale = vec2(0.02, 0.04);
+		vec2 wavesScale = vec2(0.05, 0.05);
 		float wavesMovingSpeed = 16.0 * (1.0 + floor(isRain + 0.5) * 0.5);
 		float wavesFreq  = 4.0;
 
@@ -160,16 +174,18 @@ gl_Position = pos;
 		f = clamp(pow(f, impulseDuration), 0.1 + isRain * 0.3, 1.0);
 		wavesScale *= f * (1.0 + isRain * 2.0);
 
-		gl_Position.xy += sin(t * wavesMovingSpeed + gl_Position.x * wavesFreq) * wavesScale;  
+		gl_Position.xy += (1.0 + sin(t * wavesMovingSpeed + gl_Position.x * wavesFreq)) * wavesScale;  
 
 		//debug impulses
-		//gl_Position.x += f;
+	//	gl_Position.x += f;
+
+	
 	}
 #endif
 
 ///// apply fog
 
-#ifdef FOG
+//#ifdef FOG
 	float len = cameraDepth / RENDER_DISTANCE;
 	//float len = atan(cameraDepth/(RENDER_DISTANCE/2.0));
 	#ifdef ALLOW_FADE
@@ -178,7 +194,7 @@ gl_Position = pos;
 
     	fogColor.rgb = FOG_COLOR.rgb;
 	    fogColor.a = clamp((len - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
-#endif //FOG
+//#endif //FOG
 
 	position = POSITION;
 	relativePosition = -worldPos.xyz; 
@@ -189,8 +205,8 @@ gl_Position = pos;
 	blueFog.a = clamp(ownFogAlpha, 0.0, 0.75);
 	
 	milkyFog.rgb = mix(vec3(2.0), vec3(0.5), isRain);
-	float milkyFogHeightShift = 12.0 + isRain * 128.0;
-	float milkyFogHeightAtenuation = 1.0/32.0;
+	float milkyFogHeightShift = -32.0 + isRain * 128.0;
+	float milkyFogHeightAtenuation = 1.0/64.0;
 	milkyFog.a = (relativePosition.y + milkyFogHeightShift * ownFogAlpha) * milkyFogHeightAtenuation;
 	milkyFog.a = pow(clamp(milkyFog.a, 0.0, 1.0), 1.5);
 	milkyFog.a *= 0.7 + isRain*0.3;

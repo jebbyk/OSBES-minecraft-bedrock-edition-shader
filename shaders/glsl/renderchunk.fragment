@@ -55,7 +55,6 @@ vec4 texture2D_b(sampler2D t, highp vec2 uv, vec2 baseOffset)
 	vec2 textureSize = vec2(1024.0);
 	vec2 texelSize = 1.0/textureSize;
 	vec2 f = fract( uv * textureSize );
-	//uv += ( .5 - f ) * texelSize;    // move uv to texel centre
 
 	vec4 tl = texture2D(t, uv);
 
@@ -104,9 +103,6 @@ highp vec2 parallax(highp vec2 uv, highp vec3 viewDir){
 
 	viewDir = tbn * viewDir;
 
-
-	//viewDir ;
-
 	highp float height_scale = 0.01;
 
 	//highp float height = texture2D(TEXTURE_0, uv).b;
@@ -120,12 +116,20 @@ highp vec2 parallax(highp vec2 uv, highp vec3 viewDir){
 
 void main()
 {
+    float dayTime = texture2D(TEXTURE_1, vec2(0.0, 1.0)).r;
+
+    float isDay = dayTime - 0.75; // r ~0.465 on night time
+    isDay = clamp(isDay * 4.2, 0.0, 1.0);
+
+	float isSunset = dayTime - 0.5;
+	isSunset = clamp(isSunset * 2.175, 0.0, 1.0);
+	
     
-    float isDay = pow(texture2D(TEXTURE_1, vec2(0.0, 1.0)).b, 4.0);
     float isHell = 0.0;
-    if(fogColor.r > 0.10 && fogColor.r < 0.19){
-	isHell = 1.0;
+    if(fogColor.r > 0.10 && fogColor.r < 0.19 && isDay == 1.0){
+		isHell = 1.0;
     }
+
 #ifdef BYPASS_PIXEL_SHADER
 	gl_FragColor = vec4(1.0, 0, 0, 1.0);
 	return;
@@ -162,17 +166,15 @@ void main()
 
 	if(isRain > 0.1 && isWater < 0.1){
 		
-		float puddlesSharpness = 8.0;
-		float puddlesCovering = 2.0;
+		float puddlesSharpness = 2.0;
+		float puddlesCovering = 1.75;
 
 		vec2 noiseTextureOffset = vec2(5.0/64.0, 1.0/64.0); 
 		puddles = texture2D_b(TEXTURE_0, fract(position.xz * 0.0625)*0.015625, noiseTextureOffset);
-		//puddles = texture2D(TEXTURE_0, fract(position.xz * 0.0625)*0.015625 + noiseTextureOffset);
-		//puddles.rgb = pow(puddles.rgb, vec3(2.0));
 		puddles.rgb = pow(puddles.rgb * isRain * puddlesCovering, vec3(puddlesSharpness));
-		puddles.rgb = clamp(puddles.rgb, 0.25, 1.0);
+		puddles.rgb = clamp(puddles.rgb, 0.5, 1.0);
 
-		puddles.rgb *= pow(texture2D(TEXTURE_1, vec2(0.0, uv1.y)).rgb * 1.01, vec3(2.0));
+		puddles.rgb *= vec3(pow(uv1.y, 2.0));//no puddles in dark places like caves
 	}
 
 	if(isWater >  0.9){
@@ -307,19 +309,17 @@ void main()
 	const float skyLightWrapping = 4.0;//make sky lighting from sides too
 	float skyDot = max((dot(skyLightDirection, normalColor.rgb) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
 	
-	vec3 rainSkyLightColor = vec3(0.5, 0.5, 0.5) * isRain * 2.0;
-	vec3 clearSkyLightColor = vec3(0.4, 0.68, 1.1) * clamp(isDay, 0.0, 1.0) * (1.0 - isRain) * 3.0;
-
+	vec3 rainSkyLightColor = vec3(0.5, 0.5, 0.5) * isDay * isRain;
+	vec3 clearSkyLightColor = (vec3(0.08, 0.14, 0.2) + vec3(0.41, 0.69, 1.0) * isDay * (1.0 - isRain));
+	
 	vec3 skyLightColor = rainSkyLightColor + clearSkyLightColor;
 
 	const vec3 sunLightDirection = vec3(0.55,0.4,0.05);//todo connect with time attribute
 	float sunDot = max(dot(sunLightDirection, normalColor.rgb), 0.0);	
-	const vec3 sunLightColor = vec3(1.2, 1.1, 0.9) * 2.0;//todo connect with time attribute
-	const vec3 moonLightColor = vec3(0.5, 0.75,1.0);
+	const vec3 sunLightColor = vec3(1.0, 0.88, 0.69);//todo connect with time attribute
+	const vec3 moonLightColor = vec3(0.5, 0.75,1.0) * 0.25;
 	
 	
-
-
 	//blinn-phong
 	const vec3 debugLightDir = vec3(0.95, 0.05, 0.0);
 	vec3 viewDir = normalize(relativePosition.xyz);
@@ -329,31 +329,21 @@ void main()
 	vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r * (isDay - isRain));
 
 	//torches, lampps and lava lights
-	vec4 srcPointLights = texture2D(TEXTURE_1, vec2(uv1.x, 0.0)) /  0.9885;
-	vec4 brightLights = pow(srcPointLights, vec4(64.0));
+	vec4 srcPointLights = vec4(uv1.x);
+	vec4 brightLights = vec4(pow(srcPointLights.r * 1.15, 32.0));
 	vec4 pointLights = pow(srcPointLights, vec4(2.0)) * 0.5 + brightLights;
-	//vec4 pointLights = vec4(vec3(originalPointLights.b), 1.0);
-	//pointLights = pow(pointLights / 0.9885, vec4(2.0));
-	vec3 pointLightsTint = vec3(1.0, 0.75, 0.5) * 2.0;
+	vec3 pointLightsTint = vec3(1.0, 0.66, 0.33);
 	pointLights.rgb *= pointLightsTint;
-	
+
+
+	vec4 ambientOclusion = vec4(uv1.y + isHell* 0.5);
+	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.15, vec4(128.0)),0.0,1.0);
+	vec4 fakeMoonShadow = clamp(pow(ambientOclusion * 1.15, vec4(64.0)), 0.0, 1.0);
 	
 
-	vec4 ambientOclusion = texture2D(TEXTURE_1, vec2(0.0, uv1.y));
-
-	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.025, vec4(500.0)),0.0,1.0);
-	vec4 fakeMoonShadow = clamp(pow(ambientOclusion * 2.5, vec4(64.0)), 0.0, 1.0);
+	spec = pow(max(dot(normalColor.rgb, viewDir), 0.0), shininess * 0.25);
+	vec4 pointLightsSpec = vec4(pow(min(pointLights.rgb * 3.0, 1.0), vec3(2.0)), spec * specularMap.r * pointLights.r * max((2.0 - (isDay + fakeShadow)), 0.0));
 	
-
-	spec = pow(max(dot(normalColor.rgb, viewDir), 0.0), shininess * 0.5);
-	vec4 pointLightsSpec = vec4(pointLights.rgb, spec * specularMap.r * pointLights.r * (1.0 - fakeShadow));
-	
-
-	
-	
-	if(fakeShadow.r < 1.0 && fakeShadow.r > 0.0){
-		fakeShadow.rgb *= noise(position.xy) + 0.75;
- 	}
 	
 
 	//fake effect when light bounses from surface if hits it with very small angle
@@ -383,7 +373,7 @@ void main()
 	}
 
 
-	vec4 pointLightsFresnel = vec4(pointLights.rgb, fresnel * (1.0 - fakeShadow));
+	vec4 pointLightsFresnel = vec4(pointLights.rgb, fresnel * (2.0 - (isDay + fakeShadow)));
 
 
 	//mix lighting
@@ -391,7 +381,8 @@ void main()
 	vec4 skyLightFresnel = vec4(resultLighting, fresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * puddles.r, 0.0, 1.0)));
 
 	resultLighting += pointLights.rgb;
-	resultLighting += sunLightColor * sunDot * fakeShadow.r * 2.0 * isDay;
+	resultLighting += sunLightColor * sunDot * fakeShadow.r * (isDay - isRain);
+	resultLighting += vec3(isHell * 0.25);// fakeLighting in hell
 	resultLighting += moonLightColor * sunDot * fakeMoonShadow.r * (1.0 - isDay);
 	
 	diffuse.rgb *= resultLighting.rgb * 1.8; 
@@ -409,13 +400,13 @@ void main()
 		//diffuse.rgb *= color.rgb;
 		if(isWater > 0.9){
 			diffuse.rgb = mix(diffuse.rgb * 0.25, skyLightFresnel.rgb, pow(skyLightFresnel.a, 2.0));
-			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor, pow(perPixelSpecular.a * 1.3, 4.0));
+			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor, perPixelSpecular.a * 1.3);
 			
 			diffuse.rgb += pointLightsFresnel.rgb * pointLightsFresnel.a;
 			diffuse.rgb +=  pointLightsSpec.rgb * pointLightsSpec.a;
 
-			diffuse.a = skyLightFresnel.a + pow(perPixelSpecular.a * 1.3, 4.0) + pointLightsSpec.a;
-			diffuse.a = clamp(diffuse.a + 0.5, 0.0, 1.0);
+			diffuse.a = skyLightFresnel.a + perPixelSpecular.a * 1.3 + pointLightsSpec.a;
+			diffuse.a = min(diffuse.a + 0.5, 1.0);
 		}
 
 #else
@@ -429,41 +420,36 @@ void main()
 
 	//TODO connect FOG_COLOR.rgb (available here 100%) and TIME attribute (hope is available) with ownFogColor value
 	//to change its color depending on day/night cicle and weater
-	if(isWater < 0.1){
+	if(isWater < 0.1 && isHell < 0.1){
 		//add blue fog everywhere except water;
 		diffuse.rgb = mix(diffuse.rgb, blueFog.rgb, blueFog.a * pow(isDay, 2.0));// 1.0/1.5 = 0.6666667
 	}
 
 
 	//TODO user actual position instead of relativePosition;yes
-	vec3 mf= mix(vec3(-0.4), milkyFog.rgb, isDay);
-	//milkyFog.a *= ambientOclusion.r;
+	vec3 mf= mix(vec3(0.1), milkyFog.rgb, isDay);
 	diffuse.rgb = mix(diffuse.rgb, mf, milkyFog.a * (1.0 - isHell));
 #ifdef FOG
-//we dont have realativePosityon here, so it brakes everything
-	//fogColor.rgb = vec3(0.1,0.3,1.0);
-	//fogColor.a -= relativePosityon.y;
-	//fogColor.rgb = FOG_COLOR.rgb;
-	diffuse.rgb = mix( diffuse.rgb, fogColor.rgb * vec3(0.5, 0.75, 1.0) * 4.0, fogColor.a);
-
+	diffuse.rgb = mix( diffuse.rgb, fogColor.rgb * vec3(0.5, 0.75, 1.0), fogColor.a);
 #endif //FOG
 
 	///////////////////color correction section////////////////////
 
 
-	vec3 tint = vec3(1.5, 1.25, 1.0)*2.0;
+	vec3 tint = vec3(1.5, 1.25, 1.0)*3.0;
 	diffuse.rgb *= tint;
 
-	float contrast = 1.75;
+	float contrast = 2.0;
 	diffuse.rgb = pow(diffuse.rgb, vec3(contrast));
 
 	//tone compensation
 	diffuse.rgb = diffuse.rgb/(diffuse.rgb + vec3(1.0));
+	
 	//gamma correction
-	float gamma = 0.85;
+	float gamma = 1.0;
 	diffuse.rgb = pow(diffuse.rgb, vec3(1.0 / gamma));
 
-	float saturation = 0.85;
+	float saturation = 1.0;
 	float grayScale = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
 	diffuse.rgb = mix(vec3(grayScale), diffuse.rgb, saturation);
 
@@ -513,7 +499,20 @@ void main()
    
    	//debug daytime and weather
 	//diffuse.rgb = vec3(isDay, isSunrise, isNight);
-//	diffuse.rgb = vec3(isDay);
+    //diffuse.rgb = vec3(isDay);
+    /*if(isDay == 0.0){
+        diffuse.rgb = vec3(1.0, 0.0, 0.0);
+    }
+    if(isDay == 1.0){
+        diffuse.rgb = vec3(0.0, 1.0, 0.0);
+    }*/
+
+	/*if(isSunset == 1.0){
+		diffuse.rgb = vec3(0.0, 1.0, 0.0);
+	}
+	if(isSunset == 0.0){8
+		diffuse.rgb = vec3(1.0, 0.0, 0.0);
+	}*/
    	//diffuse.rgb = vec3(isNight);
 	//diffuse.rgb = vec3(isRain);
 
