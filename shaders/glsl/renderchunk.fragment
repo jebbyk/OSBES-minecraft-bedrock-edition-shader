@@ -44,55 +44,6 @@ varying vec4 blueFog;
 varying vec4 milkyFog;
 
 
-float noise(highp vec2 coord){
-	return fract(sin(dot(coord.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-}
-
-vec4 texture2D_b(sampler2D t, highp vec2 uv, vec2 baseOffset)
-{
-	uv += baseOffset;
-
-	vec2 textureSize = vec2(1024.0);
-	vec2 texelSize = 1.0/textureSize;
-	vec2 f = fract( uv * textureSize );
-
-	vec4 tl = texture2D(t, uv);
-
-
-
-	highp vec2 tr_coord = uv + vec2(texelSize.x, 0.0);
-	if(tr_coord.x > baseOffset.x + 1.0/64.0){
-		tr_coord.x -= 1.0/64.0;
-	}
-    	vec4 tr = texture2D(t, tr_coord);
-	
-	
-
-	highp vec2 bl_coord = uv + vec2(0.0, texelSize.y);
-	if(bl_coord.y > baseOffset.y + 1.0/64.0){
-		bl_coord.y -= 1.0/64.0;
-	}
-	vec4 bl = texture2D(t, bl_coord);
-
-	
-
-	highp vec2 br_coord = uv + vec2(texelSize.x, texelSize.y);
-	if(br_coord.x > baseOffset.x + 1.0/64.0){
-		br_coord.x -= 1.0/64.0;
-	}
-	if(br_coord.y > baseOffset.y + 1.0/64.0){
-		br_coord.y -= 1.0/64.0;
-	}
-	vec4 br = texture2D(t, br_coord);
-	
-	
-
-	vec4 tA = mix( tl, tr, f.x );
-	vec4 tB = mix( bl, br, f.x );
-	//return vec4(0.5);
-	return mix( tA, tB, f.y );
-}
-
 highp vec2 parallax(highp vec2 uv, highp vec3 viewDir){
 	
 	highp vec3 n = vec3(0.0, 1.0, 0.0);
@@ -143,7 +94,7 @@ void main()
 	////////////////////////////mapping section///////////////////////////////////
 
 	//by default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
-	//but wtih my texture pack I have 1.0 x 1.0. with your custom texuture pack you should check result texture  dimensions
+	//but wtih my texture pack I have 1.0 x ture2D1.0. with your custom texuture pack you should check result texture  dimensions
 	
 	//top left texture - default diffuse
 	highp vec2 localDiffuseCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
@@ -154,11 +105,13 @@ void main()
 	//debug checking result texture (you should find block with top left corner texture  and place it somewhere in the world)
 	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 32.0 - vec2(1.0, 0.0));
 	
-	vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
+	//vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
+	vec4 diffuse = texelFetch(TEXTURE_0, ivec2((uv0 - localDiffuseCoord) * 1024.0), 0);
 	//vec4 diffuse = texture2D(TEXTURE_0, parallax(uv0 - localDiffuseCoord, relativePosition.xyz));
 
 
-	vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
+	//vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
+	vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
 	vec4 normalMap = vec4(0.0);	
 	normalColor.rgb = vec3(0.0);
 	
@@ -167,12 +120,12 @@ void main()
 	if(isRain > 0.1 && isWater < 0.1){
 		
 		float puddlesSharpness = 2.0;
-		float puddlesCovering = 1.75;
+		float puddlesCovering = 1.5;
 
 		vec2 noiseTextureOffset = vec2(5.0/64.0, 1.0/64.0); 
-		puddles = texture2D_b(TEXTURE_0, fract(position.xz * 0.0625)*0.015625, noiseTextureOffset);
+		puddles = texture(TEXTURE_0, fract(position.xz * 0.0625)*0.015625 + noiseTextureOffset);
 		puddles.rgb = pow(puddles.rgb * isRain * puddlesCovering, vec3(puddlesSharpness));
-		puddles.rgb = clamp(puddles.rgb, 0.5, 1.0);
+		puddles.rgb = clamp(puddles.rgb, 0.3, 1.0);
 
 		puddles.rgb *= vec3(pow(uv1.y, 2.0));//no puddles in dark places like caves
 	}
@@ -195,10 +148,10 @@ void main()
 
 		
 		// 1.0/64.0 = 0.0156251          1.5 / 32.0 =  0.046875 (water normal map offset)
-		normalMap = texture2D(TEXTURE_0, fract(position.xz*0.5*wnScale + t*wnScale)*0.015625 + 0.046875);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25*wnScale - t*wnScale)*0.015625 + 0.046875);// 
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125*wnScale + t*wnScale)*0.015625 + 0.046875);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.0625*wnScale - t*wnScale*0.0625)*0.015625 + 0.046875);
+		normalMap += texture2D(TEXTURE_0, (fract(position.xz*0.5*wnScale + t*wnScale * 2.0))/69.0 + 3.03/64.0);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25*wnScale - t*wnScale * 1.5)/69.0 + 3.03/64.0);// 
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125*wnScale + t*wnScale * 1.0)/69.0 + 3.03/64.0);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.0625*wnScale - t*wnScale*0.5)/69.0 + 3.03/64.0);
 		
 		
 		//normalMap *= 0.5;
@@ -209,7 +162,7 @@ void main()
 	}else{
 		//bottom left  texture - normalmap
 		highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 0.015625);
-		normalMap = texture2D(TEXTURE_0, uv0 - localNormalCoord);
+		normalMap = texelFetch(TEXTURE_0, ivec2((uv0 - localNormalCoord) * 1024.0), 0);
 	}
 	
 #endif //USE_TEXEL_AA
@@ -246,7 +199,7 @@ void main()
 	diffuse.rgb *= color.rgb;
 
 	//dark puddles color (affected by fresnel later)
-	if(normalColor.g == 1.0){	
+	if(normalColor.g > 0.9){	
 		diffuse.rgb = mix(diffuse.rgb, vec3(0.15,0.15,0.15),puddles.r);
 	}else{
 		puddles.r = 0.5;
@@ -256,29 +209,52 @@ void main()
 	//fake TBN transformations for normalmapps
  	if(length(normalMap.rgb) > 0.9){
 		
-		float normalMapStrength = 0.5;
+		float normalMapStrength = 1.0;
 
 		if(normalColor.g > 0.9){
 			normalMap.gb = normalMap.bg;
 			normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
 			normalMap.rb *= normalMapStrength;
-    			normalColor.rgb = normalize(normalMap.rgb);
+    		normalColor.rgb = normalize(normalMap.rgb);
 		}else{
-
-			if (normalColor.b > 0.9){
-				normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
+			if(normalColor.g < -0.9){
+				normalMap.b = -normalMap.b;
+				normalMap.gb = normalMap.bg;
 				normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-				normalMap.rg *= normalMapStrength;
-    				normalColor.rgb = normalize(normalMap.rgb);
- 
+				normalMap.rb *= normalMapStrength;
+    			normalColor.rgb = normalize(normalMap.rgb);
 			}else{
-
-				if(normalColor.r > 0.9){
+				if (normalColor.b > 0.9){
 					normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
-					normalMap.rb = normalMap.br;
 					normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-					normalMap.gb *= normalMapStrength;
-    					normalColor.rgb = normalize(normalMap.rgb);
+					normalMap.rg *= normalMapStrength;
+					normalColor.rgb = normalize(normalMap.rgb);
+	
+				}else{
+					if(normalColor.b < -0.9){
+						normalMap.b = -normalMap.b;
+						normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
+						normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+						normalMap.rg *= normalMapStrength;
+						normalColor.rgb = normalize(normalMap.rgb);
+					}else{
+						if(normalColor.r > 0.9){
+							normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
+							normalMap.rb = normalMap.br;
+							normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+							normalMap.gb *= normalMapStrength;
+							normalColor.rgb = normalize(normalMap.rgb);
+						}else{
+							if(normalColor.r < -0.9){
+								normalMap.b = -normalMap.b;
+								normalMap.g = 1.0 - normalMap.g;//OpenGl style G flip
+								normalMap.rb = normalMap.br;
+								normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+								normalMap.gb *= normalMapStrength;
+								normalColor.rgb = normalize(normalMap.rgb);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -309,10 +285,10 @@ void main()
 	
 	
 	//blinn-phong
-	const vec3 debugLightDir = vec3(0.95, 0.05, 0.0);
+	const vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
 	vec3 viewDir = normalize(relativePosition.xyz);
 	vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-	float shininess = 64.0 * specularMap.r;
+	float shininess = 64.0 * specularMap.r  + 256.0 * isWater;
 	float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
 	vec4 perPixelSpecular = vec4(sunLightColor, spec * specularMap.r * (isDay - isRain));
 
@@ -387,13 +363,13 @@ void main()
 		//todo move to default pipeline with default fog and sun colors
 		//diffuse.rgb *= color.rgb;
 		if(isWater > 0.9){
-			diffuse.rgb = mix(diffuse.rgb * 0.25, skyLightFresnel.rgb, pow(skyLightFresnel.a, 2.0));
-			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor, perPixelSpecular.a * 1.3);
+			diffuse.rgb = mix(diffuse.rgb * 0.25, skyLightFresnel.rgb, skyLightFresnel.a);
+			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor * 1.5,perPixelSpecular.a);
 			
 			diffuse.rgb += pointLightsFresnel.rgb * pointLightsFresnel.a;
 			diffuse.rgb +=  pointLightsSpec.rgb * pointLightsSpec.a;
 
-			diffuse.a = skyLightFresnel.a + perPixelSpecular.a * 1.3 + pointLightsSpec.a;
+			diffuse.a = skyLightFresnel.a + perPixelSpecular.a + pointLightsSpec.a;
 			diffuse.a = min(diffuse.a + 0.5, 1.0);
 		}
 
@@ -516,6 +492,7 @@ void main()
 
 	//diffuse.rgb = vec3(isHell);
 	
+
 
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
