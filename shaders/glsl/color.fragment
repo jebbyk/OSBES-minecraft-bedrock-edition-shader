@@ -3,24 +3,123 @@
 
 #include "fragmentVersionSimple.h"
 
-varying vec4 color;
+#include "uniformShaderConstants.h"
+#include "uniformPerFrameConstants.h"
 
-//sky fragment shader
+varying float height;
+varying vec4 position;
+vec4 color;
+
+
+float rand(highp vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float rand_bilinear(highp vec2 coord){
+	
+	vec2 flooredCoord = floor(coord);
+
+	float leftTopSample = rand(flooredCoord);
+	float righTopSample = rand(flooredCoord + vec2(0.0, 1.0));
+	float leftBottomSample = rand(flooredCoord + vec2(1.0, 0.0));
+	float rightBottomSample = rand(flooredCoord + vec2(1.0, 1.0));
+
+	vec2 fractionalPart = coord - flooredCoord;
+
+	float topRow = mix(leftTopSample, righTopSample, fractionalPart.y);
+	float botRow = mix(leftBottomSample, rightBottomSample, fractionalPart.y);
+
+	float result = mix(topRow, botRow, fractionalPart.x);
+	
+	return result;
+}
+
+//skyplane  fragment shader and maybe clouds
 void main()
 {
-    /*
-	vec3 colorCorrectionContrast = vec3(1.5, 1.25, 1.0);
-	vec3 colorCorrectionTint = vec3(1.75,1.5,1.0);
-	float colorCorrectionSaturation = 0.75;
-	float grayScaleDiffuse = (color.r + color.g + color.b)*0.3333333;
-	color.rgb = color.rgb;//avoid super bright areas (atan(x) can't be grater then 1.0)
-	//color.rgb = mix(vec3(grayScaleDiffuse * 1.2), color.rgb * 1.2, colorCorrectionSaturation);
-*/
+    
+
+
+	//vec3 clearSkyColor = vec3(0.41, 0.69, 1.0);
+
+	vec3 clearSkyColor = pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r) * 2.0));
+	vec3 clearSkyZenithColor = vec3(0.1, 0.2, 0.4) * length(clearSkyColor);
+	vec4 rainSkyColor = vec4(0.25, 0.25, 0.25, 1.0);
+	float isDay = 1.0;
+
+
+	float skyAttenuation = 2.0;
+	float skyZenithEdgeOffset = 3.0;
+	color.rgb = mix(clearSkyZenithColor, clearSkyColor, pow(min(height * skyZenithEdgeOffset, 1.0), skyAttenuation));
 
 	vec4 diffuse = color;
+	
 
-	//experimental color correction
-	vec3 tint = vec3(1.5, 1.25, 1.0);
+
+
+
+
+	highp float time = TIME;
+	float cloudsSpeed = 0.005;
+	float cloudsScale = 16.0;
+
+	//float clouds = rand_bilinear((position.xz + vec2(time * cloudsSpeed)) * cloudsScale );
+	float clouds = rand_bilinear((position.xz + vec2(time * cloudsSpeed))* cloudsScale ) * 128.0;
+
+	//clouds = pow(min(clouds * 1.25, 1.0), 6.0);
+
+	clouds += rand_bilinear(position.xz * cloudsScale * 2.0) * 64.0;
+	clouds += rand_bilinear(position.xz * cloudsScale * 4.0) * 32.0;
+	clouds += rand_bilinear(position.xz * cloudsScale * 8.0) * 16.0;	
+	clouds += rand_bilinear(position.xz * cloudsScale * 16.0) * 8.0;	
+	clouds += rand_bilinear(position.xz * cloudsScale * 32.0) * 4.0;
+	clouds += rand_bilinear(position.xz * cloudsScale * 64.0) * 2.0;		
+	clouds += rand_bilinear(position.xz * cloudsScale * 128.0);
+
+	clouds /= 255.0;
+
+
+	
+	
+	
+	float cloudsShadow = pow(clamp(clouds * 1.25, 0.0, 1.0), 0.75);
+
+	float cloudsCutout = pow(min(clouds * 2.0, 1.0), 32.0);
+	
+	vec3 cloudsColor = vec3(1.5);
+	vec3 cloudsShadowColor = mix(diffuse.rgb * 0.75, vec3(length(diffuse.rgb * 0.75)), 0.25);
+
+	cloudsColor = mix(cloudsColor, cloudsShadowColor, cloudsShadow);
+
+
+
+	
+
+
+	diffuse.rgb = mix(diffuse.rgb, cloudsColor, cloudsCutout);
+
+	// cloudsCutout = pow(min(clouds, 1.0), 2.0);
+
+	// diffuse.rgb -= vec3(cloudsCutout);
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	vec3 tint = vec3(1.5, 1.25, 1.0)*3.0;
 	diffuse.rgb *= tint;
 
 	float contrast = 2.0;
@@ -28,11 +127,12 @@ void main()
 
 	//tone compensation
 	diffuse.rgb = diffuse.rgb/(diffuse.rgb + vec3(1.0));
+	
 	//gamma correction
 	float gamma = 1.0;
 	diffuse.rgb = pow(diffuse.rgb, vec3(1.0 / gamma));
 
-	float saturation = 0.75;
+	float saturation = 1.0;
 	float grayScale = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
 	diffuse.rgb = mix(vec3(grayScale), diffuse.rgb, saturation);
 

@@ -25,10 +25,10 @@ void main()
 
  	color = COLOR * CURRENT_COLOR;
 
-	 color *= length(FOG_COLOR.rgb) * 3.0;
+	 color *= length(FOG_COLOR.rgb);
 
  	float depth = length(worldPos.xyz) / RENDER_DISTANCE;
  	float fog = max(depth - fogNear, 0.0);
 
- 	color.a *= 1.0 - fog;
+ 	//color.a *= 1.0 - fog;
 }
