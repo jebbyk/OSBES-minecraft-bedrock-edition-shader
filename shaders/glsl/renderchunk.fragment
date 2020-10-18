@@ -43,6 +43,30 @@ LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 varying vec4 blueFog;
 varying vec4 milkyFog;
 
+float rand(highp vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float rand_bilinear(highp vec2 coord){
+	
+	vec2 flooredCoord = floor(coord);
+
+	float leftTopSample = rand(flooredCoord);
+	float righTopSample = rand(flooredCoord + vec2(0.0, 1.0));
+	float leftBottomSample = rand(flooredCoord + vec2(1.0, 0.0));
+	float rightBottomSample = rand(flooredCoord + vec2(1.0, 1.0));
+
+	vec2 fractionalPart = coord - flooredCoord;
+
+	float topRow = mix(leftTopSample, righTopSample, fractionalPart.y);
+	float botRow = mix(leftBottomSample, rightBottomSample, fractionalPart.y);
+
+	float result = mix(topRow, botRow, fractionalPart.x);
+	
+	return result;
+}
+
+
 
 highp vec2 parallax(highp vec2 uv, highp vec3 viewDir){
 	
@@ -153,6 +177,11 @@ void main()
 		//normalMap *= 0.33;
 		normalMap *= 0.25;
 		//normalMap.b = clamp(normalMap.b, 0.5, 1.0);
+		
+		
+		
+		
+		
 
 	}else{
 		//bottom left  texture - normalmap
@@ -351,8 +380,37 @@ void main()
 		//todo move to default pipeline with default fog and sun colors
 		//diffuse.rgb *= color.rgb;
 		if(isWater > 0.9){
+		    highp float time = TIME;
+	        highp float cloudsSpeed = 1.0;
+			
+
+
+
+
+
+			highp vec2 cldCoord = -relativePosition.xz;
+			//cldCoord += normalColor.rb * 2.0;
+			cldCoord /= 1.0 + pow(skyLightFresnel.a, 4.0);
+			cldCoord /= length(relativePosition.y);
+			cldCoord += vec2(time * cloudsSpeed);
+			
+			float clouds = rand_bilinear(cldCoord);
+
+			//float cloudsShadow = pow(clamp(clouds * 1.25, 0.0, 1.0), 4.0);
+
+			clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), 16.0);
+
+		    
+
+		    
+		    
+		    
 			diffuse.rgb = mix(diffuse.rgb * 0.25 + length(clearSkyLightColor) * vec3(0.05, 0.1, 0.2), skyLightFresnel.rgb * 2.0, pow(skyLightFresnel.a, 2.0));
-			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor * 1.5 * isDay, sunLightSpecular.a);
+
+			diffuse.rgb = mix(diffuse.rgb, vec3(0.75), clouds * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
+			//diffuse.rgb = mix(diffuse.rgb, vec3(0.6, 0.8, 1.0) * 0.5, cloudsShadow * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
+
+			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor * 20.0 * isDay, sunLightSpecular.a);
 			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * moonLightColor * 1.5 * (1.0 - isDay), moonLightSpecular.a);
 
 			diffuse.rgb += pointLightsFresnel.rgb * pointLightsFresnel.a;
@@ -360,6 +418,7 @@ void main()
 
 			diffuse.a = skyLightFresnel.a + sunLightSpecular.a +  moonLightSpecular.a + pointLightsSpec.a;
 			diffuse.a = min(diffuse.a + 0.5, 1.0);
+			//diffuse.a = 1.0;
 		}
 
 #else
