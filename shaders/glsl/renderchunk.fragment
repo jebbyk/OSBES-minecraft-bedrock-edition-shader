@@ -301,7 +301,7 @@ void main()
 	
 	vec3 rainSkyLightColor = vec3(0.5, 0.5, 0.5) * isDay * isRain;
 	//vec3 clearSkyLightColor = (vec3(0.08, 0.14, 0.2) + vec3(0.41, 0.69, 1.0) * isDay * (1.0 - isRain));
-	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r)* 2.0));
+	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r)* 2.0)) * (1.0 - isRain) * isDay;
 	
 	vec3 skyLightColor = rainSkyLightColor + clearSkyLightColor;
 
@@ -381,7 +381,7 @@ void main()
 		//diffuse.rgb *= color.rgb;
 		if(isWater > 0.9){
 		    highp float time = TIME;
-	        highp float cloudsSpeed = 1.0;
+	        highp float cloudsSpeed = 0.1;
 			
 
 
@@ -398,16 +398,20 @@ void main()
 
 			//float cloudsShadow = pow(clamp(clouds * 1.25, 0.0, 1.0), 4.0);
 
-			clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), 16.0);
+			clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(8.0, 2.0, isRain));
 
 		    
+			vec3 clearSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0);
+			vec3 rainSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0) * 2.0;
+			
+			vec3 cloudsColor = mix(clearSkyCloudsColor, rainSkyCloudsColor, isRain);
 
 		    
 		    
 		    
-			diffuse.rgb = mix(diffuse.rgb * 0.25 + length(clearSkyLightColor) * vec3(0.05, 0.1, 0.2), skyLightFresnel.rgb * 2.0, pow(skyLightFresnel.a, 2.0));
+			diffuse.rgb = mix(diffuse.rgb * 0.25 + length(clearSkyLightColor) * vec3(0.05, 0.1, 0.2), skyLightFresnel.rgb * 1.5, pow(skyLightFresnel.a, 2.0));
 
-			diffuse.rgb = mix(diffuse.rgb, vec3(0.75), clouds * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
+			diffuse.rgb = mix(diffuse.rgb, cloudsColor, clouds * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
 			//diffuse.rgb = mix(diffuse.rgb, vec3(0.6, 0.8, 1.0) * 0.5, cloudsShadow * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
 
 			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor * 20.0 * isDay, sunLightSpecular.a);
@@ -440,7 +444,7 @@ void main()
 	diffuse.rgb = mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
 #ifdef FOG
 	//diffuse.rgb = mix( diffuse.rgb, fogColor.rgb * vec3(0.5, 0.75, 1.0), fogColor.a);
-	diffuse.rgb = mix( diffuse.rgb, clearSkyLightColor, fogColor.a);
+	diffuse.rgb = mix( diffuse.rgb, clearSkyLightColor + rainSkyLightColor * 0.3, fogColor.a);
 #endif //FOG
 
 	///////////////////color correction section////////////////////
