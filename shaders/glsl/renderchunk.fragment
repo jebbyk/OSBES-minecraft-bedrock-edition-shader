@@ -28,7 +28,7 @@ varying float isWater;
 varying vec4 color;//TODO what is this color??
 vec4 normalColor;// fake normal vector will be stored here or may be later will be passed from vertex shader
 varying highp vec4 position;// get pixel position in world space (used for calculate fake normals)
-varying highp vec3 relativePosition;//calculates from vec4 position
+varying highp vec4 relativePosition;//calculates from vec4 position
 //#ifdef FOG
 	varying vec4 fogColor;
 //#endif //FOG

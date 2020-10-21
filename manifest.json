@@ -4,14 +4,14 @@
         "description": "Minecraft opensource bedrock edition shader",
         "name": "OSBES v0.5",
         "uuid": "67010235-00f4-0484-8b1d-80b110011997",
-        "version": [0, 7, 2]
+        "version": [0, 7, 3]
     },
     "modules": [
         {
             "description": "resourcePack.vanilla.description",
             "type": "resources",
             "uuid": "53644fac-a276-42e5-843f-a3c6f169a9cd",
-            "version": [0, 7, 2]
+            "version": [0, 7, 3]
         }
     ],
     "metadata": {
