@@ -35,11 +35,11 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
     - make shure that you have no conflicts
 #### 10. upload your changes to repository
     - run in your terminal: git push origin YOUR_BRANCH_NAME
-#### 11. make a pull request 
+#### 11. make a pull request into develop branch 
     - go to the branches tab on this page
     - make "New pull request" for your branch
-#### 12. make fixes in your branch if it's needed and commit them as describet here
- 
+#### 12. make fixes in your branch if it's needed and commit them as described here
+#### 13. Your pull request will be merged into develop branch
 **ROADMAP**
 
 | feature                  | verison     | subfeature                 | status |
@@ -83,7 +83,7 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |0.7.4        | fixes                      |<span style="color:green">ready</span>|
 |improve textures          |0.7.5        |fix animated texures        |<span style="color:green">ready</span>|
 |                          |0.7.6        |add more texture maps       |<span style="color:green">ready</span>|
-|                          |0.7.7        |fix block in hand mapping   |<span style="color:orange">**pendding**</span>|
+|                          |0.7.7        |fix block in hand mapping   |<span style="color:orange">**pending**</span>|
 |                          |0.7.8        |fix inventory block mapping |<span style="color:orange">**pending**</span>|
 |advanced sun and mooon    |0.8.0        |hallo effect                |<span style="color:orange">**pending**</span>|
 |                          |0.8.1        |improve coloring            |<span style="color:orange">**pending**</span>|
