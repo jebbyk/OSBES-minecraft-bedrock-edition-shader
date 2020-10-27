@@ -12,6 +12,6 @@ varying vec4 AdditionalOut;
 varying vec3 ScreenNormalPosition;
 
 void main() {
-	gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+	gl_FragColor = vec4(1.0);
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 }

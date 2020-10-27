@@ -36,5 +36,6 @@ void main() {
 	} else {
 		float alpha = ColorOut.a * clamp(AdditionalOut.z, 0.0, 1.0);
 		gl_FragColor = texture2D(TEXTURE_0, AdditionalOut.xy) * alpha;
+		// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 	}
 }

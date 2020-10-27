@@ -16,6 +16,7 @@ LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 #include "uniformShaderConstants.h"
 
+//affects transparent textures in some strange way (and also lava)
 void main()
 {
 	vec4 color = texture2D( TEXTURE_0, uv );
@@ -29,5 +30,6 @@ void main()
 		color = mix(color, color1, CURRENT_COLOR.a);
 	}
 
-	gl_FragColor = color;
+	 gl_FragColor = color;
+	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

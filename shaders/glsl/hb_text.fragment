@@ -22,4 +22,5 @@ void main() {
 	float dfValue = texture2D(TEXTURE_1, AdditionalOut.xy).r;
 	float lum = 1.45 - GetLuminance(ColorOut.xyz);
 	gl_FragColor = ColorOut * pow(dfValue, lum);
+	// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

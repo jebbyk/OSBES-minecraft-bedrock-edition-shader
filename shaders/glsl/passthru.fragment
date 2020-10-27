@@ -7,6 +7,6 @@ uniform sampler2D TEXTURE_0;
 
 void main()
 {
-	gl_FragColor = texture2D( TEXTURE_0, uv );
-	//gl_FragColor = vec4(1.0,0.0,0.0,0.0);
+	 gl_FragColor = texture2D( TEXTURE_0, uv );
+	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 }
