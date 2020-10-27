@@ -39,5 +39,5 @@ void main()
 #endif
 
 	gl_FragColor = CURRENT_COLOR * diffuse;
-	//gl_FragColor = color;
+	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

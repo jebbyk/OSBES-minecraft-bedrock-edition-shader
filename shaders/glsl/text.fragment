@@ -17,6 +17,9 @@ float median(float a, float b, float c) {
 
 const float GLYPH_UV_SIZE = 1.0 / 16.0;
 
+
+
+//some UI texts
 void main()
 {
 	vec4 diffuse = texture2D( TEXTURE_0,  uv );
@@ -58,4 +61,5 @@ void main()
 #endif
 
 	gl_FragColor = diffuse * DARKEN;
+    // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

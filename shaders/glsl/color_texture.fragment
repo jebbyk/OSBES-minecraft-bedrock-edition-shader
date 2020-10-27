@@ -32,13 +32,33 @@ varying vec4 fogColor;
 
 void main()
 {
+
+
+
+
+
+
 #ifdef EFFECTS_OFFSET
     vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
 	vec4 diffuse = texture2D( TEXTURE_0,  uvhp + EFFECT_UV_OFFSET);
+	//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 #else
-    vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
-	vec4 diffuse = texture2D( TEXTURE_0,  uvhp);
+	#ifdef ALPHA_TEST // inventory items (exclude UI buttons)
+		vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+		vec4 diffuse = texture2D( TEXTURE_0,  uvhp);
+		//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
+	#else //only UI buttons
+		vec4 diffuse = texture2D(TEXTURE_0, uv);
+	#endif
 #endif
+
+
+
+
+
+
+
+
 
 #ifdef MULTI_COLOR_TINT
 	// Texture is a mask for tinting with two colors
@@ -49,25 +69,60 @@ void main()
 
 	// Apply the secondary color mask and tint so long as its grayscale value is not 0
 	diffuse.rgb = mix(diffuse, colorMask.gggg * CHANGE_COLOR, ceil(colorMask.g)).rgb;
+	//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 #endif
 
-#ifdef ALPHA_TEST
-#ifdef ENABLE_VERTEX_TINT_MASK
-	if(diffuse.a <= 0.0)
-#else
-	if(diffuse.a < 0.5)
+
+
+
+
+
+
+
+
+
+
+
+#ifdef ALPHA_TEST //all except UI buttons
+	#ifdef ENABLE_VERTEX_TINT_MASK
+		if(diffuse.a <= 0.0){
+			discard;
+		}
+		//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
+	#else
+		if(diffuse.a < 0.5){
+			discard;
+		}
+		//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
+	#endif
+	 	
+
+		//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 #endif
-	 	discard;
-#endif
+
+
+
+
+
+
+
+
+
 
 #if defined(ENABLE_VERTEX_TINT_MASK) && !defined(MULTI_COLOR_TINT)
 	diffuse.rgb = mix(diffuse.rgb, diffuse.rgb*color.rgb, diffuse.a);
 	if (color.a > 0.0) {
 		diffuse.a = (diffuse.a > 0.0) ? 1.0 : 0.0; // This line is needed for horse armour icon and dyed leather to work properly
 	}
+	//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 #endif
 
-#ifdef GLINT
+
+
+
+
+
+#ifdef GLINT // magic itmes
 	vec4 layer1 = texture2D(TEXTURE_1, fract(layer1UV)).rgbr * GLINT_COLOR;
 	vec4 layer2 = texture2D(TEXTURE_1, fract(layer2UV)).rgbr * GLINT_COLOR;
 	vec4 glint = (layer1 + layer2);
@@ -75,34 +130,62 @@ void main()
 
 	#ifdef INVENTORY
 		diffuse.rgb = glint.rgb;
+		//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 	#else
 		diffuse.rgb = glintBlend(diffuse, glint).rgb;
+		//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 	#endif
+	//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 #endif
+
+
+
+
 
 #ifdef USE_OVERLAY
 	//use either the diffuse or the OVERLAY_COLOR
 	diffuse.rgb = mix(diffuse, OVERLAY_COLOR, OVERLAY_COLOR.a).rgb;
+	//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 #endif
+
+
+
+
+
 
 #ifdef ENABLE_VERTEX_TINT_MASK
 
-#ifdef ENABLE_CURRENT_ALPHA_MULTIPLY
-	diffuse = diffuse * vec4(1.0, 1.0, 1.0, HUD_OPACITY);
+	#ifdef ENABLE_CURRENT_ALPHA_MULTIPLY
+		diffuse = diffuse * vec4(1.0, 1.0, 1.0, HUD_OPACITY);
+		//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
+	#endif
+
+
+
+
+
+	#elif !defined(MULTI_COLOR_TINT)
+		diffuse = diffuse * color;
+		//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 #endif
 
-#elif !defined(MULTI_COLOR_TINT)
-	diffuse = diffuse * color;
-#endif
 
-	// Fog needs to be applied after the color tinting.
+
+
+
+		// Fog needs to be applied after the color tinting.
 #ifdef ENABLE_FOG
 	//if fog enabled we are know that it is not UI element
 	if(diffuse.b > diffuse.r && diffuse.b > diffuse.g){
 		diffuse.rgb = vec3(0.5,0.5,0.5); //rain splash hack
 	}
 	diffuse.rgb = mix(diffuse.rgb, fogColor.rgb, fogColor.a);
+	//diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 #endif
+
+
+
+
 
 	gl_FragColor = diffuse;
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);

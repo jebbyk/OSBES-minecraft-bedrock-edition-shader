@@ -9,37 +9,39 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
     - run in your terminal: cd /path/where/you/want/to/save/this/shaderpack
 #### 1. clone this repository 
     - run in your terminal: git clone git@github.com:jebbyk/OSBES-minecraft-bedrock-edition-shader.git
-#### 2. create your own branch named as your feature / work meaning
-    - run in your terminal: git checkout -b YOUR_FEATURE_NAME
-#### 3. make your lacal changes in shader / .json / .material files
+#### 2. switch to develop branch
+    - run in your terminal: git checkout develop
+#### 3. create your own branch named as your feature / work meaning
+    - run in your terminal: git checkout -b your_feature_name
+#### 4. make your lacal changes in shader / .json / .material files
     - better not to change more than 5 files in one branch
-#### 4. make your changes to be committed 
+#### 5. make your changes to be committed 
     - better not to change more than 2 files in one commit 
     
     - run in your terminal: git status
     - you should see a list of modified files
     - for each file you really want to add run: git add path/to/your/file
-#### 5. create a commit 
-    - run in your termianl: git commit - "write  here a short message describing your work"
-#### 6. checkout to develop branch 
+#### 6. create a commit 
+    - run in your termianl: git commit -m "write  here a short message describing your work"
+#### 7. checkout to develop branch 
     - run in your terminal: git checkout develop
-#### 7. download latest changes from develop branch
+#### 8. download latest changes from develop branch
     - run in your terminal: git pull
-#### 8. make shure you have the latest changes in develop branch
+#### 9. make shure you have the latest changes in develop branch
     - run in your terminal: git status
     - Your should see that it is "Already up to date"
 
-#### 9. return to your branch and merge develop branch into your feature branch
-    - run in your terminal: git checkout YOUR_BRANCH_NAME
+#### 10. return to your branch and merge develop branch into your feature branch
+    - run in your terminal: git checkout your_branch_name
     - run in your terminal: git merge develop
-    - make shure that you have no conflicts
-#### 10. upload your changes to repository
-    - run in your terminal: git push origin YOUR_BRANCH_NAME
-#### 11. make a pull request into develop branch 
+    - make shure that you have no conflicts. Otherwise fix them (GOOGLE --> "how to fix conflict in git")
+#### 11. upload your changes to repository
+    - run in your terminal: git push origin your_branch_name
+#### 12. make a pull request into develop branch 
     - go to the branches tab on this page
     - make "New pull request" for your branch
-#### 12. make fixes in your branch if it's needed and commit them as described here
-#### 13. Your pull request will be merged into develop branch
+#### 13. make fixes in your branch if it's needed and commit them as described here
+#### 14. Your pull request will be merged into develop branch
 **ROADMAP**
 
 | feature                  | verison     | subfeature                 | status |
