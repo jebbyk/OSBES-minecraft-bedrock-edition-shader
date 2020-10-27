@@ -14,7 +14,7 @@ _centroid in vec2 uv;
 #else
 
 varying vec2 uv;
-
+varying vec3 color;
 #endif
 
 #include "uniformShaderConstants.h"
@@ -22,6 +22,9 @@ varying vec2 uv;
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
+
+
+/////////////////////// some UI and skybox shader ////////////////////////
 void main()
 {
 #if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
@@ -36,4 +39,5 @@ void main()
 #endif
 
 	gl_FragColor = CURRENT_COLOR * diffuse;
+	//gl_FragColor = color;
 }

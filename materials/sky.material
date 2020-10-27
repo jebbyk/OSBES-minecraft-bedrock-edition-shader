@@ -9,9 +9,9 @@
     "blendSrc": "SourceAlpha",
     "blendDst": "One",
 
-		"vertexShader" : "shaders/sun_moon.vertex",
+		"vertexShader" : "shaders/uv.vertex",
 		"vrGeometryShader": "shaders/uv.geometry",
-		"fragmentShader" : "shaders/sun_moon.fragment",
+		"fragmentShader" : "shaders/texture_ccolor.fragment",
     "vertexFields": [
       { "field": "Position" },
       { "field": "UV0" }
@@ -63,9 +63,9 @@
     "blendSrc": "SourceAlpha",
     "blendDst": "OneMinusSrcAlpha",
 
-    "vertexShader": "shaders/cubemap.vertex",
+    "vertexShader": "shaders/skybox.vertex",
     "vrGeometryShader": "shaders/uv.geometry",
-    "fragmentShader": "shaders/cubemap.fragment",
+    "fragmentShader": "shaders/skybox.fragment",
     "samplerStates": [
       {
         "samplerIndex": 0,
@@ -86,7 +86,7 @@
 
 		"vertexShader" : "shaders/sky.vertex",
 		"vrGeometryShader" : "shaders/sky.geometry",
-		"fragmentShader" : "shaders/sky.fragment",
+		"fragmentShader" : "shaders/color.fragment",
     "vertexFields": [
       { "field": "Position" },
       { "field": "Color" }

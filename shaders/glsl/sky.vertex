@@ -10,13 +10,31 @@
 attribute mediump vec4 POSITION;
 attribute vec4 COLOR;
 
-varying vec4 color;
+varying float height;
+varying vec4 position;
 
 const float fogNear = 0.3;
 
 void main()
 {
-    gl_Position = WORLDVIEWPROJ * POSITION;
 
-    color = mix( CURRENT_COLOR, FOG_COLOR, COLOR.r );
+	// vec3 clearSkyColor = vec3(0.41, 0.69, 1.0);
+	// vec4 rainSkyColor = vec4(0.25, 0.25, 0.25, 1.0);
+	// float isDay = 1.0;
+	
+    position = POSITION;
+    
+    //pos.y -= 0.03;
+    position.y -= length(position.xz)/4.0;
+    gl_Position = WORLDVIEWPROJ * position;
+
+    // color.rgb = mix(clearSkyColor * vec3(0.25, 0.25, 0.5), clearSkyColor, COLOR.r * 3.0);
+
+    //color = mix( CURRENT_COLOR * (clearSkyColorMult * isDay + rainSkyColorMult * (1.0 - isDay)), FOG_COLOR, COLOR.r);
+    
+    height = COLOR.r; 
+    
+    
+
+	
 }

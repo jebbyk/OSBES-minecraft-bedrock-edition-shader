@@ -1,6 +1,6 @@
 // __multiversion__
 // This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
-
+// it is about some UI controll buttons and inventory items (except shield :/)
 #include "fragmentVersionCentroidUV.h"
 
 #include "uniformEntityConstants.h"
@@ -28,12 +28,16 @@ varying vec4 fogColor;
 	}
 #endif
 
+///////////////////// ingame UI fragment shader ////////////////////////////
+
 void main()
 {
 #ifdef EFFECTS_OFFSET
-	vec4 diffuse = texture2D( TEXTURE_0,  uv + EFFECT_UV_OFFSET);
+    vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+	vec4 diffuse = texture2D( TEXTURE_0,  uvhp + EFFECT_UV_OFFSET);
 #else
-	vec4 diffuse = texture2D( TEXTURE_0,  uv );
+    vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+	vec4 diffuse = texture2D( TEXTURE_0,  uvhp);
 #endif
 
 #ifdef MULTI_COLOR_TINT
@@ -101,4 +105,5 @@ void main()
 #endif
 
 	gl_FragColor = diffuse;
+	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 }

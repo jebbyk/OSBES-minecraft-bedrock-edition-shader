@@ -1,0 +1,90 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroid.h"
+
+#if __VERSION__ >= 300
+
+#if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
+_centroid in highp vec2 uv;
+#else
+_centroid in vec2 uv;
+#endif
+
+#else
+
+varying vec2 uv;
+//in vec4 position;
+#endif
+
+#include "uniformShaderConstants.h"
+#include "uniformPerFrameConstants.h"
+#include "util.h"
+
+#include "uniformInterFrameConstants.h"
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+
+varying vec4 position;
+
+/////////////////////// some UI and skybox shader ////////////////////////
+void main()
+{
+#if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
+	vec4 diffuse = texture2D( TEXTURE_0, uv );
+#else
+	vec4 diffuse = texture2D_AA(TEXTURE_0, uv );
+#endif
+
+#ifdef ALPHA_TEST
+	if(diffuse.a < 0.5)
+		discard;
+#endif
+
+	vec3 initNormalColor = normalize(cross(dFdx(position.xyz), dFdy(position.xyz)));
+
+	diffuse.rgb = position.xyz;
+	gl_FragColor = CURRENT_COLOR * diffuse;
+	gl_FragColor.rgb = initNormalColor;
+
+	vec3 sphereNormal = (normalize(position.xyz) + 1.0) / 2.0;
+
+	vec3 clearSkyColor = vec3(0.41, 0.69, 1.0);
+	//vec3 clearSkyColor = FOG_COLOR.rgb;
+	vec3 rainSkyColor = vec3(0.4, 0.4, 0.4);
+	float skyDot = max(dot(vec3(0.0, 1.0, 0.0), sphereNormal),0.0);
+
+	vec3 resultColor = clearSkyColor;
+
+	resultColor = mix(resultColor * vec3(0.25, 0.25, 0.5), resultColor, pow(min(skyDot + 0.4, 1.0), 6.0));
+
+	resultColor *= length(FOG_COLOR.rgb);
+
+
+
+	vec3 tint = vec3(1.0, 1.0, 1.0)*3.0;
+	resultColor *= tint;
+
+	float contrast = 2.0;
+	resultColor = pow(resultColor, vec3(contrast));
+
+	//tone compensation
+	resultColor = resultColor/(resultColor + vec3(1.0));
+	
+	//gamma correction
+	float gamma = 1.0;
+	resultColor = pow(resultColor, vec3(1.0 / gamma));
+
+	float saturation = 1.0;
+	float grayScale = (resultColor.r + resultColor.g + resultColor.b) / 3.0;
+	resultColor = mix(vec3(grayScale), resultColor, saturation);
+
+
+
+
+	gl_FragColor.rgb = resultColor;
+	gl_FragColor.a = 1.0 * length(FOG_COLOR.rgb);
+	gl_FragColor = POSITION;
+	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}

@@ -13,7 +13,7 @@
       "+samplerStates": [
         {
           "samplerIndex": 0,
-          "textureFilter": "TexelAA"
+          "textureFilter": "Bilinear"
         },
         {
           "samplerIndex": 1,
@@ -21,11 +21,11 @@
         },
         {
           "samplerIndex": 3,
-          "textureFilter": "Point"
+          "textureFilter": "Bilinear"
         },
         {
           "samplerIndex": 4,
-          "textureFilter": "Point"
+          "textureFilter": "Bilinear"
         }
       ],
 
@@ -40,8 +40,8 @@
       "variants": [
         { "fog": { "+defines": [ "FOG" ] } },
         { "lit": { "+defines": [ "ALWAYS_LIT" ] } },
-        { "underwater": { "+defines": [ "UNDER_WATER" ] } },
-        { "fog.underwater": { "+defines": [ "UNDER_WATER" ] } },
+        { "underwater": { "+defines": [ "FOG" ] } },
+        { "fog.underwater": {} },
         { "fading": { "+defines": [ "FOG", "ALLOW_FADE" ] } }
       ]
     },
@@ -56,7 +56,7 @@
       "+samplerStates": [
         {
           "samplerIndex": 0,
-          "textureFilter": "TexelAA"
+          "textureFilter": "Bilinear"
         },
         {
           "samplerIndex": 1,
@@ -64,7 +64,7 @@
         },
         {
           "samplerIndex": 2,
-          "textureFilter": "Point"
+          "textureFilter": "Bilinear"
         }
       ]
 
@@ -77,8 +77,8 @@
         "Blending"
       ],
       "+variants": [
-        { "underwater": { "+defines": [ "UNDER_WATER" ] } },
-        { "fog.underwater": { "+defines": [ "UNDER_WATER" ] } }
+        { "underwater": { } },
+        { "fog.underwater": { } }
       ]
     },
 
@@ -103,7 +103,7 @@
       "+samplerStates": [
         {
           "samplerIndex": 0,
-          "textureFilter": "TexelAA"
+          "textureFilter": "Bilinear"
         },
         {
           "samplerIndex": 1,
@@ -111,7 +111,7 @@
         },
         {
           "samplerIndex": 2,
-          "textureFilter": "Point"
+          "textureFilter": "Bilinear"
         }
       ]
 

@@ -11,4 +11,5 @@ void main()
 {
 	//color.rgb = (color.r + color.g + color.b)/3.0;
 	gl_FragColor = color * CURRENT_COLOR;
+//	gl_FragColor.rgb = vec3(1.0, 0.0, 0.0);
 }

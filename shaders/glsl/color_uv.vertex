@@ -33,7 +33,7 @@ vec2 calculateLayerUV(float offset, float rotation) {
 	return uv * GLINT_UV_SCALE;
 }
 #endif
-
+////////////////////////////// in game ui vertex shader ////////////////////////////////
 void main()
 {
 	gl_Position = WORLDVIEWPROJ * POSITION;
@@ -56,4 +56,6 @@ void main()
 	layer1UV = calculateLayerUV(UV_OFFSET.x, UV_ROTATION.x);
 	layer2UV = calculateLayerUV(UV_OFFSET.y, UV_ROTATION.y);
 #endif
+
+//	color.rgb = vec3(1.0, 0.0, 0.0);
 }

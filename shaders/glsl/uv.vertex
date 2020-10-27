@@ -8,10 +8,15 @@
 attribute POS4 POSITION;
 attribute vec2 TEXCOORD_0;
 
+//some ui and cubemap uv coord
 
 void main()
 {
     gl_Position = WORLDVIEWPROJ * POSITION;
+    
+   //gl_Position.z /= 10000.0;
+
+   //gl_Depth = 0.0;
 
     uv = TEXCOORD_0;
 }

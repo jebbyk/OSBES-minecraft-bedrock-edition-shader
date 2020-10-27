@@ -10,4 +10,5 @@ void main()
 	//TODO: Implement
 	//Default to no depth of field
 	gl_FragColor = texture2D(TEXTURE_0, uv);
+	//gl_fragColor = vec4(1.0,0.0,0.0,1.0);
 }

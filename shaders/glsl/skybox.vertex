@@ -1,0 +1,23 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "vertexVersionCentroidUV.h"
+
+#include "uniformWorldConstants.h"
+
+attribute POS4 POSITION;
+attribute vec2 TEXCOORD_0;
+varying vec4 position;
+//varying vec2 uv;
+////////////////////// ingame skybox vertex shader ////////////////
+
+void main()
+{
+	gl_Position = WORLDVIEWPROJ * POSITION;
+    
+	position = POSITION;
+
+
+
+	uv = TEXCOORD_0;
+}
