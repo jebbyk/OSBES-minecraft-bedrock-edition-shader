@@ -13,7 +13,7 @@
 #line 13
 
 attribute mediump vec4 POSITION;
-attribute vec2 TEXCOORD_0;
+attribute highp vec2 TEXCOORD_0;
 attribute vec4 NORMAL;
 #if defined(USE_SKINNING)
 #ifdef MCPE_PLATFORM_NX
@@ -79,7 +79,7 @@ float lightIntensity(vec4 position, vec4 normal) {
 
 #ifdef GLINT
 vec2 calculateLayerUV(float offset, float rotation) {
-	vec2 uv = TEXCOORD_0;
+	highp vec2 uv = TEXCOORD_0;
 	uv -= 0.5;
 	float rsin = sin(rotation);
 	float rcos = cos(rotation);

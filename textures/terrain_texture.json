@@ -342,6 +342,9 @@
     },
     "quartz_bricks": {
       "textures": "textures/blocks/quartz_bricks"
-    }
+    },
+    "kek": {
+    	" textures": "textures/blocks/zzaza"
+    	}
   }
 }

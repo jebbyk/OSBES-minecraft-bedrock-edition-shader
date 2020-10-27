@@ -312,11 +312,11 @@ void main()
 	
 	
 	//blinn-phong
-	const vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
-	vec3 viewDir = normalize(relativePosition.xyz);
-	vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-	float shininess = 64.0 * specularMap.r  + 256.0 * isWater;
-	float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
+	highp vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
+	highp vec3 viewDir = normalize(relativePosition.xyz);
+	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
+	highp float shininess = 32.0 * pow(specularMap.r, 2.0)  + 1024.0 * isWater;
+	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
 	vec4 sunLightSpecular = vec4(sunLightColor, spec * specularMap.r * (isDay - isRain));
 	vec4 moonLightSpecular = vec4(moonLightColor, spec * specularMap.r * ((1.0 - isDay) - isRain));
 
@@ -540,9 +540,10 @@ void main()
 
 	//diffuse.rgb = vec3(isRain, isDay, 1.0 - isDay);
 
-	//diffuse.rgb = vec3(isHell);
-	
+	//diffuse.rgb = vec3(isHell)
 
+    //debug tile texture
+	//diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 64.0), 0);
 
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)

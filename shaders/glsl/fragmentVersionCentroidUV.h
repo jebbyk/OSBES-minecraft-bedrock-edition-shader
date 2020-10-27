@@ -12,7 +12,7 @@
 #endif
 
 // version 300 code
-_centroid in vec2 uv;
+_centroid in highp vec2 uv;
 
 #define varying in
 #define texture2D texture

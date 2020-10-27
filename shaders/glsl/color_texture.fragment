@@ -33,9 +33,11 @@ varying vec4 fogColor;
 void main()
 {
 #ifdef EFFECTS_OFFSET
-	vec4 diffuse = texture2D( TEXTURE_0,  uv + EFFECT_UV_OFFSET);
+    vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+	vec4 diffuse = texture2D( TEXTURE_0,  uvhp + EFFECT_UV_OFFSET);
 #else
-	vec4 diffuse = texture2D( TEXTURE_0,  uv);
+    vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+	vec4 diffuse = texture2D( TEXTURE_0,  uvhp);
 #endif
 
 #ifdef MULTI_COLOR_TINT
