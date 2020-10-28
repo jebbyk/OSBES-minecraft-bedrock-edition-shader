@@ -39,13 +39,30 @@ void main()
 
 
 #ifdef EFFECTS_OFFSET
-    vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
-	vec4 diffuse = texture2D( TEXTURE_0,  uvhp + EFFECT_UV_OFFSET);
-	//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
+    vec4 diffuse = vec4(0.0);
+		
+	//terrain attlass mostly is bigger than items attlass
+	//tricky thing that do really needs refactoring (!) but it works currently and I dont wona touch it
+	if(TEXTURE_DIMENSIONS.x == 1024.0){
+		vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+		diffuse = texture2D( TEXTURE_0,  uvhp);
+		//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
+	}else{
+		diffuse = texture2D(TEXTURE_0, uv);
+	}
 #else
 	#ifdef ALPHA_TEST // inventory items (exclude UI buttons)
-		vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
-		vec4 diffuse = texture2D( TEXTURE_0,  uvhp);
+		vec4 diffuse = vec4(0.0);
+		
+		//terrain attlass mostly is bigger than items attlass
+		//tricky thing that do really needs refactoring (!) but it works currently and I dont wona touch it
+		if(TEXTURE_DIMENSIONS.x == 1024.0){
+			vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+			diffuse = texture2D( TEXTURE_0,  uvhp);
+			//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
+		}else{
+			diffuse = texture2D(TEXTURE_0, uv);
+		}
 		//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 	#else //only UI buttons
 		vec4 diffuse = texture2D(TEXTURE_0, uv);
