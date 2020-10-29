@@ -301,7 +301,7 @@ void main()
 	
 	vec3 rainSkyLightColor = vec3(0.5, 0.5, 0.5) * isDay * isRain;
 	//vec3 clearSkyLightColor = (vec3(0.08, 0.14, 0.2) + vec3(0.41, 0.69, 1.0) * isDay * (1.0 - isRain));
-	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r)* 2.0)) * (1.0 - isRain) * isDay;
+	vec3 clearSkyLightColor = normalize(pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r)* 2.0))) * (1.0 - isRain)/* * isDay*/;
 	
 	vec3 skyLightColor = rainSkyLightColor + clearSkyLightColor;
 

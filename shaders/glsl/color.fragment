@@ -41,9 +41,10 @@ void main()
 	float isRain = 1.0 - length(normalize(vec3(1.0, 1.0, 1.0)) - normalize(FOG_COLOR.rgb));//calculate how complimentary fog color wiht gray color
 	isRain = pow(isRain, 16.0);
 
+
 	//vec3 clearSkyColor = vec3(0.41, 0.69, 1.0);
 
-	vec3 clearSkyColor = pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r) * 2.0));
+	vec3 clearSkyColor = normalize(pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r) * 2.0)));
 	vec3 clearSkyZenithColor = vec3(0.1, 0.2, 0.4) * length(clearSkyColor);
 	vec3 rainSkyColor = vec3(0.25, 0.25, 0.25);
 	// float isDay = 1.0 - isRain;
