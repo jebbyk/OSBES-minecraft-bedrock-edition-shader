@@ -1,0 +1,76 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroid.h"
+
+#if __VERSION__ >= 300
+
+#if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
+_centroid in highp vec2 uv;
+#else
+_centroid in vec2 uv;
+#endif
+
+#else
+
+varying vec2 uv;
+varying vec3 color;
+varying vec3 worldPosition;
+#endif
+
+#include "uniformShaderConstants.h"
+#include "uniformPerFrameConstants.h"
+#include "util.h"
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+
+
+/////////////////////// some UI and skybox shader ////////////////////////
+void main()
+{
+	#if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
+		//vec4 diffuse = texture2D( TEXTURE_0, uv );
+		vec4 diffuse = texture2D( TEXTURE_0, uv);
+	#else
+		vec4 diffuse = texture2D_AA(TEXTURE_0, uv);
+	#endif
+
+	#ifdef ALPHA_TEST
+		if(diffuse.a < 0.5)
+			discard;
+	#endif
+
+	vec2 customUvCoord;
+
+	if (FOG_COLOR.r > 0.45 ){
+		customUvCoord = uv;
+	}else{
+		customUvCoord = fract(uv * vec2(4.0, 2.0));
+	}
+
+	highp vec2 center = vec2(0.5);
+	highp float l = 1.0 - length(center - customUvCoord) * 2.0;
+
+	float halo = l;
+	// halo *= 0.5;
+
+
+	float sunSize = 1.025;
+	float sunEdgeHardness = 256.0;
+	float sun = pow(l * sunSize, sunEdgeHardness);
+
+	vec4 haloTint = vec4(0.45, 0.3, 0.2, 1.0);
+	vec4 sunTint = vec4(1.0, 0.5, 0.25, 1.0);
+
+	vec3 d = normalize(worldPosition);
+
+
+
+	
+
+	//gl_FragColor = CURRENT_COLOR * diffuse;
+	//gl_FragColor = halo * haloTint + sun * sunTint;
+	 gl_FragColor.rgb = d;
+	 gl_FragColor.a = 1.0;
+}
