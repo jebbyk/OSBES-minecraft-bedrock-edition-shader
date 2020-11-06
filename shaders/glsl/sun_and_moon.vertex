@@ -8,16 +8,20 @@
 attribute POS4 POSITION;
 attribute vec2 TEXCOORD_0;
 
-varying highp vec3 worldPosition;
-varying highp vec3 viewPosition;
+varying highp vec3 position;
+varying vec4 worldPosition;
+varying vec4 worldViewPosition;
+varying vec3 viewPosition;
 
 //some ui and cubemap uv coord
 
 void main()
 {
-    gl_Position = WORLDVIEWPROJ * (POSITION * vec4(4.0, 4.0, 4.0, 1.0));
+    gl_Position = WORLDVIEWPROJ * (POSITION * vec4(8.0, 8.0, 8.0, 1.0));
 
-    worldPosition = POSITION.xyz;
+    position = POSITION.xyz * vec3(8.0);
+    worldPosition = POSITION * vec4(8.0, 8.0, 8.0, 1.0) *  WORLD; 
+    worldViewPosition = POSITION * vec4(8.0, 8.0, 8.0, 1.0) * WORLDVIEW;
     viewPosition = gl_Position.xyz;
 
     uv = TEXCOORD_0;
