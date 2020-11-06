@@ -628,6 +628,10 @@ void main()
     //debug tile texture
 	//diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 64.0), 0);
 
+	
+	
+	//vec3 sphereNormal = (normalize(position.xyz) + 1.0) / 2.0;
+	//diffuse.rgb = sphereNormal;
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);

@@ -1,0 +1,71 @@
+// __multiversion__
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+
+#include "fragmentVersionCentroid.h"
+
+#if __VERSION__ >= 300
+
+#if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
+_centroid in highp vec2 uv;
+#else
+_centroid in vec2 uv;
+#endif
+
+#else
+
+varying vec2 uv;
+varying vec3 color;
+
+#endif
+
+varying vec4 worldPosition;
+varying vec4 worldViewPosition;
+varying highp vec3 position;
+varying vec3 viewPosition;
+
+#include "uniformShaderConstants.h"
+#include "uniformPerFrameConstants.h"
+#include "util.h"
+
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+
+
+
+/////////////////////// sun and moon ////////////////////////
+void main()
+{
+	#if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
+		vec4 diffuse = texture2D( TEXTURE_0, uv);
+	#else
+		vec4 diffuse = texture2D_AA(TEXTURE_0, uv);
+	#endif
+
+	#ifdef ALPHA_TEST
+		if(diffuse.a < 0.5)
+			discard;
+	#endif
+
+
+	float l = 1.0 - length(position.xyz)/4.0;
+
+	float halo = l;
+
+
+	float sunSize = 1.0125;
+	float sunEdgeHardness = 256.0;
+	float sun = pow(l * sunSize, sunEdgeHardness);
+
+	
+	vec4 haloTint = vec4(0.45, 0.3, 0.2, 1.0);
+	vec4 sunTint = vec4(1.0, 0.5, 0.25, 1.0);
+
+
+	highp vec3 dp1 = dFdx(worldPosition.xyz);
+	highp vec3 dp2 = dFdy(worldPosition.xyz);
+
+	 vec3 normal = (normalize(cross(dp1, dp2)) + 1.0) / 2.0;
+	
+
+	gl_FragColor = CURRENT_COLOR * diffuse * length(diffuse.rgb);
+	gl_FragColor += halo * haloTint /*+ sun * sunTint*/;
+}

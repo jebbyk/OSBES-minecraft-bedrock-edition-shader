@@ -6,6 +6,7 @@
 #ifdef MCPE_PLATFORM_NX
 layout(binding = 1) uniform WorldConstants {
 #endif
+//
 // BEGIN_UNIFORM_BLOCK(WorldConstants) - unfortunately this macro does not work on old Amazon platforms so using above 3 lines instead
 UNIFORM MAT4 WORLDVIEWPROJ;
 UNIFORM MAT4 WORLD;
