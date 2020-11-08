@@ -1,4 +1,4 @@
-# OSBES v0.8.0
+# OSBES v0.8.1
 Open Source Bedrock Edition Shader  
 
 **------------Everyone who will contribute will listed as a developer!-----------**
@@ -108,7 +108,8 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |0.7.12       |fix torches mapping            |<span style="color:green">particulary ready</span>|
 |                          |0.7.11       |correct tangent calculation    |<span style="color:green">particulary ready</span>|
 |advanced sun and mooon    |0.8.0        |hallo effect                   |<span style="color:green">ready</span>|
-|                          |-            |improve coloring               |<span style="color:purple">**in progress**</span>|
+|                          |0.8.1        |improve halo coloring          |<span style="color:green">ready</span>|
+|                          |-            |halo lighting on the surfaces  |<span style="color:purple">**in progress**</span>|
 |                          |-            |improve fog color handling     |<span style="color:purple">**in progress**</span>|
 |                          |-            |bugfixes                       |<span style="color:orange">**planned**</span>|
 |make entyties and items   |0.9.xx       |item in hand                   |<span style="color:orange">**planned**</span>|
