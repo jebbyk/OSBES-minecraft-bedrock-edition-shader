@@ -1,47 +1,63 @@
-# OSBES v0.7.5
+# OSBES v0.8.2
 Open Source Bedrock Edition Shader  
 
-**------------Everyone who will contribute will listed as a developer!-----------**
+**------------Every contributor will listed as a developer!-----------**
 
 **HOW TO CONTRIBUTE**
-I recomend you to use rooted device with installed Termux <span style="color:green">terminal</span> emulator
-#### 0. go to the directory where you wnat to save shader pack
+I recomend you to use rooted device with installed Termux <span style="color:green">**terminal**</span> emulator
+#### 0. fork this repository
+    - Click "Fork" button in the top right corner of this page
+#### 1. go to the directory where you want to save shader pack
     - run in your terminal: cd /path/where/you/want/to/save/this/shaderpack
-#### 1. clone this repository 
-    - run in your terminal: git clone git@github.com:jebbyk/OSBES-minecraft-bedrock-edition-shader.git
-#### 2. switch to develop branch
+#### 2. clone your repository 
+    - when your are in your forked repository page click green "Code" button, select "SSH" and copy this link
+    - run in your terminal: git clone your@copied.link:goes/Here
+#### 3. convert it to shaderpack file and import
+    I recomend to use mixplorer file manager
+
+    - archive downloaded folder to .zip archive
+    - change filetype to be .mcpack instead of .zip
+    - open this .mcpack file via minecraft 
+    - after importing this shader pack should appear in the /sdcard/games/com.mojang/resource_packs/
+    - If it is not appeared import some other shaderpacks and when they begin to appeare in /sdcard/games/ try to import OSBES again. It is your WORKING FOLDER
+#### 4. add link to my original repository to have actual development version
+    - when you are on this page (not your forked repository!!!) click "Code" button, select "HTTPS" and copy this link
+    - run in your terminal: git remote add upstream your@copied.link:goes/Here
+#### 5. switch to develop branch
+    - next steps should be done when you are in your WORKING FOLDER 
     - run in your terminal: git checkout develop
-#### 3. create your own branch named as your feature / work meaning
+#### 6. create your own branch named as your feature / work meaning
     - run in your terminal: git checkout -b your_feature_name
-#### 4. make your lacal changes in shader / .json / .material files
-    - better not to change more than 5 files in one branch
-#### 5. make your changes to be committed 
-    - better not to change more than 2 files in one commit 
-    
+#### 7. make your lacal changes in shader / .json / .material files
+    - less files changed = faster feature feview
+#### 8. make your changes to be committed 
     - run in your terminal: git status
     - you should see a list of modified files
     - for each file you really want to add run: git add path/to/your/file
-#### 6. create a commit 
+#### 9. create a commit 
     - run in your termianl: git commit -m "write  here a short message describing your work"
-#### 7. checkout to develop branch 
+#### 10. checkout to develop branch 
     - run in your terminal: git checkout develop
-#### 8. download latest changes from develop branch
-    - run in your terminal: git pull
-#### 9. make shure you have the latest changes in develop branch
-    - run in your terminal: git status
-    - Your should see that it is "Already up to date"
+#### 11. download latest changes from my original repository develop branch
+    - run in your terminal: git pull upstream develop
+#### 12. make shure you have the latest changes in develop branch
+    - run in your terminal again: git pull upstream develop
+    - You should see that it is "Already up to date"
 
-#### 10. return to your branch and merge develop branch into your feature branch
+#### 13. return to your branch and merge develop branch into your feature branch
     - run in your terminal: git checkout your_branch_name
     - run in your terminal: git merge develop
     - make shure that you have no conflicts. Otherwise fix them (GOOGLE --> "how to fix conflict in git")
-#### 11. upload your changes to repository
+#### 14. upload your changes to repository
     - run in your terminal: git push origin your_branch_name
-#### 12. make a pull request into develop branch 
-    - go to the branches tab on this page
-    - make "New pull request" for your branch
-#### 13. make fixes in your branch if it's needed and commit them as described here
-#### 14. Your pull request will be merged into develop branch
+#### 15. make a pull request into develop branch 
+    - go to the branches tab in your forked repository
+    - make "New pull request" from your branch to my original repository
+#### 16. make fixes in your branch if it's needed and commit them as described here
+#### 17. Your pull request will be merged into develop branch
+
+#### If you have some problems with this instruction create an Issue on this page ####
+
 **ROADMAP**
 
 | feature                  | verison     | subfeature                 | status |
@@ -89,11 +105,12 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |0.7.8        |fix inventory block mapping    |<span style="color:green">ready</span>|
 |                          |0.7.10       |prepare inventroy flat textures|<span style="color:green">ready</span>|
 |                          |0.7.9        |fix entyties texture mapping   |<span style="color:green">ready</span>|
-|                          |-            |fix torches mapping            |<span style="color:orange">**planned**</span>|
-|                          |-            |correct tangent calculation    |<span style="color:orange">**in progress**</span>|
-|advanced sun and mooon    |0.8.xx       |hallo effect                   |<span style="color:orange">**planned**</span>|
-|                          |-            |improve coloring               |<span style="color:orange">**planned**</span>|
-|                          |-            |improve fog color handling     |<span style="color:purple">**in progress**</span>|
+|                          |0.7.12       |fix torches mapping            |<span style="color:green">particulary ready</span>|
+|                          |0.7.11       |correct tangent calculation    |<span style="color:green">particulary ready</span>|
+|advanced sun and mooon    |0.8.0        |hallo effect                   |<span style="color:green">ready</span>|
+|                          |0.8.1        |improve halo coloring          |<span style="color:green">ready</span>|
+|                          |0.8.2        |halo lighting on the surfaces  |<span style="color:green">ready</span>|
+|                          |-            |improve fog and halo colors    |<span style="color:purple">**in progress**</span>|
 |                          |-            |bugfixes                       |<span style="color:orange">**planned**</span>|
 |make entyties and items   |0.9.xx       |item in hand                   |<span style="color:orange">**planned**</span>|
 |lighting and shading      |-            |entyties lighting              |<span style="color:orange">**planned**</span>|

@@ -23,7 +23,7 @@ varying vec3 color;
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 
-
+//
 /////////////////////// some UI and skybox shader ////////////////////////
 void main()
 {

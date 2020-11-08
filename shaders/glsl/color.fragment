@@ -77,10 +77,10 @@ void main()
 	clouds += rand_bilinear(position.xz * cloudsScale * 8.0) * 16.0;	
 	clouds += rand_bilinear(position.xz * cloudsScale * 16.0) * 8.0;	
 	clouds += rand_bilinear(position.xz * cloudsScale * 32.0) * 4.0;
-	// clouds += rand_bilinear(position.xz * cloudsScale * 64.0) * 2.0;		
-	// clouds += rand_bilinear(position.xz * cloudsScale * 128.0);
+	clouds += rand_bilinear(position.xz * cloudsScale * 64.0) * 2.0;		
+	clouds += rand_bilinear(position.xz * cloudsScale * 128.0);
 
-	clouds /= 252.0;
+	clouds /= 255.0;
 
 
 	

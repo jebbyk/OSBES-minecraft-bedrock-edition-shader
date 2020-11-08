@@ -9,9 +9,9 @@
     "blendSrc": "SourceAlpha",
     "blendDst": "One",
 
-		"vertexShader" : "shaders/uv.vertex",
+		"vertexShader" : "shaders/sun_and_moon.vertex",
 		"vrGeometryShader": "shaders/uv.geometry",
-		"fragmentShader" : "shaders/texture_ccolor.fragment",
+		"fragmentShader" : "shaders/sun_and_moon.fragment",
     "vertexFields": [
       { "field": "Position" },
       { "field": "UV0" }

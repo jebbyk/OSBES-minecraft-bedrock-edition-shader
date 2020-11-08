@@ -96,8 +96,9 @@ void main()
     float isDay = dayTime - 0.75; // r ~0.465 on night time
     isDay = clamp(isDay * 4.2, 0.0, 1.0);
 
-	float isSunset = dayTime - 0.5;
-	isSunset = clamp(isSunset * 2.175, 0.0, 1.0);
+	// float isSunset = dayTime - 0.5;
+	// isSunset = clamp(isSunset * 2.175, 0.0, 1.0);
+	float isSunrize = dot(normalize(FOG_COLOR.rgb), vec3(1.0, 0.0, 0.0));
 	
     
     float isHell = 0.0;
@@ -400,8 +401,22 @@ void main()
 	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
 	highp float shininess = 32.0 * pow(specularMap.r, 2.0)  + 1024.0 * isWater;
 	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
+
+	//phong (fake halo effect)
+	float haloPhongIntecity = 0.06 * isSunrize;
+	vec3 reflectDir = reflect(-debugLightDir, normalColor.rgb);
+	float haloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
+
+	spec += haloPhong;
+
 	vec4 sunLightSpecular = vec4(sunLightColor, spec * specularMap.r * (isDay - isRain));
 	vec4 moonLightSpecular = vec4(moonLightColor, spec * specularMap.r * ((1.0 - isDay) - isRain));
+
+
+	
+
+
+
 
 	//torches, lampps and lava lights
 	vec4 srcPointLights = vec4(uv1.x);
@@ -628,6 +643,10 @@ void main()
     //debug tile texture
 	//diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 64.0), 0);
 
+	
+	
+	//vec3 sphereNormal = (normalize(position.xyz) + 1.0) / 2.0;
+	//diffuse.rgb = sphereNormal;
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);

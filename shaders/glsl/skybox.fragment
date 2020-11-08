@@ -27,7 +27,7 @@ LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 
 varying vec4 position;
-
+//
 /////////////////////// some UI and skybox shader ////////////////////////
 void main()
 {
@@ -84,7 +84,9 @@ void main()
 
 
 	gl_FragColor.rgb = resultColor;
-	gl_FragColor.a = 1.0 * length(FOG_COLOR.rgb);
-	gl_FragColor = POSITION;
-	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	//gl_FragColor.rgb = sphereNormal;
+	//gl_FragColor.a = 1.0;
+	/gl_FragColor.a = pow(skyDot * 1.6, 2.0);
+	// gl_FragColor = POSITION;
+	// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
