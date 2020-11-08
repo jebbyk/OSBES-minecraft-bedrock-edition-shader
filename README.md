@@ -1,7 +1,7 @@
 # OSBES v0.8.1
 Open Source Bedrock Edition Shader  
 
-**------------Everyone who will contribute will listed as a developer!-----------**
+**------------Everyone contrybutor will listed as a developer!-----------**
 
 **HOW TO CONTRIBUTE**
 I recomend you to use rooted device with installed Termux <span style="color:green">**terminal**</span> emulator
