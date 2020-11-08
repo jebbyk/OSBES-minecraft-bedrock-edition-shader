@@ -1,4 +1,4 @@
-# OSBES v0.8.2
+# OSBES v0.8.3
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will listed as a developer!-----------**
@@ -110,43 +110,40 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |advanced sun and mooon    |0.8.0        |hallo effect                   |<span style="color:green">ready</span>|
 |                          |0.8.1        |improve halo coloring          |<span style="color:green">ready</span>|
 |                          |0.8.2        |halo lighting on the surfaces  |<span style="color:green">ready</span>|
-|                          |-            |improve fog and halo colors    |<span style="color:purple">**in progress**</span>|
-|                          |-            |bugfixes                       |<span style="color:orange">**planned**</span>|
-|make entyties and items   |0.9.xx       |item in hand                   |<span style="color:orange">**planned**</span>|
-|lighting and shading      |-            |entyties lighting              |<span style="color:orange">**planned**</span>|
-|the same as on terrain    |-            |improvements                   |<span style="color:orange">**planned**</span>|
+|                          |0.8.3        |improve fog color handling     |<span style="color:green">ready</span>|
+|                          |-            |bugfixes                       |<span style="color:gray">no need</span>|
+|Underwater                |0.9.xx       |underwater detection and waving|<span style="color:orange">**planned**</span>|
+|                          |-            |underwater caustics            |<span style="color:orange">**planned**</span>|
+|                          |-            |improvements                   |<span style="color:orange">**planned**</span>|
 |                          |-            |fixes                          |<span style="color:orange">**planned**</span>|
 |make hell great again     |0.10.xx      |improve hell detection         |<span style="color:orange">**planned**</span>|
 |                          |-            |improve fogs in hell           |<span style="color:orange">**planned**</span>|
 |                          |-            |improve lighting in hell       |<span style="color:orange">**planned**</span>|
 |                          |-            |improvemnets and fixes         |<span style="color:orange">**planned**</span>|
-|Underwater                |0.11.xx      |underwater detection           |<span style="color:orange">**planned**</span>|
-|                          |-            |underwater waving              |<span style="color:orange">**planned**</span>|
-|                          |-            |underwater caustics            |<span style="color:orange">**planned**</span>|
-|                          |-            |improvements                   |<span style="color:orange">**planned**</span>|
-|                          |-            |fixes                          |<span style="color:orange">**planned**</span>|
-|<span style="color:green">**ALPHA RELEASE**</span>| 0.12.0 |-           |<span style="color:orange">**planned**</span>| 
+|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |-           |<span style="color:orange">**planned**</span>| 
 |bug fixes and improvements|-            | bugfixes                      |<span style="color:orange">**planned**</span>|
 |                          |-            | improvements                  |<span style="color:orange">**planned**</span>|
-|refactoring               |-            | separate include files        |<span style="color:orange">**planned**</span>|
+|refactoring               |0.12.0       | separate include files        |<span style="color:orange">**planned**</span>|
 |                          |-            | cleenup code                  |<span style="color:orange">**planned**</span>|
 |                          |-            | bug fixes                     |<span style="color:orange">**planned**</span>|
-|settings                  |-            | quality presets packages      |<span style="color:orange">**planned**</span>|
+|make entyties and items   |0.13.0       |item in hand                   |<span style="color:orange">**planned**</span>|
+|lighting and shading      |-            |entyties lighting              |<span style="color:orange">**planned**</span>|
+|the same as on terrain    |-            |improvements                   |<span style="color:orange">**planned**</span>|
+|                          |-            |fixes                          |<span style="color:orange">**planned**</span>|
+|settings                  |0.14.0       | quality presets packages      |<span style="color:orange">**planned**</span>|
 |                          |-            | Brightness setting            |<span style="color:orange">**planned**</span>|
-|win10 support             |-            | terrain shaders               |<span style="color:orange">**planned**</span>|
+|win10 support             |0.15.0       | terrain shaders               |<span style="color:orange">**planned**</span>|
 |                          |-            | sky shaders                   |<span style="color:orange">**planned**</span>|
 |                          |-            | entyties shaders              |<span style="color:orange">**planned**</span>|
 |                          |-            | item in hand shaders          |<span style="color:orange">**planned**</span>|
 |                          |-            | inventory items shaders       |<span style="color:orange">**planned**</span>|
 |                          |-            | improvements                  |<span style="color:orange">**planned**</span>|
 |                          |-            | bugfixes                      |<span style="color:orange">**planned**</span>|
-|<span style="color:green">**BETTA RELEASE**</span>|-       |-           |<span style="color:orange">**planned**</span>| 
+|<span style="color:green">**BETTA RELEASE**</span>|0.16.0|-             |<span style="color:orange">**planned**</span>| 
 |bug fixes                 |-            | -                             |<span style="color:orange">**planned**</span>|
-|<span style="color:green">**RELEASE**</span>|-      |-                  |<span style="color:orange">**planned**</span>| 
+|<span style="color:green">**RELEASE**</span>|1.0.0|-                    |<span style="color:orange">**planned**</span>| 
 |bug fixes                 |-            | -                             |<span style="color:orange">**planned**</span>|
-|paralax mapping           |-            | simple paralax mapping        |<span style="color:orange">**planned**</span>|  
+|paralax mapping           |1.1.0        | simple paralax mapping        |<span style="color:orange">**planned**</span>|  
 |                          |-            | paralax oclusion mapping      |<span style="color:orange">**planned**</span>|
 |                          |-            | optimizations                 |<span style="color:orange">**planned**</span>|
 |                          |-            | bugfixes                      |<span style="color:orange">**planned**</span>|
-
-test

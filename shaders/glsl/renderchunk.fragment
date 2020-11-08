@@ -93,12 +93,13 @@ void main()
 {
     float dayTime = texture2D(TEXTURE_1, vec2(0.0, 1.0)).r;
 
-    float isDay = dayTime - 0.75; // r ~0.465 on night time
+    float isDay = dayTime - 0.3; // r ~0.465 on night time
     isDay = clamp(isDay * 4.2, 0.0, 1.0);
 
 	// float isSunset = dayTime - 0.5;
 	// isSunset = clamp(isSunset * 2.175, 0.0, 1.0);
 	float isSunrize = dot(normalize(FOG_COLOR.rgb), vec3(1.0, 0.0, 0.0));
+	isSunrize = pow(isSunrize, 4.0);
 	
     
     float isHell = 0.0;
@@ -385,7 +386,14 @@ void main()
 	
 	vec3 rainSkyLightColor = vec3(0.5, 0.5, 0.5) * isDay * isRain;
 	//vec3 clearSkyLightColor = (vec3(0.08, 0.14, 0.2) + vec3(0.41, 0.69, 1.0) * isDay * (1.0 - isRain));
-	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r)* 2.0)) * (1.0 - isRain) * isDay;
+	// vec3 clearSkyLightColor = normalize(pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r) * 2.0))) * (1.0 - isRain)/* * isDay*/;
+	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(0.6)); 
+
+	// vec3 nightClearSkyColor = vec3(0.4, 0.8, 0.);
+	
+	// clearSkyLightColor.r = max(clearSkyLightColor.r, nightClearSkyColor.r);
+	// clearSkyLightColor.g = max(clearSkyLightColor.g, nightClearSkyColor.g);
+	// clearSkyLightColor.b = max(clearSkyLightColor.b, nightClearSkyColor.b);
 	
 	vec3 skyLightColor = rainSkyLightColor + clearSkyLightColor;
 
@@ -401,13 +409,19 @@ void main()
 	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
 	highp float shininess = 32.0 * pow(specularMap.r, 2.0)  + 1024.0 * isWater;
 	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
+	
 
 	//phong (fake halo effect)
 	float haloPhongIntecity = 0.06 * isSunrize;
 	vec3 reflectDir = reflect(-debugLightDir, normalColor.rgb);
 	float haloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
 
-	spec += haloPhong;
+	//the same for onther light source (sunrize, sunset)
+	highp vec3 reverseDebugLightDir = vec3(-0.975, 0.025, 0.0);
+	reflectDir = reflect(-reverseDebugLightDir, normalColor.rgb);
+	float secondHaloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
+
+	spec += haloPhong + secondHaloPhong;
 
 	vec4 sunLightSpecular = vec4(sunLightColor, spec * specularMap.r * (isDay - isRain));
 	vec4 moonLightSpecular = vec4(moonLightColor, spec * specularMap.r * ((1.0 - isDay) - isRain));

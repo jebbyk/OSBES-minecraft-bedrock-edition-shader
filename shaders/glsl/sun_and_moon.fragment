@@ -55,9 +55,6 @@ void main()
 
 	vec4 haloTint = mix(moonHaloColor, sunHaloColor, isDay);
 
-	float sunRizeHaloBoost = 2.0;
-	haloTint *= isSunrize * sunRizeHaloBoost;
-
 
 	float l = 1.0 - length(position.xyz)/4.0;
 
