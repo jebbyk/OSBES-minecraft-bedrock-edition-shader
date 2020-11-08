@@ -46,6 +46,19 @@ void main()
 	#endif
 
 
+
+	float isDay = length(FOG_COLOR.rgb);
+	float isSunrize = dot(normalize(FOG_COLOR.rgb), vec3(1.0, 0.0, 0.0));
+
+	vec4 sunHaloColor = vec4(0.4, 0.32, 0.25, 1.0);
+	vec4 moonHaloColor = vec4(0.2, 0.3, 0.4, 1.0);
+
+	vec4 haloTint = mix(moonHaloColor, sunHaloColor, isDay);
+
+	float sunRizeHaloBoost = 2.0;
+	haloTint *= isSunrize * sunRizeHaloBoost;
+
+
 	float l = 1.0 - length(position.xyz)/4.0;
 
 	float halo = l;
@@ -54,10 +67,6 @@ void main()
 	float sunSize = 1.0125;
 	float sunEdgeHardness = 256.0;
 	float sun = pow(l * sunSize, sunEdgeHardness);
-
-	
-	vec4 haloTint = vec4(0.45, 0.3, 0.2, 1.0);
-	vec4 sunTint = vec4(1.0, 0.5, 0.25, 1.0);
 
 
 	highp vec3 dp1 = dFdx(worldPosition.xyz);
