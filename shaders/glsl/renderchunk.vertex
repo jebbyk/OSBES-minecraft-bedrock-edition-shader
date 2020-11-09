@@ -66,6 +66,16 @@ void main()
 
 	isWater = 0.0;
 
+	float isUnderWater = 0.0;
+	
+	//get the shade (not related to brightness) of fog_color
+	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
+	if(fogColorNormalized.r < 0.22 
+	&& fogColorNormalized.b < 0.89 && fogColorNormalized.b > 0.81
+	&& fogColorNormalized.g < 0.57 && fogColorNormalized.g > 0.44){
+		isUnderWater = 1.0;
+	}
+
 
 
 
@@ -167,6 +177,15 @@ relativePosition.xyz = -worldPos.xyz;
 relativePosition.w = worldPos.w;
 
 gl_Position = worldViewPosScaled;
+
+if(isUnderWater > 0.9){
+	float t = TIME;
+	vec2 wScale = vec2(0.0125) * length(worldPos.xyz);
+	float wMovingSpeed = 4.0;
+	float wFreq  = 32.0 / length(worldPos.xyz);
+
+	gl_Position.x += (1.0 + sin(t * wMovingSpeed + (worldPos.x + worldPos.z + worldPos.y) * wFreq)) * wScale;  
+}
 
 
 
