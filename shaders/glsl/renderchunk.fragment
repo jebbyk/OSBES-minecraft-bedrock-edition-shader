@@ -25,6 +25,7 @@
 varying float isRain;
 
 varying float isWater;
+varying float isUnderWater;
 varying vec4 color;//TODO what is this color??
 vec4 normalColor;// fake normal vector will be stored here or may be later will be passed from vertex shader
 varying highp vec4 position;// get pixel position in world space (used for calculate fake normals)
@@ -400,13 +401,14 @@ void main()
 	const vec3 sunLightDirection = vec3(0.55,0.4,0.05);
 	float sunDot = max(dot(sunLightDirection, normalColor.rgb), 0.0);	
 	const vec3 sunLightColor = vec3(1.0, 0.88, 0.69);
-	const vec3 moonLightColor = vec3(0.5, 0.75,1.0) * 0.5;
+	const vec3 moonLightColor = vec3(0.5, 0.75,1.0) * 0.25;
 	
 	
 	//blinn-phong
 	highp vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
+	halfwayDir = clamp(halfwayDir, 0.0, 1.0);
 	highp float shininess = 32.0 * pow(specularMap.r, 2.0)  + 1024.0 * isWater;
 	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess);
 	
@@ -443,6 +445,36 @@ void main()
 	vec4 ambientOclusion = vec4(uv1.y + isHell* 0.5);
 	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.15, vec4(128.0)),0.0,1.0);
 	vec4 fakeMoonShadow = clamp(pow(ambientOclusion * 1.15, vec4(64.0)), 0.0, 1.0);
+
+
+	if(isUnderWater > 0.9){
+		highp float time = TIME;
+		highp float causticsSpeed = 0.03;
+		float causticsScale = 0.1;
+		
+		highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 8.0)) * causticsScale + vec2(time * causticsSpeed);
+		highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 8.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
+		
+		// float caustics = rand_bilinear(cauLayerCoord_0);
+		// caustics += rand_bilinear(cauLayerCoord_1);
+
+
+		vec2 noiseTexOffset = vec2(5.0/64.0, 1.0/64.0); 
+		float caustics = texture(TEXTURE_0, fract(cauLayerCoord_0)*0.015625 + noiseTexOffset).r;
+		caustics += texture(TEXTURE_0, fract(cauLayerCoord_1)*0.015625 + noiseTexOffset).r;
+		
+		
+		caustics = clamp(caustics, 0.0, 2.0);
+		if(caustics > 1.0){
+			caustics = 2.0 - caustics;
+		}
+		float cauHardness = 2.0;
+		float cauStrength = 0.8;
+		caustics = pow(caustics * cauStrength * (0.2 + length(FOG_COLOR.rgb)) , cauHardness);
+
+		fakeShadow += vec4(caustics);
+	}
+	
 	
 
 	spec = pow(max(dot(normalColor.rgb, viewDir), 0.0), shininess * 0.25);

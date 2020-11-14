@@ -34,6 +34,7 @@ attribute vec2 TEXCOORD_0;
 attribute vec2 TEXCOORD_1;
 
 varying float isWater;
+varying float isUnderWater;
 
 varying vec4 blueFog;
 varying vec4 milkyFog;
@@ -65,8 +66,8 @@ void main()
 	}
 
 	isWater = 0.0;
-
-	float isUnderWater = 0.0;
+    
+    isUnderWater = 0.0;
 	
 	//get the shade (not related to brightness) of fog_color
 	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
