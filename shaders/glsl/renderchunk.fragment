@@ -449,7 +449,7 @@ void main()
 
 	if(isUnderWater > 0.9){
 		highp float time = TIME;
-		highp float causticsSpeed = 0.03;
+		highp float causticsSpeed = 0.05;
 		float causticsScale = 0.1;
 		
 		highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 8.0)) * causticsScale + vec2(time * causticsSpeed);
