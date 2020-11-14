@@ -1,4 +1,4 @@
-# OSBES v0.9.0
+# OSBES v0.9.3
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will listed as a developer!-----------**
@@ -113,10 +113,10 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |0.8.3        |improve fog color handling     |<span style="color:green">ready</span>|
 |                          |-            |bugfixes                       |<span style="color:gray">no need</span>|
 |Underwater                |0.9.0        |underwater detection and waving|<span style="color:green">ready</span>|
-|                          |-            |underwater caustics            |<span style="color:purple">**in progress**</span>|
-|                          |-            |improvements                   |<span style="color:orange">**planned**</span>|
-|                          |-            |fixes                          |<span style="color:orange">**planned**</span>|
-|make hell great again     |0.10.xx      |improve hell detection         |<span style="color:orange">**planned**</span>|
+|                          |0.9.1        |underwater caustics            |<span style="color:green">ready</span>|
+|                          |0.9.2        |improvements                   |<span style="color:green">ready</span>|
+|                          |0.9.3        |fixes                          |<span style="color:green">ready</span>|
+|make hell great again     |0.10.xx      |improve hell detection         |<span style="color:purple">**in progress**</span>|
 |                          |-            |improve fogs in hell           |<span style="color:orange">**planned**</span>|
 |                          |-            |improve lighting in hell       |<span style="color:orange">**planned**</span>|
 |                          |-            |improvemnets and fixes         |<span style="color:orange">**planned**</span>|
