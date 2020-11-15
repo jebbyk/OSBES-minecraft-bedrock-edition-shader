@@ -1,4 +1,4 @@
-# OSBES v0.10.1
+# OSBES v0.10.2
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will listed as a developer!-----------**
@@ -118,8 +118,8 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |0.9.3        |fixes                          |<span style="color:green">ready</span>|
 |make hell great again     |0.10.0       |improve hell detection         |<span style="color:green">ready</span>|
 |                          |0.10.1       |fix rainy weather              |<span style="color:green">ready</span>|
-|                          |-            |fix some texutres              |<span style="color:purple">**in progress**</span>|
-|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |-           |<span style="color:orange">**planned**</span>| 
+|                          |0.10.2       |fix some texutres              |<span style="color:green">ready</span>|
+|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |-           |<span style="color:purple">**in progress**</span>| 
 |bug fixes and improvements|-            | bugfixes                      |<span style="color:orange">**planned**</span>|
 |                          |-            | improvements                  |<span style="color:orange">**planned**</span>|
 |refactoring               |0.12.0       | separate include files        |<span style="color:orange">**planned**</span>|

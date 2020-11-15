@@ -99,11 +99,14 @@ void main()
 
 
 
-    if(color.b > color.g * 0.84 && color.b > color.r * 1.17){
+    if(
+		color.b > color.g * 0.84 
+		&& color.b > color.r * 1.69
+	){
 		isWater = 1.0;
 	}
 	float spruce = 0.0;
-	if(color.b > 0.9 && color.r > 0.5 && color.g > 0.1 && color.g < 0.2 && color.r < 0.6){
+	if(color.b > 0.9 && color.r > 0.5 && color.g > 0.01 && color.g < 0.2 && color.r < 0.95){
 		isWater = 0.0;
 		spruce = 1.0;
 		color.rgb = vec3(1.0);
