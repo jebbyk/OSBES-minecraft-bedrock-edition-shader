@@ -1,4 +1,4 @@
-# OSBES v0.9.3
+# OSBES v0.10.2
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will listed as a developer!-----------**
@@ -116,12 +116,10 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |0.9.1        |underwater caustics            |<span style="color:green">ready</span>|
 |                          |0.9.2        |improvements                   |<span style="color:green">ready</span>|
 |                          |0.9.3        |fixes                          |<span style="color:green">ready</span>|
-|imporove hell and fog     |0.10.xx      |improve hell detection         |<span style="color:purple">**in progress**</span>|
-|                          |-            |improve fog on rainy weather   |<span style="color:orange">**planned**</span>|
-|                          |-            |improve fog in hell            |<span style="color:orange">**planned**</span>|
-|                          |-            |improve lighting in hell       |<span style="color:orange">**planned**</span>|
-|                          |-            |fixes                          |<span style="color:orange">**planned**</span>|
-|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |-           |<span style="color:orange">**planned**</span>| 
+|make hell great again     |0.10.0       |improve hell detection         |<span style="color:green">ready</span>|
+|                          |0.10.1       |fix rainy weather              |<span style="color:green">ready</span>|
+|                          |0.10.2       |fix some texutres              |<span style="color:green">ready</span>|
+|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |-           |<span style="color:purple">**in progress**</span>| 
 |bug fixes and improvements|-            | bugfixes                      |<span style="color:orange">**planned**</span>|
 |                          |-            | improvements                  |<span style="color:orange">**planned**</span>|
 |refactoring               |0.12.0       | separate include files        |<span style="color:orange">**planned**</span>|
