@@ -2,7 +2,7 @@
   "resource_pack_name": "vanilla",
   "texture_name": "atlas.terrain",
   "padding": 0,
-  "num_mip_levels": 0,
+  "num_mip_levels": 2,
   "texture_data": {
   	"grass_side": {
   	  "textures": [
