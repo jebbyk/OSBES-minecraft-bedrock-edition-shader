@@ -142,7 +142,7 @@ void main()
 	if((isLeaves > 0.5 || isPlantTop > 0.5) && isWater < 0.1 && color.g > color.r){
 		//wind waves
 		vec3 correctedRawPos = position.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
-		float t = TIME;
+		highp float t = TIME;
 		vec2 wavesScale = vec2(0.0125, 0.0125);
 		float wavesMovingSpeed = 16.0 * (1.0 + floor(isRain + 0.5) * 0.5);
 		float wavesFreq  = 4.0;
@@ -183,7 +183,7 @@ relativePosition.w = worldPos.w;
 gl_Position = worldViewPosScaled;
 
 if(isUnderWater > 0.9){
-	float t = TIME;
+	highp float t = TIME;
 	float wScale = 0.0125 * length(worldPos.xyz);
 	float wMovingSpeed = 4.0;
 	float wFreq  = 32.0 / length(worldPos.xyz);
