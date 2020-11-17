@@ -184,7 +184,7 @@ gl_Position = worldViewPosScaled;
 
 if(isUnderWater > 0.9){
 	float t = TIME;
-	vec2 wScale = vec2(0.0125) * length(worldPos.xyz);
+	float wScale = 0.0125 * length(worldPos.xyz);
 	float wMovingSpeed = 4.0;
 	float wFreq  = 32.0 / length(worldPos.xyz);
 
