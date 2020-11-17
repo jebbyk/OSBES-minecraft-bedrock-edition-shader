@@ -10,8 +10,8 @@
 			_centroid in highp vec2 uv0;
 			_centroid in highp vec2 uv1;
 		#else
-			_centroid in vec2 uv0;
-			_centroid in vec2 uv1;
+			_centroid in highp vec2 uv0;
+			_centroid in highp vec2 uv1;
 		#endif
 	#endif //BYPASS_PIXEL_SHADER
 #else
