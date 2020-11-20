@@ -558,7 +558,7 @@ void main()
 		    
 		    
 		    
-			diffuse.rgb = mix(diffuse.rgb * 0.25 + length(clearSkyLightColor) * vec3(0.05, 0.1, 0.2), skyLightFresnel.rgb * 1.5, pow(skyLightFresnel.a, 2.0));
+			diffuse.rgb = mix(diffuse.rgb * 0.125 + length(clearSkyLightColor) * vec3(0.05, 0.1, 0.2), skyLightFresnel.rgb * 1.25, pow(skyLightFresnel.a, 2.0));
 
 			diffuse.rgb = mix(diffuse.rgb, cloudsColor, clouds * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
 			//diffuse.rgb = mix(diffuse.rgb, vec3(0.6, 0.8, 1.0) * 0.5, cloudsShadow * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
