@@ -700,7 +700,7 @@ void main()
 	//diffuse.rgb = vec3(isHell)
 
     //debug tile texture
-	//diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 64.0), 0);
+	// diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 64.0), 0);
 
 	
 	
@@ -713,6 +713,6 @@ void main()
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
-	//  gl_FragColor.r += isHell;
+	//gl_FragColor.r += isHell;
 #endif // BYPASS_PIXEL_SHADER
 }
