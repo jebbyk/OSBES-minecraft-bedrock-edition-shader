@@ -92,19 +92,18 @@ highp vec2 parallax(highp vec2 uv, highp vec3 viewDir){
 
 void main()
 {
-    float dayTime = texture2D(TEXTURE_1, vec2(0.0, 1.0)).r;
+	//left bottom pixel becomes bluish at night. So we can get exact day time by calulating how much b-part is bigger then g for example
+	vec3 dayTimeDetectionPixel = texture2D(TEXTURE_1, vec2(0.0, 1.0)).rgb;
+	float dayTime = dayTimeDetectionPixel.g / dayTimeDetectionPixel.b;
+	float isDay = pow(dayTime, 8.0);
 
-    float isDay = dayTime - 0.3; // r ~0.465 on night time
-    isDay = clamp(isDay * 4.2, 0.0, 1.0);
-
-	// float isSunset = dayTime - 0.5;
-	// isSunset = clamp(isSunset * 2.175, 0.0, 1.0);
 	float isSunrize = dot(normalize(FOG_COLOR.rgb), vec3(1.0, 0.0, 0.0));
 	isSunrize = pow(isSunrize, 4.0);
 	
-    
+	//top left pixel is darker in overworld and brighter in a nithers
+    float hellDetectionPixel = texture2D(TEXTURE_1, vec2(0.0)).r;
     float isHell = 0.0;
-	if (dayTime > 0.988){
+	if (hellDetectionPixel > 0.15){
 		isHell = 1.0;
 	}
    
@@ -694,7 +693,9 @@ void main()
 	//    diffuse.rgb = vec3(1.0, 0.0, 0.0);
 	//}
 
-	//diffuse.rgb = vec3(isRain, isDay, 1.0 - isDay);
+	//diffuse.rgb = vec3(isRain, isDay, 1.0 - isDay);	// if (dayTime > 0.988){
+	// 	isHell = 1.0;
+	// } 
 
 	//diffuse.rgb = vec3(isHell)
 
@@ -705,9 +706,13 @@ void main()
 	
 	//vec3 sphereNormal = (normalize(position.xyz) + 1.0) / 2.0;
 	//diffuse.rgb = sphereNormal;
+
+	// diffuse.rgb = texelFetch(TEXTURE_1, ivec2(position.xz * 4.0),0).rgb;
+	// diffuse.rgb = texture2D(TEXTURE_1, vec2(0.0, 1.0)).rgb;
+	
 	gl_FragColor = diffuse;
 	//check if vim broke this file (looks like it happens sometimes :-/)
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
-	// gl_FragColor.r += isHell;
+	//  gl_FragColor.r += isHell;
 #endif // BYPASS_PIXEL_SHADER
 }
