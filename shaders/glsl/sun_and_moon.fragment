@@ -53,6 +53,13 @@ void main()
 	vec4 sunHaloColor = vec4(0.4, 0.32, 0.25, 1.0);
 	vec4 moonHaloColor = vec4(0.2, 0.3, 0.4, 1.0);
 
+	float isRain = 1.0 - length(normalize(vec3(1.0)) - normalize(FOG_COLOR.rgb));//calculate how complimentary fog color wiht gray color
+	isRain = pow(isRain, 16.0);
+	if(FOG_CONTROL.g > 0.95){
+		isRain = 0.0;
+	}
+
+
 	vec4 haloTint = mix(moonHaloColor, sunHaloColor, isDay);
 
 
@@ -74,4 +81,5 @@ void main()
 
 	gl_FragColor = CURRENT_COLOR * diffuse * length(diffuse.rgb);
 	gl_FragColor += halo * haloTint /*+ sun * sunTint*/;
+	gl_FragColor.a *= 1.0 - isRain;
 }
