@@ -39,8 +39,11 @@ float rand_bilinear(highp vec2 coord){
 void main()
 {
     
-	float isRain = 1.0 - length(normalize(vec3(1.0, 1.0, 1.0)) - normalize(FOG_COLOR.rgb));//calculate how complimentary fog color wiht gray color
+	float isRain = 1.0 - length(normalize(vec3(1.0)) - normalize(FOG_COLOR.rgb));//calculate how complimentary fog color wiht gray color
 	isRain = pow(isRain, 16.0);
+	if(FOG_CONTROL.g > 0.95){
+		isRain = 0.0;
+	}
 
 	// float isNight = 1.0 - pow(length(FOG_COLOR.rgb), 0.01);
 

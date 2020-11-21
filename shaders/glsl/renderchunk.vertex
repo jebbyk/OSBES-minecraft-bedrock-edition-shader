@@ -59,6 +59,9 @@ void main()
 	fogColor = vec4(0.0);
    	isRain = 1.0 - length(normalize(vec3(1.0)) - normalize(FOG_COLOR.rgb));//calculate how complimentary fog color wiht gray color
 	isRain = pow(isRain, 16.0);
+	if(FOG_CONTROL.g > 0.95){
+		isRain = 0.0;
+	}
 
 	//prevent sunrize/sunset fog color recognized as rain fog color
 	// if(length(FOG_COLOR.rgb) < 0.4 || length(FOG_COLOR.rgb) > 0.6){

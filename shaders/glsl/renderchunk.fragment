@@ -711,6 +711,8 @@ void main()
 	// diffuse.rgb = texture2D(TEXTURE_1, vec2(0.0, 1.0)).rgb;
 	
 	gl_FragColor = diffuse;
+
+	// gl_FragColor.rg = FOG_CONTROL;
 	//check if vim broke this file (looks like it happens sometimes :-/)
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 	//gl_FragColor.r += isHell;
