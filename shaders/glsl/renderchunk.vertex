@@ -45,7 +45,7 @@ varying float isRain;
 const float rA = 1.0;
 const float rB = 1.0;
 const vec3 UNIT_Y = vec3(0,1,0);
-const float DIST_DESATURATION = 56.0 / 255.0; //WARNING this value is also hardcoded in the water color, don'tchange
+const float DIST_DESATURATION = 56.0 / 255.0; // WARNING: this value is also hardcoded in the water color, don't change
 
 float isLeaves;
 float isPlantTop;
@@ -57,22 +57,22 @@ void main()
 
 
 	fogColor = vec4(0.0);
-   	isRain = 1.0 - length(normalize(vec3(1.0)) - normalize(FOG_COLOR.rgb));//calculate how complimentary fog color wiht gray color
+   	isRain = 1.0 - length(normalize(vec3(1.0)) - normalize(FOG_COLOR.rgb));// Calculate how complimentary fog color with gray color (?)
 	isRain = pow(isRain, 16.0);
 	if(FOG_CONTROL.g > 0.95){
 		isRain = 0.0;
 	}
 
-	//prevent sunrize/sunset fog color recognized as rain fog color
-	// if(length(FOG_COLOR.rgb) < 0.4 || length(FOG_COLOR.rgb) > 0.6){
+	// Prevent Sunrise/Sunset fog color recognized as rain fog color
+	//if(length(FOG_COLOR.rgb) < 0.4 || length(FOG_COLOR.rgb) > 0.6){
 	// 	isRain = 0.0;
-	// }
+	//}
 
 	isWater = 0.0;
     
     isUnderWater = 0.0;
 	
-	//get the shade (not related to brightness) of fog_color
+	// Get the shade (not related to brightness) of fog_color
 	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
 	if(fogColorNormalized.r < 0.22 
 	&& fogColorNormalized.b < 0.89 && fogColorNormalized.b > 0.81
@@ -83,7 +83,7 @@ void main()
 
 
 
-//here is a water
+// Water
 #ifndef BYPASS_PIXEL_SHADER
 	uv0 = TEXCOORD_0;
     uv1 = TEXCOORD_1;
@@ -138,22 +138,22 @@ void main()
 
 
 
-//here is a leaves and grass
+// Leaves and grass
 #if defined ALPHA_TEST
 
 	//if((isWater < 0.1 && color.g > color.r) || spruce > 0.5 ){
 	if((isLeaves > 0.5 || isPlantTop > 0.5) && isWater < 0.1 && color.g > color.r){
-		//wind waves
+		// Wind waves
 		vec3 correctedRawPos = position.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
 		highp float t = TIME;
 		vec2 wavesScale = vec2(0.0125, 0.0125);
 		float wavesMovingSpeed = 16.0 * (1.0 + floor(isRain + 0.5) * 0.5);
 		float wavesFreq  = 4.0;
 
-		//wind impulses
+		// Wind impulses
 		float impulsesMovingSpeed = 1.0;
-		float impulsesScaleDevider = 1.0;//should be grater then 1.0
-		float impulseDuration = 4.0 / (1.0 + isRain * 2.0);//bigger number - shorter impulse
+		float impulsesScaleDevider = 1.0;// Should be greater then 1.0
+		float impulseDuration = 4.0 / (1.0 + isRain * 2.0);// Bigger number = shorter impulse
 		float f = sin(correctedRawPos.x * impulsesScaleDevider + impulsesMovingSpeed * t) * 0.5 + 0.5;
 		f = clamp(pow(f, impulseDuration), 0.1 + isRain * 0.3, 1.0);
 		wavesScale *= f * (1.0 + isRain * 2.0);
@@ -178,7 +178,7 @@ POS4 worldPos;
 	// World position here is calculated above and can get huge
 	POS4 worldViewPosScaled = WORLDVIEW * worldPos;
 	worldViewPosScaled = PROJ * worldViewPosScaled;
-#endif // AS_ENTITY_RENDERER
+#endif //AS_ENTITY_RENDERER
 
 relativePosition.xyz = -worldPos.xyz;
 relativePosition.w = worldPos.w;
@@ -197,7 +197,7 @@ if(isUnderWater > 0.9){
 
 
 
-///// find distance from the camera
+// Find distance from the camera
 
 //#if defined(FOG) || defined(BLEND)
 //#if defined(BLEND)
@@ -207,11 +207,11 @@ if(isUnderWater > 0.9){
 	#else
 		float cameraDepth = worldViewPosScaled.z;
 	#endif
-//#endif //// FOG or BLEND
+//#endif //FOG or BLEND
 
 
 
-///// apply fog
+// Apply fog
 
 //#ifdef FOG
 	float len = cameraDepth / RENDER_DISTANCE;
@@ -240,10 +240,10 @@ if(isUnderWater > 0.9){
 	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
 
 
-///// blended layer (mostly water) magic
+/// Blended layer (mostly water) magic
 #ifdef BLEND
-	//Mega hack: only things that become opaque are allowed to have vertex-driven transparency in the Blended layer...
-	//to fix this we'd need to find more space for a flag in the vertex format. color.a is the only unused part
+	// Mega hack: only things that become opaque are allowed to have vertex-driven transparency in the Blended layer...
+	// To fix this we'd need to find more space for a flag in the vertex format. color.a is the only unused part
 	bool shouldBecomeOpaqueInTheDistance = color.a < 0.95;
 	//bool shouldBecomeOpaqueInTheDistance = false;
 	if(shouldBecomeOpaqueInTheDistance) {
@@ -251,7 +251,7 @@ if(isUnderWater > 0.9){
 			float cameraDist = cameraDepth / FAR_CHUNKS_DISTANCE;
 			color = COLOR;
 		#else
-			//Completely insane, but if I don't have these two lines in here, the water doesn't render on a Nexus 6
+			// Completely stupid, but if I don't have these two lines in here, the water doesn't render on a Nexus 6
 			vec4 surfColor = vec4(color.rgb, 1.0);
 			color = surfColor;
 				
@@ -268,7 +268,7 @@ if(isUnderWater > 0.9){
 #ifndef BYPASS_PIXEL_SHADER
 
 	#ifndef FOG
-		//If the FOG_COLOR isn't used, the reflection on NVN fails to compute the correct size of the constant buffer as the uniform will also be gone from the reflection data
+		// If the FOG_COLOR isn't used, the reflection on NVN fails to compute the correct size of the constant buffer as the uniform will also be gone from the reflection data
 		color.rgb += FOG_COLOR.rgb * 0.00001;
 	#endif //FOG
 #endif //BYPASS_PIXEL_SHADER

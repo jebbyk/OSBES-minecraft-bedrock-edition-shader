@@ -41,7 +41,7 @@ void main()
 #define OCCLUSION_LUMINANCE occlusionTexture.b
 #endif
 
-	// clamp the uvs
+	// Clamp the UVs
 #ifndef NO_OCCLUSION
 	if ( occlusionUV.x >= 0.0 && occlusionUV.x <= 1.0 && 
 		 occlusionUV.y >= 0.0 && occlusionUV.y <= 1.0 && 
@@ -64,7 +64,7 @@ void main()
 	vec4 finalOutput = albedo;
 	finalOutput.rgb *= lighting.rgb;
 
-	//apply fog
+	// Apply fog
 	gl_FragColor.rgb = mix( finalOutput.rgb, fogColor.rgb, fogColor.a );
 	gl_FragColor.a = finalOutput.a;
 }
