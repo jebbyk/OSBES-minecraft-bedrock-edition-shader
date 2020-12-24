@@ -251,7 +251,7 @@ if(isUnderWater > 0.9){
 			float cameraDist = cameraDepth / FAR_CHUNKS_DISTANCE;
 			color = COLOR;
 		#else
-			// Completely stupid, but if I don't have these two lines in here, the water doesn't render on a Nexus 6
+			// Completely insane, but if I don't have these two lines in here, the water doesn't render on a Nexus 6
 			vec4 surfColor = vec4(color.rgb, 1.0);
 			color = surfColor;
 				
