@@ -1,10 +1,10 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
-// To use centroid sampling we need to have version 300 es shaders, which requires changing:
+// To use centroid sampling we need to have version 300 ES shaders, which requires changing:
 // attribute to in
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
 #include "fragmentVersionCentroidUV.h"
 

@@ -1,6 +1,6 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
-// it is about some UI controll buttons and inventory items (except shield :/)
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
+// It is about some UI controll buttons and inventory items (except shield :/)
 #include "fragmentVersionCentroidUV.h"
 
 #include "uniformEntityConstants.h"
@@ -28,7 +28,7 @@ varying vec4 fogColor;
 	}
 #endif
 
-///////////////////// ingame UI fragment shader ////////////////////////////
+///////////////////// Ingame UI fragment shader ////////////////////////////
 
 void main()
 {
@@ -41,8 +41,8 @@ void main()
 #ifdef EFFECTS_OFFSET
     vec4 diffuse = vec4(0.0);
 		
-	//terrain attlass mostly is bigger than items attlass
-	//tricky thing that do really needs refactoring (!) but it works currently and I dont wona touch it
+	// Terrain attlass mostly is bigger than items attlass
+	// Tricky thing that do really needs refactoring (!) but it works currently and I dont wona touch it
 	if(TEXTURE_DIMENSIONS.x == 1024.0){
 		vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
 		diffuse = texture2D( TEXTURE_0,  uvhp);
@@ -51,11 +51,11 @@ void main()
 		diffuse = texture2D(TEXTURE_0, uv);
 	}
 #else
-	#ifdef ALPHA_TEST // inventory items (exclude UI buttons)
+	#ifdef ALPHA_TEST // Inventory items (exclude UI buttons)
 		vec4 diffuse = vec4(0.0);
 		
-		//terrain attlass mostly is bigger than items attlass
-		//tricky thing that do really needs refactoring (!) but it works currently and I dont wona touch it
+		// Terrain atlas mostly is bigger than items atlas
+		// This really needs refactoring (!), but it works currently and I dont wanna touch it
 		if(TEXTURE_DIMENSIONS.x == 1024.0){
 			vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
 			diffuse = texture2D( TEXTURE_0,  uvhp);
@@ -64,7 +64,7 @@ void main()
 			diffuse = texture2D(TEXTURE_0, uv);
 		}
 		//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
-	#else //only UI buttons
+	#else // Only UI buttons
 		vec4 diffuse = texture2D(TEXTURE_0, uv);
 	#endif
 #endif
@@ -192,7 +192,7 @@ void main()
 
 		// Fog needs to be applied after the color tinting.
 #ifdef ENABLE_FOG
-	//if fog enabled we are know that it is not UI element
+	// If fog enabled we are know that it is not UI element
 	if(diffuse.b > diffuse.r && diffuse.b > diffuse.g){
 		diffuse.rgb = vec3(0.5,0.5,0.5); //rain splash hack
 	}

@@ -1,5 +1,5 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
 #include "vertexVersionCentroidUV.h"
 
@@ -13,7 +13,7 @@ varying vec4 worldPosition;
 varying vec4 worldViewPosition;
 varying vec3 viewPosition;
 
-//some ui and cubemap uv coord
+//some UI and cubemap uv coord
 
 void main()
 {

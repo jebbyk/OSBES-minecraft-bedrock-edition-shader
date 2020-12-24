@@ -1,5 +1,5 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
 #include "fragmentVersionCentroid.h"
 #include "uniformMacro.h"
@@ -39,7 +39,7 @@ void main()
 		gl_FragColor = vec4(0, 0, 0, 0);
 	#else
 
-	///// Color Assembly
+	// Color Assembly
 	vec4 colorSample = texture2D(TEXTURE_1, colorLookupUV);
 	vec4 textureSample = texture2D(TEXTURE_0, parallaxUV);
 	float brightness = 1.0 - (encodedPlane.w);

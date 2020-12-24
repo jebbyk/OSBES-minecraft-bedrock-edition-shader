@@ -1,5 +1,5 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
 #include "vertexVersionCentroidUV.h"
 
@@ -63,7 +63,7 @@ float lightIntensity(vec4 position, vec4 normal) {
 
 	N.y *= TILE_LIGHT_COLOR.w; //TILE_LIGHT_COLOR.w contains the direction of the light
 
-	//take care of double sided polygons on materials without culling
+	// Take care of double sided polygons on materials without culling
 	#ifdef FLIP_BACKFACES
 		vec3 viewDir = normalize((WORLD * position).xyz);
 		if( dot(N, viewDir) > 0.0 )
@@ -111,7 +111,7 @@ void main()
 	POS4 pos = WORLDVIEWPROJ * entitySpacePosition;
 	gl_Position = pos;
 	float L = lightIntensity(entitySpacePosition, entitySpaceNormal);
-	normalsColor = normalize(WORLD *  entitySpaceNormal); //get normals to calculate world realtive lightin
+	normalsColor = normalize(WORLD *  entitySpaceNormal); // Get normals to calculate world realtive lightin
 	skyLightDirection = vec3(0.0, 1.0, 0.0);
 	float skyLightWraping = 0.8;
 	float dotAngle = max((dot(normalsColor.rgb, skyLightDirection) + skyLightWraping)/(1.0 + skyLightWraping),0.0);
@@ -152,7 +152,7 @@ void main()
 	tileLightColor = TILE_LIGHT_COLOR;
 #endif
 
-	//fog
+	// Fog
 	fogColor.rgb = FOG_COLOR.rgb;
 	//fogColor.a = clamp(((pos.z / (RENDER_DISTANCE/2.0)) - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
 	fogColor.a = clamp(atan(pos.z/RENDER_DISTANCE), 0.0, 1.0);

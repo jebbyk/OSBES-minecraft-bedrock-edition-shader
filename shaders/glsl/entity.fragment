@@ -1,5 +1,5 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
 
 #include "fragmentVersionCentroidUV.h"
@@ -27,7 +27,7 @@ varying vec4 skyLightPerVertex;
 
 #ifdef USE_OVERLAY
     // When drawing horses on specific android devices, overlay color ends up being garbage data.
-    // Changing overlay color to high precision appears to fix the issue on devices tested
+    // Changing overlay color to high precision appears to fix the issue on the devices tested
 	varying highp vec4 overlayColor;
 #endif
 
@@ -75,13 +75,13 @@ void main()
 
 			#ifdef USE_OVERLAY
 				color = texture2D(TEXTURE_0, uv);
-			#else //apply only for blocks in hand
+			#else // Apply only for blocks in hand
 				highp vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
 				color = texture2D( TEXTURE_0, uvhp);
 			#endif
 		#else
 			//color = texture2D_AA(TEXTURE_0, uv);
-		#endif // !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
+		#endif //!defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
 
 
 		#ifdef MASKED_MULTITEXTURE
@@ -92,13 +92,13 @@ void main()
 			//color = mix(tex1, color, clamp(maskedTexture, 0.0, 1.0));
 			
 			//color = vec4(1.0, 0.0, 0.0, 1.0);
-		#endif // MASKED_MULTITEXTURE
+		#endif //MASKED_MULTITEXTURE
 
 
 		#if defined(ALPHA_TEST) && !defined(USE_MULTITEXTURE) && !defined(MULTIPLICATIVE_TINT)
 			if(NEEDS_DISCARD(color))
 				discard;
-		#endif // ALPHA_TEST
+		#endif //ALPHA_TEST
 
 
 		#ifdef TINTED_ALPHA_TEST
@@ -106,8 +106,8 @@ void main()
 		testColor.a *= alphaTestMultiplier;
 			if(NEEDS_DISCARD(testColor))
 				discard;
-		#endif // TINTED_ALPHA_TEST
-	#endif // NO_TEXTURE
+		#endif //TINTED_ALPHA_TEST
+	#endif //NO_TEXTURE
 
 
 
@@ -116,7 +116,7 @@ void main()
 
 
 
-	//only flat item in hand
+	// Only flat item in hand
 	#ifdef COLOR_BASED
 		color *= vertColor;
 		
@@ -147,7 +147,7 @@ void main()
 		#endif
 
 
-		//only flat items (not blocks, not heads, not shield)
+		// Only flat items (not blocks, not heads, not shield)
 		#ifdef ITEM_IN_HAND
 			color.rgb = mix(color.rgb, color.rgb*CHANGE_COLOR.rgb, vertColor.a);
 			#if defined(MCPE_PLATFORM_NX) && defined(NO_TEXTURE) && defined(GLINT)
@@ -160,7 +160,7 @@ void main()
 		#endif 
 		
 
-	#endif // MULTI_COLOR_TINT
+	#endif //MULTI_COLOR_TINT
 
 
 
@@ -216,13 +216,13 @@ void main()
 		#endif
 		
 
-	#endif // MULTIPLICATIVE_TINT
+	#endif //MULTIPLICATIVE_TINT
 
 
 
-	//looks like it is allll except blocks yay :-D
+	// Looks like it is allll except blocks yay :-D
 	#ifdef USE_OVERLAY
-		//use either the diffuse or the OVERLAY_COLOR
+		// Use either the diffuse or the OVERLAY_COLOR
 		color.rgb = mix(color, overlayColor, overlayColor.a).rgb;
 		//color = vec4(1.0, 0.0, 0.0, 1.0);
 	#endif
@@ -230,7 +230,7 @@ void main()
 
 
 	#ifdef USE_EMISSIVE
-		//make glowy stuff
+		// Make glowy stuff
 		color *= mix(vec4(1.0), light, color.a );
 		//color = vec4(1.0, 0.0, 0.0, 1.0);
 	#else
@@ -239,9 +239,9 @@ void main()
 
 
 
-	//apply sky color
+	// Apply sky color
 	color.rgb  = color.rgb + color.rgb * skyLightPerVertex.rgb;
-	//apply fog
+	// Apply fog
 	color.rgb = mix( color.rgb, fogColor.rgb, fogColor.a );
 
 
@@ -257,7 +257,7 @@ void main()
 
 
 
-	//WARNING do not refactor this
+	// WARNING do not refactor this
 	#ifdef UI_ENTITY
 		color.a *= HUD_OPACITY;
 	#endif

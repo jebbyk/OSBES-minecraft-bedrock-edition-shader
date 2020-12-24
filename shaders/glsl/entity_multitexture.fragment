@@ -49,10 +49,10 @@ void main()
 	color *= light;
 #endif
 
-	//apply fog
+	// Apply fog
 	color.rgb = mix( color.rgb, fogColor.rgb, fogColor.a );
 
-	//WARNING do not refactor this 
+	// WARNING do not refactor this
 	gl_FragColor = color;
 
 	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
