@@ -21,8 +21,8 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
     - After importing, this shader pack should appear in the /sdcard/games/com.mojang/resource_packs/
     - If it does not appear, import some other packs and when they begin to appear in /sdcard/games/ try to import OSBES again. It is your WORKING FOLDER
 #### 4. Add link to my original repository to have the actual development version
-    - when you are on this page (not your forked repository!!!) click "Code" button, select "HTTPS" and copy this link
-    - run in your terminal: git remote add upstream [your copied link goes here]
+    - When you are on this page (not your forked repository!!!) click "Code" button, select "HTTPS" and copy this link
+    - Run in your terminal: git remote add upstream [your copied link goes here]
 #### 5. Switch to develop branch
     The next steps should be done when you are in your WORKING FOLDER 
     - Run in your terminal: git checkout develop
@@ -62,65 +62,65 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 
 | Feature                  | Version     | Subfeature                 | Status |
 |:-------------------------|:-----------:|:-----------------------------:|-------:| 
-|Basic lighting            |0.0.0        | Entity lighting             |<span style="color:green">ready</span>  |
-|                          |0.0.1        | Terrain lighting              |<span style="color:green">ready</span>  |
-|                          |0.0.2        | Improvements                  |<span style="color:green">ready</span>|
-|                          |0.0.3        | Fixes                         |<span style="color:gray">no need</span>|
-|Advanced texture mapping  |0.1.0        | Specular mapping              |<span style="color:green">ready</span>  |
-|                          |0.1.1        | Normal mapping                |<span style="color:green">ready</span> |
-|                          |0.1.2        | Improvements                  |<span style="color:green">ready</span>|
-|                          |0.1.3        | Fixes                         |<span style="color:gray">no need</span>|
-|Sky fresnel lighting      |0.2.0        | For terrain                   |<span style="color:green">ready</span>  |
+|Basic lighting            |0.0.0        | Entity lighting             |<span style="color:green">Ready</span>  |
+|                          |0.0.1        | Terrain lighting              |<span style="color:green">Ready</span>  |
+|                          |0.0.2        | Improvements                  |<span style="color:green">Ready</span>|
+|                          |0.0.3        | Fixes                         |<span style="color:gray">No need</span>|
+|Advanced texture mapping  |0.1.0        | Specular mapping              |<span style="color:green">Ready</span>  |
+|                          |0.1.1        | Normal mapping                |<span style="color:green">Ready</span> |
+|                          |0.1.2        | Improvements                  |<span style="color:green">Ready</span>|
+|                          |0.1.3        | Fixes                         |<span style="color:gray">No need</span>|
+|Sky fresnel lighting      |0.2.0        | For terrain                   |<span style="color:green">Ready</span>  |
 |                          |0.2.1        | For entities                  |<span style="color:red">**NO**</span>     |
-|                          |0.2.2        | Improvements                  |<span style="color:green">ready</span>|
-|                          |0.2.3        | Fixes                         |<span style="color:green">ready</span>|
-|Color correction          |0.3.0        | For terrain                   |<span style="color:green">ready</span>  |
-|                          |0.3.1        | For sky                       |<span style="color:green">ready</span>  |
-|                          |0.3.2        | For entities                  |<span style="color:green">ready</span>  |
-|                          |0.3.3        | Improvements                  |<span style="color:green">ready</span>|
-|                          |0.3.4        | Fixes                         |<span style="color:green">ready</span>|
-|Wind waving               |0.4.0        | Leaves and grass              |<span style="color:green">ready</span>  |
-|                          |0.4.1        | Water                         |<span style="color:green">ready</span>  |
-|                          |0.4.2        | Improvements                  |<span style="color:green">ready</span>|
-|                          |0.4.3        | Fixes                         |<span style="color:green">ready</span>|
-|Water                     |0.5.0        | Specular and fresnel          |<span style="color:green">ready</span>|
-|                          |0.5.1        | Texuture mapping              |<span style="color:green">ready</span>|
-|                          |0.5.2        | Point lights specular          |<span style="color:green">ready</span>|
-|                          |0.5.3        | Improvements                  |<span style="color:green">ready</span>|
-|                          |0.5.4        | Optimizations                 |<span style="color:green">ready</span>|
-|                          |0.5.5        | Fixes                         |<span style="color:green">ready</span>|
-|Weather and daytime tune  |0.6.0        | Raining                       |<span style="color:green">ready</span>|
-|                          |0.6.1        |Day / Night / Sunrise          |<span style="color:green">ready</span>|
-|                          |0.6.2        | Hell detection                |<span style="color:green">ready</span>|
+|                          |0.2.2        | Improvements                  |<span style="color:green">Ready</span>|
+|                          |0.2.3        | Fixes                         |<span style="color:green">Ready</span>|
+|Color correction          |0.3.0        | For terrain                   |<span style="color:green">Ready</span>  |
+|                          |0.3.1        | For sky                       |<span style="color:green">Ready</span>  |
+|                          |0.3.2        | For entities                  |<span style="color:green">Ready</span>  |
+|                          |0.3.3        | Improvements                  |<span style="color:green">Ready</span>|
+|                          |0.3.4        | Fixes                         |<span style="color:green">Ready</span>|
+|Wind waving               |0.4.0        | Leaves and grass              |<span style="color:green">Ready</span>  |
+|                          |0.4.1        | Water                         |<span style="color:green">Ready</span>  |
+|                          |0.4.2        | Improvements                  |<span style="color:green">Ready</span>|
+|                          |0.4.3        | Fixes                         |<span style="color:green">Ready</span>|
+|Water                     |0.5.0        | Specular and fresnel          |<span style="color:green">Ready</span>|
+|                          |0.5.1        | Texuture mapping              |<span style="color:green">Ready</span>|
+|                          |0.5.2        | Point lights specular          |<span style="color:green">Ready</span>|
+|                          |0.5.3        | Improvements                  |<span style="color:green">Ready</span>|
+|                          |0.5.4        | Optimizations                 |<span style="color:green">Ready</span>|
+|                          |0.5.5        | Fixes                         |<span style="color:green">Ready</span>|
+|Weather and daytime tune  |0.6.0        | Raining                       |<span style="color:green">Ready</span>|
+|                          |0.6.1        |Day / Night / Sunrise          |<span style="color:green">Ready</span>|
+|                          |0.6.2        | Hell detection                |<span style="color:green">Ready</span>|
 |                          |0.6.3        | Improvements                  |<span style="color:red">**NO**</span>|
-|                          |0.6.4        | Fixes                         |<span style="color:green">ready</span>|
-|Clouds                    |0.7.0        | Cloud generation             |<span style="color:green">ready</span>|
-|                          |0.7.1        |Optimizations                  |<span style="color:gray">no need</span>|
-|                          |0.7.2        | Clouds reflections            |<span style="color:green">ready</span>|
+|                          |0.6.4        | Fixes                         |<span style="color:green">Ready</span>|
+|Clouds                    |0.7.0        | Cloud generation             |<span style="color:green">Ready</span>|
+|                          |0.7.1        |Optimizations                  |<span style="color:gray">No need</span>|
+|                          |0.7.2        | Clouds reflections            |<span style="color:green">Ready</span>|
 |                          |0.7.3        | improvements                  |<span style="color:red">**NO**</span>|
-|                          |0.7.4        | Fixes                         |<span style="color:green">ready</span>|
-|Improve textures          |0.7.5        |Fix animated texures           |<span style="color:green">ready</span>|
-|                          |0.7.6        |Add more texture maps          |<span style="color:green">ready</span>|
-|                          |0.7.7        |Fix block in hand mapping      |<span style="color:green">ready</span>|
-|                          |0.7.8        |Fix inventory block mapping    |<span style="color:green">ready</span>|
-|                          |0.7.10       |Prepare inventory flat textures|<span style="color:green">ready</span>|
-|                          |0.7.9        |Fix entity texture mapping   |<span style="color:green">ready</span>|
-|                          |0.7.12       |Fix torches mapping            |<span style="color:green">particulary ready</span>|
-|                          |0.7.11       |Correct tangent calculation    |<span style="color:green">particulary ready</span>|
-|Advanced Sun and Moon    |0.8.0        |Halo effect                   |<span style="color:green">ready</span>|
-|                          |0.8.1        |Improve Halo coloring          |<span style="color:green">ready</span>|
-|                          |0.8.2        |Halo lighting on the surfaces  |<span style="color:green">ready</span>|
-|                          |0.8.3        |Improve fog color handling     |<span style="color:green">ready</span>|
-|                          |-            |bugfixes                       |<span style="color:gray">no need</span>|
-|Underwater                |0.9.0        |Underwater detection and waving|<span style="color:green">ready</span>|
-|                          |0.9.1        |Underwater caustics            |<span style="color:green">ready</span>|
-|                          |0.9.2        |Improvements                   |<span style="color:green">ready</span>|
-|                          |0.9.3        |Fixes                          |<span style="color:green">ready</span>|
-|Make hell great again     |0.10.0       |Improve hell detection         |<span style="color:green">ready</span>|
-|                          |0.10.1       |Fix rainy weather              |<span style="color:green">ready</span>|
-|                          |0.10.2       |Fix some texutres              |<span style="color:green">ready</span>|
-|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |hotfixes|<span style="color:green">ready</span>|
-|Bug fixes and improvements|0.11.1       | Bugfixes                      |<span style="color:green">ready</span>
+|                          |0.7.4        | Fixes                         |<span style="color:green">Ready</span>|
+|Improve textures          |0.7.5        |Fix animated texures           |<span style="color:green">Ready</span>|
+|                          |0.7.6        |Add more texture maps          |<span style="color:green">Ready</span>|
+|                          |0.7.7        |Fix block in hand mapping      |<span style="color:green">Ready</span>|
+|                          |0.7.8        |Fix inventory block mapping    |<span style="color:green">Ready</span>|
+|                          |0.7.10       |Prepare inventory flat textures|<span style="color:green">Ready</span>|
+|                          |0.7.9        |Fix entity texture mapping   |<span style="color:green">Ready</span>|
+|                          |0.7.12       |Fix torches mapping            |<span style="color:green">Particulary ready</span>|
+|                          |0.7.11       |Correct tangent calculation    |<span style="color:green">Particulary ready</span>|
+|Advanced Sun and Moon    |0.8.0        |Halo effect                   |<span style="color:green">Ready</span>|
+|                          |0.8.1        |Improve Halo coloring          |<span style="color:green">Ready</span>|
+|                          |0.8.2        |Halo lighting on the surfaces  |<span style="color:green">Ready</span>|
+|                          |0.8.3        |Improve fog color handling     |<span style="color:green">Ready</span>|
+|                          |-            |bugfixes                       |<span style="color:gray">No need</span>|
+|Underwater                |0.9.0        |Underwater detection and waving|<span style="color:green">Ready</span>|
+|                          |0.9.1        |Underwater caustics            |<span style="color:green">Ready</span>|
+|                          |0.9.2        |Improvements                   |<span style="color:green">Ready</span>|
+|                          |0.9.3        |Fixes                          |<span style="color:green">Ready</span>|
+|Make hell great again     |0.10.0       |Improve hell detection         |<span style="color:green">Ready</span>|
+|                          |0.10.1       |Fix rainy weather              |<span style="color:green">Ready</span>|
+|                          |0.10.2       |Fix some texutres              |<span style="color:green">Ready</span>|
+|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |hotfixes|<span style="color:green">Ready</span>|
+|Bug fixes and improvements|0.11.1       | Bugfixes                      |<span style="color:green">Ready</span>
 |                          |-            | Improvements                  |<span style="color:purple">**In progress**</span>| 
 |Refactoring               |0.12.0       | Separate include files        |<span style="color:orange">**Planned**</span>|
 |                          |-            | Clean up code                  |<span style="color:orange">**Planned**</span>|
@@ -142,7 +142,7 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |Bug fixes                 |-            | -                             |<span style="color:orange">**Planned**</span>|
 |<span style="color:green">**RELEASE**</span>|1.0.0|-                    |<span style="color:orange">**Planned**</span>| 
 |Bug fixes                 |-            | -                             |<span style="color:orange">**Planned**</span>|
-|Parallax mapping           |1.1.0        | simple paralax mapping        |<span style="color:orange">**Planned**</span>|  
+|Parallax mapping           |1.1.0        | Simple parallax mapping        |<span style="color:orange">**Planned**</span>|  
 |                          |-            | Parallax occlusion mapping      |<span style="color:orange">**Planned**</span>|
 |                          |-            | Optimizations                 |<span style="color:orange">**Planned**</span>|
 |                          |-            | Bugfixes                      |<span style="color:orange">**Planned**</span>|
