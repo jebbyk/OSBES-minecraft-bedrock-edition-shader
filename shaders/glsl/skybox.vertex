@@ -9,7 +9,7 @@ attribute POS4 POSITION;
 attribute vec2 TEXCOORD_0;
 varying vec4 position;
 //varying vec2 uv;
-////////////////////// Ingame skybox vertex shader ////////////////
+//////////////////////Ingame skybox vertex shader////////////////
 
 void main()
 {

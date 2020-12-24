@@ -33,7 +33,7 @@ vec2 calculateLayerUV(float offset, float rotation) {
 	return uv * GLINT_UV_SCALE;
 }
 #endif
-////////////////////////////// Ingame UI vertex shader ////////////////////////////////
+//////////////////////////////Ingame UI vertex shader////////////////////////////////
 void main()
 {
 	gl_Position = WORLDVIEWPROJ * POSITION;

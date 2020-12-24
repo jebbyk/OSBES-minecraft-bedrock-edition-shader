@@ -23,7 +23,7 @@ varying vec3 color;
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 
-/////////////////////// Some UI, transition between dimensions, texture, and skybox shaders ////////////////////////
+///////////////////////Some UI, transition between dimensions, texture, and skybox shaders////////////////////////
 void main()
 {
 #if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)

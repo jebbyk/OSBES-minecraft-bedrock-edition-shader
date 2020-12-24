@@ -7,8 +7,8 @@ LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 
 void main() {
-	//TODO: Implement
-	//default to not blur anything
+	// TODO: Implement
+	// default to not blur anything
 	//gl_FragColor = texture2D(TEXTURE_0, uv);
 	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
