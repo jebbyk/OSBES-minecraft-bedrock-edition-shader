@@ -3,7 +3,7 @@
 
 #include "fragmentVersionCentroidUV.h"
 
-//This file is purely here to let the code compile. It is used only for HoloWall, which currently runs only on DX11 compatible devices
+// This file is purely here to let the code compile. It is used only for HoloWall, which currently runs only on DX11 compatible devices
 
 void main()
 {
