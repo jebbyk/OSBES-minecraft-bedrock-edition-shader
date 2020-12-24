@@ -27,8 +27,8 @@ LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 
 varying vec4 position;
-//
-/////////////////////// some UI and skybox shader ////////////////////////
+
+/////////////////////// Some UI and skybox shaders ////////////////////////
 void main()
 {
 #if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
@@ -69,10 +69,10 @@ void main()
 	float contrast = 2.0;
 	resultColor = pow(resultColor, vec3(contrast));
 
-	//tone compensation
+	// Tone compensation
 	resultColor = resultColor/(resultColor + vec3(1.0));
 	
-	//gamma correction
+	// Gamma correction
 	float gamma = 1.0;
 	resultColor = pow(resultColor, vec3(1.0 / gamma));
 

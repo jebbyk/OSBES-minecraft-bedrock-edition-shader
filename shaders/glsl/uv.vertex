@@ -8,7 +8,7 @@
 attribute POS4 POSITION;
 attribute vec2 TEXCOORD_0;
 
-// Some UI and cubemap uv coord
+// Some UI and cubemap UV coord
 
 void main()
 {

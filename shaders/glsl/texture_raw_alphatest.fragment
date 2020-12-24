@@ -12,7 +12,7 @@ _centroid in vec2 uv;
 
 #else
 
-// version 100 code
+// Version 100 code
 varying vec2 uv;
 
 #endif

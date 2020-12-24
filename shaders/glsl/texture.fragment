@@ -6,7 +6,7 @@
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
-//minecraft banner on fast reload (maybe not only)
+// Minecraft banner on fast reload (maybe not only)
 void main()
 {
 	vec4 color = texture2D( TEXTURE_0, uv );
@@ -16,5 +16,5 @@ void main()
 		discard;
 #endif
 	gl_FragColor = color;
-	// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

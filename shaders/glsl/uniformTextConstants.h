@@ -6,7 +6,7 @@
 #ifdef MCPE_PLATFORM_NX
 uniform TextConstants {
 #endif
-// BEGIN_UNIFORM_BLOCK(TextConstants) - unfortunately this macro does not work on old Amazon platforms so using above 3 lines instead
+// BEGIN_UNIFORM_BLOCK(TextConstants) - Unfortunately this macro does not work on old Amazon platforms, so using above 3 lines instead
 UNIFORM float GLYPH_SMOOTH_RADIUS;
 UNIFORM float OUTLINE_CUTOFF;
 UNIFORM float SHADOW_SMOOTH_RADIUS;

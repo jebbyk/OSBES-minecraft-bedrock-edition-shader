@@ -13,7 +13,7 @@ varying vec4 worldPosition;
 varying vec4 worldViewPosition;
 varying vec3 viewPosition;
 
-//some UI and cubemap uv coord
+// Some UI and cubemap UV coord
 
 void main()
 {

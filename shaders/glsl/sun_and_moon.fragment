@@ -31,7 +31,7 @@ LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 
 
-/////////////////////// sun and moon ////////////////////////
+///////////////////////Sun and Moon////////////////////////
 void main()
 {
 	#if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)

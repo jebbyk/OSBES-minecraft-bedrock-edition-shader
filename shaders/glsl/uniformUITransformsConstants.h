@@ -7,7 +7,7 @@
 #extension GL_ARB_enhanced_layouts : enable
 layout(binding = 3) uniform UITransformsConstants {
 #endif
-// BEGIN_UNIFORM_BLOCK(UITransformsConstants) - unfortunately this macro does not work on old Amazon platforms so using above 3 lines instead
+// BEGIN_UNIFORM_BLOCK(UITransformsConstants) - Unfortunately this macro does not work on old Amazon platforms, so using above 3 lines instead
 UNIFORM highp mat4 TRANSFORM;
 END_UNIFORM_BLOCK
 
