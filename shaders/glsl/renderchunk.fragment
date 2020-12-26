@@ -388,7 +388,7 @@ void main()
 	const vec3 moonLightColor = vec3(0.5, 0.75,1.0) * 0.25;
 	
 	
-	// Blinn-phong (?)
+	// Blinn-phong
 	highp vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
@@ -397,7 +397,7 @@ void main()
 	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess) * (1.0 - isRain);
 	
 
-	// Phong (fake halo effect) (?)
+	// Phong (fake halo effect)
 	float haloPhongIntecity = 0.06 * isSunrize;
 	vec3 reflectDir = reflect(-debugLightDir, normalColor.rgb);
 	float haloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
