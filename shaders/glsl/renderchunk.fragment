@@ -244,7 +244,7 @@ void main()
 	//highp vec3 T = normalize(dp2perp * duv1.x + dp1perp * duv2.x);
 	//highp vec3 B = normalize(dp2perp * duv1.y + dp1perp * duv2.y);
 
-	//ighp float invmax = inversesqrt(max(dot(T,T), dot(B,B)));
+	//highp float invmax = inversesqrt(max(dot(T,T), dot(B,B)));
 	
 	//highp mat3 tbn = mat3(T, B, initNormalColor);
 
