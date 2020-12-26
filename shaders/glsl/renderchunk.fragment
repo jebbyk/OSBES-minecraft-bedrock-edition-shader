@@ -466,7 +466,7 @@ void main()
 	
 	
 
-	// Fake effect when light bounces from surface and hits it with very small angle
+	// Fake effect when surface is hit at a very small angle and light bounces from the surface 
 	const float fresnelFactor = 4.0;
 	float fresnel = min(pow(1.0 - dot(normalColor.rgb, viewDir), fresnelFactor), 1.0);
 
