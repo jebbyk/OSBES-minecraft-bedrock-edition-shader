@@ -475,7 +475,7 @@ void main()
 	fresnel = mix(fresnel, 1.0, farWaterFresnel * isWater);
 	
 
-	// The same fix but with puddles
+	// The same tweak but with puddles
 	float puddlesFresnel = pow(1.0 - dot(initNormalColor.rgb, viewDir), fresnelFactor * 0.5 );	
 	fresnel = mix(fresnel, puddlesFresnel, puddles.r * isRain * initNormalColor.g * (1.0 - isWater));
 	
