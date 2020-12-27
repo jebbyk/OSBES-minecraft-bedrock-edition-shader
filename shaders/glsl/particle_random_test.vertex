@@ -1,5 +1,5 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
 #include "vertexVersionCentroidUV.h"
 
@@ -43,7 +43,7 @@ void main()
 	uv = TEXCOORD_0;
 
 #ifdef ENABLE_FOG
-	//fog
+	// Fog
     fogColor.rgb = FOG_COLOR.rgb;
 	fogColor.a = clamp(((gl_Position.z / RENDER_DISTANCE) - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
 #endif

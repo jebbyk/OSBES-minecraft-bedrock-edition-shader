@@ -11,14 +11,14 @@
 varying vec4 ColorOut;
 varying vec4 AdditionalOut;
 // We need this here even if we do not use it as some drivers require
-// the verying variables to match between the vertex and fragment shaders.
+// the varying variables to match between the vertex and fragment shaders.
 varying vec3 ScreenNormalPosition;
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 void main() {
 	// snes-todo: Put this in separate shader when Gameface sets ST_StandardTextureWithColorMatrix on filters (other than drop-shadow)
-	// we get the correct shadertype, but not the correct shader mapping.
+	// We get the correct shadertype, but not the correct shader mapping.
 	if (SHADER_TYPE == 7) {
 		vec4 baseColor = texture2D(TEXTURE_0, AdditionalOut.xy);
 		float nonZeroAlpha = max(baseColor.a, 0.00001);
@@ -36,6 +36,6 @@ void main() {
 	} else {
 		float alpha = ColorOut.a * clamp(AdditionalOut.z, 0.0, 1.0);
 		gl_FragColor = texture2D(TEXTURE_0, AdditionalOut.xy) * alpha;
-		// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 	}
 }

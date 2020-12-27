@@ -6,7 +6,7 @@
 #include "fragmentVersionSimple.h"
 
 // We need this here even if we do not use it as some drivers require
-// the verying variables to match between the vertex and fragment shaders.
+// the varying variables to match between the vertex and fragment shaders.
 varying vec4 ColorOut;
 varying vec4 AdditionalOut;
 varying vec3 ScreenNormalPosition;

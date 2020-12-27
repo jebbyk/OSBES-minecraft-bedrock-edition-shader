@@ -1,5 +1,5 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
 #include "vertexVersionSimple.h"
 
@@ -19,9 +19,9 @@ const float fogNear = 0.3;
 void main()
 {
 
-	// vec3 clearSkyColor = vec3(0.41, 0.69, 1.0);
-	// vec4 rainSkyColor = vec4(0.25, 0.25, 0.25, 1.0);
-	// float isDay = 1.0;
+	//vec3 clearSkyColor = vec3(0.41, 0.69, 1.0);
+	//vec4 rainSkyColor = vec4(0.25, 0.25, 0.25, 1.0);
+	//float isDay = 1.0;
 
     vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
 	if(fogColorNormalized.r < 0.22 
@@ -37,7 +37,7 @@ void main()
     position.y -= length(position.xz)/(4.0 * (1.1 - isUnderWater));
     gl_Position = WORLDVIEWPROJ * position;
 
-    // color.rgb = mix(clearSkyColor * vec3(0.25, 0.25, 0.5), clearSkyColor, COLOR.r * 3.0);
+    //color.rgb = mix(clearSkyColor * vec3(0.25, 0.25, 0.5), clearSkyColor, COLOR.r * 3.0);
 
     //color = mix( CURRENT_COLOR * (clearSkyColorMult * isDay + rainSkyColorMult * (1.0 - isDay)), FOG_COLOR, COLOR.r);
     

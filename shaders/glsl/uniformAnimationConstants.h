@@ -6,7 +6,7 @@
 #ifdef MCPE_PLATFORM_NX
 layout(binding = 4) uniform AnimationConstants {
 #endif
-// BEGIN_UNIFORM_BLOCK(AnimationConstants) - unfortunately this macro does not work on old Amazon platforms so using above 3 lines instead
+// BEGIN_UNIFORM_BLOCK(AnimationConstants) - Unfortunately this macro does not work on old Amazon platforms, so using above 3 lines instead
 #if defined(LARGE_VERTEX_SHADER_UNIFORMS)
 UNIFORM MAT4 BONES[8];
 #else

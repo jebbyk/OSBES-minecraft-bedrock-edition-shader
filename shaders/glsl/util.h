@@ -44,6 +44,6 @@ vec4 texture2D_AA(in sampler2D source, in highp vec2 originalUV) {
 	#endif
 }
 
-#endif // USE_TEXEL_AA
+#endif //USE_TEXEL_AA
 
 #endif //__VERSION__ >= 300

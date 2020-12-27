@@ -10,7 +10,7 @@
 varying vec4 ColorOut;
 varying vec4 AdditionalOut;
 // We need this here even if we do not use it as some drivers require
-// the verying variables to match between the vertex and fragment shaders.
+// the varying variables to match between the vertex and fragment shaders.
 varying vec3 ScreenNormalPosition;
 varying vec4 VaryingParam0;
 varying vec4 VaryingParam1;
@@ -48,6 +48,6 @@ void main() {
 #endif
 
 	//gl_FragColor = colorTemp;
-	// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
 

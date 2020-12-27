@@ -7,7 +7,7 @@
 #extension GL_ARB_enhanced_layouts : enable
 layout(binding = 3) uniform ShaderConstants {
 #endif
-// BEGIN_UNIFORM_BLOCK(ShaderConstants) - unfortunately this macro does not work on old Amazon platforms so using above 3 lines instead
+// BEGIN_UNIFORM_BLOCK(ShaderConstants) - Unfortunately this macro does not work on old Amazon platforms, so using above 3 lines instead
 UNIFORM vec4 CURRENT_COLOR;
 UNIFORM vec4 DARKEN;
 UNIFORM vec3 TEXTURE_DIMENSIONS;

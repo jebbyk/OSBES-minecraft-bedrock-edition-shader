@@ -6,7 +6,7 @@
 #ifdef MCPE_PLATFORM_NX
 uniform DebugConstants {
 #endif
-// BEGIN_UNIFORM_BLOCK(DebugConstants) - unfortunately this macro does not work on old Amazon platforms so using above 3 lines instead
+// BEGIN_UNIFORM_BLOCK(DebugConstants) - Unfortunately this macro does not work on old Amazon platforms, so using above 3 lines instead
 UNIFORM float TEXTURE_ARRAY_INDEX_0;
 END_UNIFORM_BLOCK
 

@@ -6,7 +6,7 @@
 #ifdef MCPE_PLATFORM_NX
 uniform FlipbookTextureConstants {
 #endif
-// BEGIN_UNIFORM_BLOCK(FlipbookTextureConstants) - unfortunately this macro does not work on old Amazon platforms so using above 3 lines instead
+// BEGIN_UNIFORM_BLOCK(FlipbookTextureConstants) - Unfortunately this macro does not work on old Amazon platforms, so using above 3 lines instead
 UNIFORM float V_OFFSET;
 UNIFORM float V_BLEND_OFFSET;
 END_UNIFORM_BLOCK
