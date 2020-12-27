@@ -10,7 +10,7 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 #### 1. Go to the directory where you want to save shader pack
     - Run in your terminal: cd /path/where/you/want/to/save/this/shaderpack
 #### 2. Clone your repository 
-    - When your are in your forked repository page click the green "Code" button, the clipboard button to copy the git link
+    - When your are in your forked repository page click the green "Code" button and the clipboard button to copy the git link
     - Run in your terminal: git clone [your copied link goes here]
 #### 3. convert it to a .mcpack file and import
     I recomend to use mixplorer file manager
