@@ -113,9 +113,9 @@ void main()
 	return;
 #else 
 
-#if USE_TEXEL_AA
+/*#if USE_TEXEL_AA
 	vec4 diffuse = texture2D_AA(TEXTURE_0,uv0);
-#else
+#else*/
 
 
 	////////////////////////////Mapping section///////////////////////////////////
@@ -192,7 +192,7 @@ void main()
 		normalMap = texelFetch(TEXTURE_0, ivec2((uv0 - localNormalCoord) * 1024.0), 0);
 	}
 	
-#endif //USE_TEXEL_AA
+//#endif //USE_TEXEL_AA
 
 
 // Maybe it's about LOD (far trees and water becomes opaque)
