@@ -12,8 +12,8 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 #### 2. Clone your repository 
     - When your are in your forked repository page click the green "Code" button and the clipboard button to copy the git link
     - Run in your terminal: git clone [your copied link goes here]
-#### 3. convert it to a .mcpack file and import
-    I recomend to use mixplorer file manager
+#### 3. Convert to a .mcpack file and import
+    I recommend the use of mixplorer file manager
 
     - Archive downloaded folder to .zip archive
     - Change filetype to be .mcpack instead of .zip
