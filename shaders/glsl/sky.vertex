@@ -23,10 +23,11 @@ void main()
 	//vec4 rainSkyColor = vec4(0.25, 0.25, 0.25, 1.0);
 	//float isDay = 1.0;
 
-    vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
+   // Get the shade (not related to brightness) of fog_color
+	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
 	if(fogColorNormalized.r < 0.22 
-	&& fogColorNormalized.b < 0.89 && fogColorNormalized.b > 0.81
-	&& fogColorNormalized.g < 0.57 && fogColorNormalized.g > 0.44){
+	&& fogColorNormalized.b < 0.90 && fogColorNormalized.b > 0.77
+	&& fogColorNormalized.g < 0.61 && fogColorNormalized.g > 0.44){
 		isUnderWater = 1.0;
 	}
 

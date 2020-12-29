@@ -75,8 +75,8 @@ void main()
 	// Get the shade (not related to brightness) of fog_color
 	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
 	if(fogColorNormalized.r < 0.22 
-	&& fogColorNormalized.b < 0.90 && fogColorNormalized.b > 0.81
-	&& fogColorNormalized.g < 0.57 && fogColorNormalized.g > 0.44){
+	&& fogColorNormalized.b < 0.90 && fogColorNormalized.b > 0.77
+	&& fogColorNormalized.g < 0.61 && fogColorNormalized.g > 0.44){
 		isUnderWater = 1.0;
 	}
 

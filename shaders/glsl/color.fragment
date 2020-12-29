@@ -135,9 +135,7 @@ void main()
 	
 
 	
-	if(isUnderWater > 0.9){
-		diffuse.rgb = clearSkyColor;
-	}
+	
 	
 	
 	
@@ -169,6 +167,9 @@ void main()
 	float grayScale = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
 	diffuse.rgb = mix(vec3(grayScale), diffuse.rgb, saturation);
 
+	if(isUnderWater > 0.9){
+		diffuse.rgb = FOG_COLOR.rgb;
+	}
 
 
 	//gl_FragColor = diffuse;
