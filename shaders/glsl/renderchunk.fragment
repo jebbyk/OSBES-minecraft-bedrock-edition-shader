@@ -165,19 +165,19 @@ void main()
 		
 		float wnScale = 1.0;
 		
-		vec2 waterNormalOffset = vec2(3.0/64.0);
+		vec2 waterNormalOffset = vec2(4.0/32.0, 0.0);
 
 		
 		// 1.0/64.0 = 0.0156251          1.5 / 32.0 =  0.046875 (water normal map offset)
 		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
-		normalMap += texture2D(TEXTURE_0, (fract(position.xz*0.5*wnScale + t*wnScale * 2.0))/69.0 + 3.03/64.0);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25*wnScale - t*wnScale * 1.5)/69.0 + 3.03/64.0);// 
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125*wnScale + t*wnScale * 1.0)/69.0 + 3.03/64.0);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.0625*wnScale - t*wnScale*0.5)/69.0 + 3.03/64.0);
+		normalMap = texture2D(TEXTURE_0, fract(position.xz*1.0*wnScale + t*wnScale * 2.0)/33.0 + waterNormalOffset);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.5*wnScale - t*wnScale * 1.5)/33.0 + waterNormalOffset);// 
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25*wnScale + t*wnScale * 1.15)/33.0 + waterNormalOffset);
+		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125*wnScale - t*wnScale*0.9)/33.0 + waterNormalOffset);
 		
 		
-		//normalMap *= 0.5;
-		//normalMap *= 0.33;
+		// normalMap *= 0.5;
+		// normalMap *= 0.33;
 		normalMap *= 0.25;
 		//normalMap.b = clamp(normalMap.b, 0.5, 1.0);
 		
@@ -300,7 +300,7 @@ void main()
 	// TODO: Needs refactoring
  	if(length(normalMap.rgb) > 0.9){
 		
-		float normalMapStrength = 1.0;
+		float normalMapStrength = 2.0;
 
 		if(normalColor.g > 0.9){
 			normalMap.gb = normalMap.bg;
@@ -517,7 +517,7 @@ void main()
 
 
 			highp vec2 cldCoord = -relativePosition.xz;
-			//cldCoord += normalColor.rb * 2.0;
+			cldCoord += normalColor.rb * 2.0;
 			cldCoord /= 1.0 + pow(skyLightFresnel.a, 4.0);
 			cldCoord /= length(relativePosition.y);
 			cldCoord += vec2(time * cloudsSpeed);
@@ -526,7 +526,7 @@ void main()
 
 			//float cloudsShadow = pow(clamp(clouds * 1.25, 0.0, 1.0), 4.0);
 
-			clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(8.0, 2.0, isRain));
+			clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(128.0, 2.0, isRain));
 
 		    
 			vec3 clearSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0);
@@ -539,7 +539,7 @@ void main()
 		    
 			diffuse.rgb = mix(diffuse.rgb * 0.125 + length(clearSkyLightColor) * vec3(0.05, 0.1, 0.2), skyLightFresnel.rgb * 1.25, pow(skyLightFresnel.a, 2.0));
 
-			diffuse.rgb = mix(diffuse.rgb, cloudsColor, clouds * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
+			diffuse.rgb = mix(diffuse.rgb, cloudsColor, clouds * (0.25 + skyLightFresnel.a * 0.75));
 			//diffuse.rgb = mix(diffuse.rgb, vec3(0.6, 0.8, 1.0) * 0.5, cloudsShadow * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
 
 			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor * 20.0 * isDay, sunLightSpecular.a);
@@ -679,7 +679,7 @@ void main()
 	//diffuse.rgb = vec3(isHell)
 
   // Debug tile texture
-	//diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 64.0), 0);
+	// diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 128.0), 0);
 
 	
 	
