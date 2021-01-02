@@ -423,7 +423,7 @@ void main()
 	vec4 brightLights = vec4(pow(srcPointLights.r * 1.15, 32.0));
 	vec4 pointLights = pow(srcPointLights, vec4(2.0)) * 0.5 + brightLights;
 	vec3 pointLightsTint = vec3(1.0, 0.66, 0.33);
-	pointLights.rgb *= pointLightsTint;
+	pointLights.rgb *= pointLightsTint * 2.0;
 
 
 	vec4 ambientOclusion = vec4(uv1.y + isHell* 0.5);
