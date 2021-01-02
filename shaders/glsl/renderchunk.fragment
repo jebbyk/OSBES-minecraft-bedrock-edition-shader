@@ -148,11 +148,11 @@ void main()
 		
 		float puddlesSharpness = 2.0;
 		float puddlesCovering = 1.5;
-		float puddlesScale = 0.0625;
+		float puddlesScale = 32.0;
 		float minRainWettneess = 0.25;
 
-		vec2 noiseTextureOffset = vec2(5.0/64.0, 1.0/64.0); 
-		puddles = texture(TEXTURE_0, fract(position.xz * 0.0625)*0.015625 + noiseTextureOffset);
+		vec2 noiseTextureOffset = vec2(1.0/32.0, 0.0); 
+		puddles = texture(TEXTURE_0, fract(position.xz  / puddlesScale)/32.0 + noiseTextureOffset);
 		puddles.rgb = pow(puddles.rgb * isRain * puddlesCovering, vec3(puddlesSharpness));
 		puddles.rgb = clamp(puddles.rgb, minRainWettneess, 1.0);
 
@@ -615,17 +615,13 @@ void main()
 	// Debug only reflective components
 	//diffuse.rgb = mix(vec3(0.0), skyLightFresnel.rgb, skyLightFresnel.a);
 	//diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a);
-
 	
 	//diffuse.rgb = mix(vec3(0.1), perPixelSpecular.rgb, perPixelSpecular.a);
-
-
-	//diffuse.rgb = mix(vec3(0.0), vec3(1.0), fract(time / 1000.0 + 0.5));
 
 	// Debug normals
 	//diffuse.rgb = (normalColor.rgb + 1.0) * 0.5;
 
-	// Debug normalsOffset
+	// Debug normalsOffsets
 	//diffuse.rg = localNormalCoord * 64.0;
 	//diffuse.b = 0.0;
 	//diffuse.a = 1.0;
@@ -645,40 +641,13 @@ void main()
 	//diffuse.rgb = mix(diffuse.rgb, milkyFog.rgb, milkyFog.a);
 	//diffuse.rgb = mix(vec3(0.0), fogColor.rgb, fogColor.a);
    
-  // Debug daytime and weather
+    // Debug daytime and weather
 	//diffuse.rgb = vec3(isDay, isSunrise, isNight);
-  //diffuse.rgb = vec3(isDay);
-    /*if(isDay == 0.0){
-        diffuse.rgb = vec3(1.0, 0.0, 0.0);
-    }
-    if(isDay == 1.0){
-        diffuse.rgb = vec3(0.0, 1.0, 0.0);
-    }*/
+    //diffuse.r = isHell;
+    //diffuse.g = isDay;
+	//diffuse.b = isRain;
 
-	/*if(isSunset == 1.0){
-		diffuse.rgb = vec3(0.0, 1.0, 0.0);
-	}
-	if(isSunset == 0.0){8
-		diffuse.rgb = vec3(1.0, 0.0, 0.0);
-	}*/
-  //diffuse.rgb = vec3(isNight);
-	//diffuse.rgb = vec3(isRain);
-
-
-	//diffuse.rgb = texture2D(TEXTURE_1, vec2(0.0,1.0)).rgb;
-	//diffuse.rgb = pow(diffuse.rgb, vec3(8.0));
-	//diffuse.rgb *= 1.1001;
-	//if(diffuse.b > 1.0){
-	//    diffuse.rgb = vec3(1.0, 0.0, 0.0);
-	//}
-
-	//diffuse.rgb = vec3(isRain, isDay, 1.0 - isDay);	// if (dayTime > 0.988){
-	// 	isHell = 1.0;
-	//} 
-
-	//diffuse.rgb = vec3(isHell)
-
-  // Debug tile texture
+    // Debug tile texture
 	// diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 128.0), 0);
 
 	
