@@ -95,7 +95,7 @@ void main()
 	// Bottom left pixel becomes bluish at night. So we can get exact day time by calulating how much bigger b is than g
 	vec3 dayTimeDetectionPixel = texture2D(TEXTURE_1, vec2(0.0, 1.0)).rgb;
 	float dayTime = dayTimeDetectionPixel.g / dayTimeDetectionPixel.b;
-	float isDay = pow(dayTime, 8.0);
+	float isDay = pow(dayTime, 5.0);
 
 	float isSunrize = dot(normalize(FOG_COLOR.rgb), vec3(1.0, 0.0, 0.0));
 	isSunrize = pow(isSunrize, 4.0);
@@ -385,14 +385,14 @@ void main()
 	const vec3 sunLightDirection = vec3(0.55,0.4,0.05);
 	float sunDot = max(dot(sunLightDirection, normalColor.rgb), 0.0);	
 	const vec3 sunLightColor = vec3(1.0, 0.88, 0.69);
-	const vec3 moonLightColor = vec3(0.5, 0.75,1.0) * 0.25;
+	const vec3 moonLightColor = vec3(0.35, 0.6,1.0) * 0.35;
 	
 	
 	// Blinn-phong
 	highp vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-	halfwayDir = clamp(halfwayDir, 0.0, 1.0);
+//	halfwayDir = clamp(halfwayDir, 0.0, 1.0);
 	highp float shininess = 32.0 * pow(specularMap.r, 2.0)  + 1024.0 * isWater;
 	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess) * (1.0 - isRain);
 	
