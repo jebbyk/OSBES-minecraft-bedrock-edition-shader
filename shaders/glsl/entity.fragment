@@ -74,10 +74,18 @@ void main()
 		#if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
 
 			#ifdef USE_OVERLAY
-				color = texture2D(TEXTURE_0, uv);
+			
+				if(TEXTURE_DIMENSIONS.x > 1023.0){
+                    highp vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+				    color = texture2D( TEXTURE_0, uvhp);
+				}else{
+	                color = texture2D(TEXTURE_0, uv);
+				}
+			//	color = vec4(1.0,0.0,0.0,1.0);
 			#else // Apply only for blocks in hand
 				highp vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
 				color = texture2D( TEXTURE_0, uvhp);
+			//	color = vec4(1.0, 0.0,0.0,1.0);
 			#endif
 		#else
 			//color = texture2D_AA(TEXTURE_0, uv);
@@ -263,7 +271,7 @@ void main()
 	#endif
 
 
-	//color = vec4(1.0, 0.0, 0.0, 1.0);
+//	color = vec4(1.0, 0.0, 0.0, 1.0);
 	gl_FragColor = color;
 	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
