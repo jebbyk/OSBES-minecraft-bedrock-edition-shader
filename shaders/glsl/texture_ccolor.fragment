@@ -23,20 +23,23 @@ varying vec3 color;
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 
-///////////////////////UI, transition between dimensions, texture, and skybox shader////////////////////////
+///////////////////////UI, transition between dimensions texture, fire texture and skybox shader////////////////////////
 void main()
 {
-#if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
 	vec4 diffuse;
 	// The texture shown on transition between dimensions is 32x32 size
-	if(TEXTURE_DIMENSIONS.x / 32.0 > 0.95 && TEXTURE_DIMENSIONS.x / 32.0 < 1.1){
+	if(TEXTURE_DIMENSIONS.x > 31.0 && TEXTURE_DIMENSIONS.x < 33.0){
 		diffuse = texture2D(TEXTURE_0, uv / 2.0);
 	}else{
-		diffuse = texture2D( TEXTURE_0, uv );
+		if(TEXTURE_DIMENSIONS.x > 1023.0 && TEXTURE_DIMENSIONS.y > 1023.0){
+			highp vec2 uvhp = uv - fract(uv * 32.0) / 64.0;
+			diffuse = texture2D( TEXTURE_0, uvhp);
+		}else{
+			diffuse = texture2D(TEXTURE_0, uv);
+		}
 	}
-#else
-	vec4 diffuse = texture2D_AA(TEXTURE_0, uv );
-#endif
+	
+	
 
 #ifdef ALPHA_TEST
 	if(diffuse.a < 0.5)
