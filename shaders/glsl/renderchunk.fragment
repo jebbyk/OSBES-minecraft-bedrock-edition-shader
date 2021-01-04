@@ -419,11 +419,14 @@ void main()
 
 
 	// Torches, lamps and lava lights
-	vec4 srcPointLights = vec4(uv1.x);
-	vec4 brightLights = vec4(pow(srcPointLights.r * 1.15, 32.0));
-	vec4 pointLights = pow(srcPointLights, vec4(2.0)) * 0.5 + brightLights;
+	float srcPointLights = uv1.x;
+	float nearPointLightsBrightness = pow(srcPointLights * 1.15, 32.0);
+	float overalPointLightsBrightness = pow(srcPointLights, 2.0) * 0.5 + nearPointLightsBrightness;
+	overalPointLightsBrightness *= 2.0;
+	overalPointLightsBrightness = clamp(overalPointLightsBrightness, 0.0, 2.0);
 	vec3 pointLightsTint = vec3(1.0, 0.66, 0.33);
-	pointLights.rgb *= pointLightsTint * 2.0;
+	vec4 pointLights = vec4(1.0);
+	pointLights.rgb = vec3(overalPointLightsBrightness) * pointLightsTint;
 
 
 	vec4 ambientOclusion = vec4(uv1.y + isHell* 0.5);
