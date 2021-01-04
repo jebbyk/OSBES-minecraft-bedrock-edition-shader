@@ -493,7 +493,7 @@ void main()
 
 	resultLighting += pointLights.rgb;
 	resultLighting += sunLightColor * sunDot * fakeShadow.r * isDay * (1.0 - isRain);
-	resultLighting += vec3(isHell * 0.125);// Ambient highlighting in hell
+	resultLighting += vec3(isHell * 0.175);// Ambient highlighting in hell
 	resultLighting += moonLightColor * sunDot * fakeMoonShadow.r * (1.0 - isDay) * (1.0 - isRain );
 	
 	diffuse.rgb *= resultLighting.rgb * 1.8; 
