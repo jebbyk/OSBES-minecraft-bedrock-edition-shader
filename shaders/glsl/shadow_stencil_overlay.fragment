@@ -10,7 +10,7 @@ varying vec4 color;
 void main()
 {
 	// Entity shadows
-  gl_FragColor.rgb = mix(color.rgb * vec3(0.0,0.0,1.0), CURRENT_COLOR.rgb, color.a);
+  gl_FragColor.rgb = mix(color.rgb, CURRENT_COLOR.rgb * vec3(0.8,0.9,1.0) * 1.1, color.a);
   gl_FragColor.a = 1.0;
 
   //gl_FragColor = vec4(1.0,0.0,0.0,1.0);
