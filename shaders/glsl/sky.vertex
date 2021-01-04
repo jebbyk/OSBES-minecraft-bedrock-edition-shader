@@ -23,6 +23,7 @@ void main()
 	//vec4 rainSkyColor = vec4(0.25, 0.25, 0.25, 1.0);
 	//float isDay = 1.0;
 
+    isUnderWater = 0.0;
    // Get the shade (not related to brightness) of fog_color
 	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
 	if(fogColorNormalized.r < 0.22 
@@ -34,7 +35,7 @@ void main()
 	
     position = POSITION;
     
-    //pos.y -= 0.03;
+    // pos.y -= 0.03;
     position.y -= length(position.xz)/(4.0 * (1.1 - isUnderWater));
     gl_Position = WORLDVIEWPROJ * position;
 
