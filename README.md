@@ -1,4 +1,4 @@
-# OSBES v0.11.1
+# OSBES v0.11.2
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will be listed as a developer!-----------**
@@ -121,17 +121,19 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |0.10.2       |Fix some texutres              |<span style="color:green">Ready</span>|
 |<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |hotfixes|<span style="color:green">Ready</span>|
 |Bug fixes and improvements|0.11.1       | Bugfixes                      |<span style="color:green">Ready</span>
-|                          |-            | Improvements                  |<span style="color:purple">**In progress**</span>| 
-|Refactoring               |0.12.0       | Separate include files        |<span style="color:orange">**Planned**</span>|
+|                          |0.11.2       | Improvements                  |<span style="color:green">Ready</span>
+|Refactoring               |0.12.0       | Separate include files        |<span style="color:purple">**In progress**</span>| 
 |                          |-            | Clean up code                  |<span style="color:orange">**Planned**</span>|
-|                          |-            | Bug fixes                     |<span style="color:orange">**Planned**</span>|
-|Make entity and item   |0.13.0       |Held items                   |<span style="color:orange">**Planned**</span>|
-|lighting and shading      |-            |Entity lighting              |<span style="color:orange">**Planned**</span>|
-|the same as on terrain    |-            |Improvements                   |<span style="color:orange">**Planned**</span>|
-|                          |-            |fixes                          |<span style="color:orange">**Planned**</span>|
-|settings                  |0.14.0       | Quality presets packages      |<span style="color:orange">**Planned**</span>|
+|settings                  |-            | Quality presets packages      |<span style="color:orange">**Planned**</span>|
 |                          |-            | Brightness setting            |<span style="color:orange">**Planned**</span>|
-|Win10 support             |0.15.0       | Terrain shaders               |<span style="color:orange">**Planned**</span>|
+|                          |-            | Bug fixes                     |<span style="color:orange">**Planned**</span>|
+|                          |-            | Improvements                   |<span style="color:orange">**Planned**</span>|
+|                          |0.13.0       | metlliness and reflections   |<span style="color:orange">**Planned**</span>|
+|Make entity and item      |-            | Held items                   |<span style="color:orange">**Planned**</span>|
+|lighting and shading      |-            | Entity lighting              |<span style="color:orange">**Planned**</span>|
+|                          |-            | Bug fixes                     |<span style="color:orange">**Planned**</span>|
+|                          |-            | Improvements                   |<span style="color:orange">**Planned**</span>|
+|Win10 support             |0.14.0       | Terrain shaders               |<span style="color:orange">**Planned**</span>|
 |                          |-            | Sky shaders                   |<span style="color:orange">**Planned**</span>|
 |                          |-            | Entity shaders              |<span style="color:orange">**Planned**</span>|
 |                          |-            | Held item shaders          |<span style="color:orange">**Planned**</span>|
