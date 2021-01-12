@@ -119,7 +119,7 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |Make hell great again     |0.10.0       |Improve hell detection         |<span style="color:green">Ready</span>|
 |                          |0.10.1       |Fix rainy weather              |<span style="color:green">Ready</span>|
 |                          |0.10.2       |Fix some texutres              |<span style="color:green">Ready</span>|
-|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |hotfixes|<span style="color:green">Ready</span>|
+|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |Hotfixes|<span style="color:green">Ready</span>|
 |Bug fixes and improvements|0.11.1       | Bugfixes                      |<span style="color:green">Ready</span>
 |                          |0.11.2       | Improvements                  |<span style="color:green">Ready</span>
 |Refactoring               |0.12.0       | Separate include files        |<span style="color:purple">**In progress**</span>| 
@@ -128,7 +128,7 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |-            | Brightness setting            |<span style="color:orange">**Planned**</span>|
 |                          |-            | Bug fixes                     |<span style="color:orange">**Planned**</span>|
 |                          |-            | Improvements                   |<span style="color:orange">**Planned**</span>|
-|                          |0.13.0       | metlliness and reflections   |<span style="color:orange">**Planned**</span>|
+|                          |0.13.0       | Metallicness and reflections   |<span style="color:orange">**Planned**</span>|
 |Make entity and item      |-            | Held items                   |<span style="color:orange">**Planned**</span>|
 |lighting and shading      |-            | Entity lighting              |<span style="color:orange">**Planned**</span>|
 |                          |-            | Bug fixes                     |<span style="color:orange">**Planned**</span>|
