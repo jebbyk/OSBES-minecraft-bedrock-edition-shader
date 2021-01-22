@@ -6,34 +6,12 @@
 #include "uniformShaderConstants.h"
 #include "uniformPerFrameConstants.h"
 
+#include "includes/random.glsl"
+
 varying float height;
 varying vec4 position;
 varying float isUnderWater;
 
-
-
-float rand(highp vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
-
-float rand_bilinear(highp vec2 coord){
-	
-	vec2 flooredCoord = floor(coord);
-
-	float leftTopSample = rand(flooredCoord);
-	float righTopSample = rand(flooredCoord + vec2(0.0, 1.0));
-	float leftBottomSample = rand(flooredCoord + vec2(1.0, 0.0));
-	float rightBottomSample = rand(flooredCoord + vec2(1.0, 1.0));
-
-	vec2 fractionalPart = coord - flooredCoord;
-
-	float topRow = mix(leftTopSample, righTopSample, fractionalPart.y);
-	float botRow = mix(leftBottomSample, rightBottomSample, fractionalPart.y);
-
-	float result = mix(topRow, botRow, fractionalPart.x);
-	
-	return result;
-}
 
 // Skyplane fragment shader and maybe clouds
 void main()
