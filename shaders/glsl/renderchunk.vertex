@@ -28,6 +28,7 @@
 #include "uniformShaderConstants.h"
 #include "uniformRenderChunkConstants.h"
 
+
 attribute POS4 POSITION;
 attribute vec4 COLOR;
 attribute vec2 TEXCOORD_0;
