@@ -7,6 +7,7 @@
 #include "uniformPerFrameConstants.h"
 
 #include "includes/random.glsl"
+#include "includes/color_correction.glsl"
 
 varying float height;
 varying vec4 position;
@@ -127,24 +128,9 @@ void main()
 	//diffuse.rgb = skyColor;
 	
 	
+	diffuse.rgb = colorCorrection(diffuse.rgb);
 	
-	vec3 tint = vec3(1.5, 1.25, 1.0)*2.75;
-	diffuse.rgb *= tint;
-
-	float contrast = 2.0;
-	diffuse.rgb = pow(diffuse.rgb, vec3(contrast));
-
-	// Tone compensation
-	diffuse.rgb = diffuse.rgb/(diffuse.rgb + vec3(1.0));
 	
-	// Gamma correction
-	float gamma = 1.0;
-	diffuse.rgb = pow(diffuse.rgb, vec3(1.0 / gamma));
-
-	float saturation = 1.0;
-	float grayScale = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
-	diffuse.rgb = mix(vec3(grayScale), diffuse.rgb, saturation);
-
 	if(isUnderWater > 0.9){
 		diffuse.rgb = FOG_COLOR.rgb;
 	}

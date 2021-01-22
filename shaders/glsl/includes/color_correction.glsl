@@ -1,5 +1,5 @@
 vec3 colorCorrection(vec3 diffuse){
-    vec3 tint = vec3(1.5, 1.25, 1.0)*2.75;
+    vec3 tint = vec3(1.5, 1.25, 1.0)*2.5;
 	diffuse.rgb *= tint;
 
 	float contrast = 2.0;
