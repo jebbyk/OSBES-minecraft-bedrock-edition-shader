@@ -40,6 +40,7 @@ varying highp vec4 relativePosition;// Calculates from vec4 position
 #include "includes/env_detectors.glsl"
 #include "includes/texture_mapping.glsl"
 #include "includes/random.glsl"
+#include "includes/color_correction.glsl"
 
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
@@ -336,22 +337,7 @@ void main()
 	///////////////////Color correction section////////////////////
 
 
-	vec3 tint = vec3(1.5, 1.25, 1.0)*2.75;
-	diffuse.rgb *= tint;
-
-	float contrast = 2.0;
-	diffuse.rgb = pow(diffuse.rgb, vec3(contrast));
-
-	// Tone compensation
-	diffuse.rgb = diffuse.rgb/(diffuse.rgb + vec3(1.0));
-	
-	// Gamma correction
-	float gamma = 1.0;
-	diffuse.rgb = pow(diffuse.rgb, vec3(1.0 / gamma));
-
-	float saturation = 1.0;
-	float grayScale = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
-	diffuse.rgb = mix(vec3(grayScale), diffuse.rgb, saturation);
+	diffuse.rgb = colorCorrection(diffuse.rgb);
 
 
 	// Default fog in hell because it has no skyplane
