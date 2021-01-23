@@ -41,6 +41,7 @@ varying highp vec4 relativePosition;// Calculates from vec4 position
 #include "includes/texture_mapping.glsl"
 #include "includes/random.glsl"
 #include "includes/color_correction.glsl"
+#include "includes/reflections.glsl"
 
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
@@ -136,8 +137,14 @@ void main()
 
 	
 
-	// Water, grass and leaves color
-	diffuse.rgb *= color.rgb;
+	// grass and leaves color
+	if(isWater < 0.1){
+		diffuse.rgb *= color.rgb;
+	}else{
+		// diffuse.rgb = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
+		diffuse.rgb = vec3(0.2);
+	}
+
 
 	// Dark puddles color (affected by fresnel later)
 	puddles.r = max(initNormalColor.g * puddles.r, 0.5);
@@ -246,44 +253,25 @@ void main()
 	resultLighting += moonLightColor * sunDot * fakeMoonShadow.r * (1.0 - isDay) * (1.0 - isRain );
 	
 	diffuse.rgb *= resultLighting.rgb * 1.8; 
-	diffuse.rgb = mix(diffuse.rgb, skyLightReflected.rgb, skyLightReflected.a);
-	diffuse.rgb = mix(diffuse.rgb, sunLightSpecular.rgb, sunLightSpecular.a * fakeShadow.r);
-	diffuse.rgb = mix(diffuse.rgb, moonLightSpecular.rgb, moonLightSpecular.a * fakeShadow.r);	
+	diffuse.rgb += pointLightsFresnel.rgb * pointLightsFresnel.a;
+	diffuse.rgb +=  pointLightsSpec.rgb * pointLightsSpec.a;
+
+	vec3 reflection = buildReflection(relativePosition.xyz, normalColor.rgb, skyLightReflected, isRain) * 2.0;
+
+	reflection += skyLightReflected.rgb * skyLightReflected.a * 2.0;
+	reflection += sunLightSpecular.rgb * sunLightSpecular.a * fakeShadow.r * 10.0;
+	reflection += moonLightSpecular.rgb * moonLightSpecular.a * fakeShadow.r * 10.0;
+	
+	
+	diffuse.rgb = mix(diffuse.rgb, diffuse.rgb * reflection * specularMap.r, 0.25 + skyLightReflected.a * 0.75);
+
+	diffuse.a = max(diffuse.a, skyLightReflected.a + sunLightSpecular.a +  moonLightSpecular.a + pointLightsSpec.a);	
 	// diffuse.rgb = vec3(1.0, 0.0, 0.0);	
 #endif //ALWAYS_LIT
 
 
 #if defined(BLEND)
-	//diffuse.a *= inColor.a;
-	if(isWater > 0.9){
-		    highp float time = TIME;
-	        highp float cloudsSpeed = 0.1;
 
-			highp vec2 cldCoord = -relativePosition.xz;
-			cldCoord += normalColor.rb * 2.0;
-			cldCoord /= 1.0 + pow(skyLightReflected.a, 4.0);
-			cldCoord /= length(relativePosition.y);
-			cldCoord += vec2(time * cloudsSpeed);
-			
-			float clouds = rand_bilinear(cldCoord);
-
-			clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(128.0, 2.0, isRain));
-		    
-			vec3 clearSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0) * 1.5;
-			vec3 rainSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0) * 2.0;
-			
-			vec3 cloudsColor = mix(clearSkyCloudsColor, rainSkyCloudsColor, isRain);
-
-			diffuse.rgb = mix(diffuse.rgb, cloudsColor, clouds * (0.25 + skyLightReflected.a * 0.75));
-
-			diffuse.rgb += pointLightsFresnel.rgb * pointLightsFresnel.a;
-			diffuse.rgb +=  pointLightsSpec.rgb * pointLightsSpec.a;
-
-			diffuse.a = skyLightReflected.a + sunLightSpecular.a +  moonLightSpecular.a + pointLightsSpec.a;
-			diffuse.a = min(diffuse.a + 0.5, 1.0);
-		}
-
-	// diffuse.rgb = vec3(1.0, 0.0, 0.0);
 #endif //BLEND
 
 
