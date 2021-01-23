@@ -261,9 +261,20 @@ void main()
 	reflection += skyLightReflected.rgb * skyLightReflected.a * 2.0;
 	reflection += sunLightSpecular.rgb * sunLightSpecular.a * fakeShadow.r * 10.0;
 	reflection += moonLightSpecular.rgb * moonLightSpecular.a * fakeShadow.r * 10.0;
+
+
+	float metalnessPercent = pow(specularMap.r, 2.0);
+	float insulatorPercent = 1.0 - metalnessPercent;
+
+	vec3 metalnessReflection = diffuse.rgb * reflection * metalnessPercent;
+	vec3 insulatorsReflection = reflection * insulatorPercent;
+	vec3 resultReflections = metalnessReflection + insulatorsReflection;
+
+	float f0 = metalnessPercent * 0.25;
+	float f1 = 0.75 + 0.25 * insulatorPercent;
 	
 	
-	diffuse.rgb = mix(diffuse.rgb, diffuse.rgb * reflection * specularMap.r, 0.25 + skyLightReflected.a * 0.75);
+	diffuse.rgb = mix(diffuse.rgb, resultReflections * pow(specularMap.r, 2.0),f0 + skyLightReflected.a * f1);
 
 	diffuse.a = max(diffuse.a, skyLightReflected.a + sunLightSpecular.a +  moonLightSpecular.a + pointLightsSpec.a);	
 	// diffuse.rgb = vec3(1.0, 0.0, 0.0);	
