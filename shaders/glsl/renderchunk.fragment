@@ -85,7 +85,7 @@ void main()
 
 	vec4 diffuse = texelFetch(TEXTURE_0, ivec2((uv0 - localDiffuseCoord) * 1024.0), 0);
 
-	vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
+	highp vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
 	vec4 normalMap = vec4(0.0);	
 	normalColor.rgb = vec3(0.0);
 	
@@ -94,6 +94,9 @@ void main()
 	if(isRain > 0.1 && isWater < 0.1){
 		puddles.rgb = vec3(mapPuddles(TEXTURE_0, position.xz, isRain));	
 	}
+
+	highp float metalness = pow(specularMap.g, 10.0);
+	highp float roughness = pow(specularMap.r, 10.0);
 
 #if defined(BLEND)
 	if(isWater >  0.9){
@@ -179,7 +182,7 @@ void main()
 	highp vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-	highp float shininess = 256.0 * pow(specularMap.r, 2.0);
+	highp float shininess = 2048.0 * roughness;
 	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess) * (1.0 - isRain);
 	
 
@@ -195,8 +198,8 @@ void main()
 
 	spec += haloPhong + secondHaloPhong;
 
-	vec4 sunLightSpecular = vec4(sunLightColor * 2.0, spec * specularMap.r * (isDay - isRain));
-	vec4 moonLightSpecular = vec4(moonLightColor, spec * specularMap.r * ((1.0 - isDay) - isRain));
+	vec4 sunLightSpecular = vec4(sunLightColor * 2.0, spec * (isDay - isRain));
+	vec4 moonLightSpecular = vec4(moonLightColor, spec * ((1.0 - isDay) - isRain));
 
 	// Torches, lamps and lava lights
 	float srcPointLights = uv1.x;
@@ -221,7 +224,7 @@ void main()
 	
 
 	spec = pow(max(dot(normalColor.rgb, viewDir), 0.0), shininess * 0.25);
-	vec4 pointLightsSpec = vec4(pow(min(pointLights.rgb * 3.0, 1.0), vec3(2.0)), spec * specularMap.r * pointLights.r * max((2.0 - (isDay + fakeShadow)), 0.0));
+	vec4 pointLightsSpec = vec4(pow(min(pointLights.rgb * 3.0, 1.0), vec3(2.0)), spec * pointLights.r * max((2.0 - (isDay + fakeShadow)), 0.0));
 	
 	
 
@@ -257,8 +260,7 @@ void main()
 	diffuse.rgb +=  pointLightsSpec.rgb * pointLightsSpec.a;
 
 	
-	float metalness = pow(specularMap.g, 16.0);
-	float roughness = pow(specularMap.r, 16.0);
+
 
 	vec3 reflection = buildReflection(relativePosition.xyz, normalColor.rgb, skyLightReflected, isRain, roughness) * 2.0;
 
@@ -269,14 +271,14 @@ void main()
 
 
 	vec3 metalnessReflection = diffuse.rgb * reflection * metalness;
-	vec3 insulatorsReflection = reflection * (1.0 - metalness);
+	vec3 insulatorsReflection = reflection * (1.0 - metalness) * roughness;
 	vec3 resultReflections = metalnessReflection + insulatorsReflection;
 
 	float f0 = metalness * 0.25;
 	float f1 = 0.75 + 0.25 * roughness;
 	
 	
-	diffuse.rgb = mix(diffuse.rgb, resultReflections * pow(specularMap.r, 2.0),f0 + skyLightReflected.a * f1);
+	diffuse.rgb = mix(diffuse.rgb, resultReflections, f0 + skyLightReflected.a * f1);
 
 	diffuse.a = max(diffuse.a, skyLightReflected.a + sunLightSpecular.a +  moonLightSpecular.a + pointLightsSpec.a);	
 	// diffuse.rgb = vec3(1.0, 0.0, 0.0);	
