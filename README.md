@@ -1,7 +1,9 @@
-# OSBES v0.11.2
+# OSBES v0.12.0
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will be listed as a developer!-----------**
+
+Vanilla Normals Renuwed by Poudingue is used for preview  (https://github.com/Poudingue/Vanilla-Normals-Renewed)
 
 **HOW TO CONTRIBUTE**
 I recomend you to use rooted device with installed Termux <span style="color:green">**terminal**</span> emulator

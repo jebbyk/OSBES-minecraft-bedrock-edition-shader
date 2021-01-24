@@ -1,7 +1,7 @@
 #include "../uniformPerFrameConstants"
 
 
-vec3 buildReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLightReflected, float isRain, float specularMap){
+vec3 buildReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLightReflected, float isRain, float roughness){
 	highp float time = TIME;
 	highp float cloudsSpeed = 0.1;
 
@@ -13,7 +13,7 @@ vec3 buildReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLightRefle
 	
 	float clouds = rand_bilinear(cldCoord);
 
-	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(specularMap * 128.0, 2.0, isRain));
+	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(roughness * 32.0, 2.0, isRain));
 	
 	vec3 clearSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0) * 1.5;
 	vec3 rainSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0) * 2.0;
