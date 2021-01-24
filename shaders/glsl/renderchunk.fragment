@@ -256,7 +256,7 @@ void main()
 	diffuse.rgb += pointLightsFresnel.rgb * pointLightsFresnel.a;
 	diffuse.rgb +=  pointLightsSpec.rgb * pointLightsSpec.a;
 
-	vec3 reflection = buildReflection(relativePosition.xyz, normalColor.rgb, skyLightReflected, isRain) * 2.0;
+	vec3 reflection = buildReflection(relativePosition.xyz, normalColor.rgb, skyLightReflected, isRain, specularMap.r) * 2.0;
 
 	reflection += skyLightReflected.rgb * skyLightReflected.a * 2.0;
 	reflection += sunLightSpecular.rgb * sunLightSpecular.a * fakeShadow.r * 10.0;
@@ -285,16 +285,15 @@ void main()
 
 #endif //BLEND
 
-
 	//Add blue fog everywhere when weather is good except water and hell
 	diffuse.rgb = mix(diffuse.rgb, blueFog.rgb, blueFog.a * pow(isDay, 2.0) * (1.0 - isWater) * (1.0 - isRain) * (1.0 - isHell));// 1.0/1.5 = 0.6666667
 	
 	//TODO: user actual position instead of relativePosition
 	vec3 milkyFogColor = mix(vec3(0.1), milkyFog.rgb, isDay);
 	diffuse.rgb = mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
-#ifdef FOG
+// #ifdef FOG
 	diffuse.rgb = mix( diffuse.rgb, clearSkyLightColor + rainSkyLightColor * 0.3, fogColor.a);
-#endif //FOG
+// #endif //FOG
 
 	diffuse.rgb = colorCorrection(diffuse.rgb);
 
