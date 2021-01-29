@@ -90,14 +90,14 @@ void main()
 	vec4 normalMap = vec4(0.0);	
 	normalColor.rgb = vec3(0.0);
 	
-	vec4  puddles = vec4(1.0);
+	vec4  wetness = vec4(0.0);
 
 	if(isRain > 0.1 && isWater < 0.1){
-		puddles.rgb = vec3(mapPuddles(TEXTURE_0, position.xz, isRain));	
+		wetness.rgb = vec3(mapPuddles(TEXTURE_0, position.xz, isRain));	
 	}
 
-	highp float metalness = pow(specularMap.g, 4.0);
-	highp float roughness = pow(specularMap.r, 4.0);
+	highp float metalness = mix(pow(specularMap.g, 4.0), 0.0, wetness.r);
+	highp float roughness = mix(pow(specularMap.r, 4.0), 1.0, wetness.r);
 
 #if defined(BLEND)
 	if(isWater >  0.9){
@@ -148,9 +148,9 @@ void main()
 	diffuse.rgb *= color.rgb;
 
 
-	// Dark puddles color (affected by fresnel later)
-	puddles.r = max(initNormalColor.g * puddles.r, 0.5);
-	diffuse.rgb = mix(diffuse.rgb, vec3(0.15,0.15,0.15),puddles.r * isRain);
+	// Dark wetness color (affected by fresnel later)
+	wetness.r = max(initNormalColor.g * wetness.r, 0.5);
+	diffuse.rgb = mix(diffuse.rgb, vec3(0.15,0.15,0.15),wetness.r * isRain);
 
 	normalColor.rgb = rotateNormals(normalColor.rgb, normalMap.rgb);
 	
@@ -237,9 +237,9 @@ void main()
 	fresnel = mix(fresnel, 1.0, farWaterFresnel * isWater);
 	
 
-	// The same tweak but with puddles
+	// The same tweak but with wetness
 	float puddlesFresnel = pow(1.0 - dot(initNormalColor.rgb, viewDir), fresnelFactor * 0.5 );	
-	fresnel = mix(fresnel, puddlesFresnel, puddles.r * isRain * initNormalColor.g * (1.0 - isWater));
+	fresnel = mix(fresnel, puddlesFresnel, wetness.r * isRain * initNormalColor.g * (1.0 - isWater));
 	
 
 
@@ -248,7 +248,7 @@ void main()
 
 	// Mix lighting
 	vec3 resultLighting = ambientOclusion.rgb * skyLightColor * skyDot * 0.5;	
-	vec4 skyLightReflected = vec4(resultLighting * 2.0, fresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * puddles.r, 0.0, 1.0)));
+	vec4 skyLightReflected = vec4(resultLighting * 2.0, fresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * wetness.r, 0.0, 1.0)));
 
 	resultLighting += pointLights.rgb;
 	resultLighting += sunLightColor * sunDot * fakeShadow.r * isDay * (1.0 - isRain);
