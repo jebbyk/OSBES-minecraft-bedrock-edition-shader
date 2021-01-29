@@ -83,7 +83,8 @@ void main()
 	// Top right texture - specular map
 	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
 
-	vec4 diffuse = texelFetch(TEXTURE_0, ivec2((uv0 - localDiffuseCoord) * 1024.0), 0);
+	vec4 diffuseMap = texelFetch(TEXTURE_0, ivec2((uv0 - localDiffuseCoord) * 1024.0), 0);
+	vec4 diffuse = diffuseMap;
 
 	highp vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
 	vec4 normalMap = vec4(0.0);	
@@ -95,12 +96,15 @@ void main()
 		puddles.rgb = vec3(mapPuddles(TEXTURE_0, position.xz, isRain));	
 	}
 
-	highp float metalness = pow(specularMap.g, 10.0);
-	highp float roughness = pow(specularMap.r, 10.0);
+	highp float metalness = pow(specularMap.g, 4.0);
+	highp float roughness = pow(specularMap.r, 4.0);
 
 #if defined(BLEND)
 	if(isWater >  0.9){
 		normalMap.rgb = mapWaterNormals(TEXTURE_0);
+		metalness = 0.0;
+		roughness = 1.0;
+		diffuse.rgb *= 0.5;
 	}
 #endif
 	
@@ -140,13 +144,8 @@ void main()
 
 	
 
-	// grass and leaves color
-	if(isWater < 0.1){
-		diffuse.rgb *= color.rgb;
-	}else{
-		// diffuse.rgb = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
-		diffuse.rgb = vec3(0.2);
-	}
+	//water, grass and leaves color
+	diffuse.rgb *= color.rgb;
 
 
 	// Dark puddles color (affected by fresnel later)
@@ -159,11 +158,11 @@ void main()
 	///////////////////////Lighting section//////////////////////////
 
 	const vec3 skyLightDirection  = vec3(0.0,1.0,0.0);
-	const float skyLightWrapping = 4.0;
+	const float skyLightWrapping = 8.0;
 	float skyDot = max((dot(skyLightDirection, normalColor.rgb) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
 	
-	vec3 rainSkyLightColor = vec3(0.5, 0.5, 0.5) * isRain * isDay;
-	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(1.25)) /** isDay */* (1.0 - isRain); 
+	vec3 rainSkyLightColor = vec3(0.4, 0.4, 0.4) * isRain * isDay;
+	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(0.6)) /** isDay */* (1.0 - isRain); 
 	
 	if(isHell > 0.9){
 		clearSkyLightColor = vec3(0.0);
@@ -182,7 +181,7 @@ void main()
 	highp vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-	highp float shininess = 2048.0 * roughness;
+	highp float shininess = 512.0 * roughness;
 	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess) * (1.0 - isRain);
 	
 
@@ -224,13 +223,14 @@ void main()
 	
 
 	spec = pow(max(dot(normalColor.rgb, viewDir), 0.0), shininess * 0.25);
-	vec4 pointLightsSpec = vec4(pow(min(pointLights.rgb * 3.0, 1.0), vec3(2.0)), spec * pointLights.r * max((2.0 - (isDay + fakeShadow)), 0.0));
+	vec4 pointLightsSpec = vec4(pow(min(pointLights.rgb * 3.0, 1.0), vec3(2.0)), spec * pointLights.r);
 	
 	
 
 	// Fake effect when surface is hit at a very small angle and light bounces from the surface 
-	const float fresnelFactor = 4.0;
-	float fresnel = min(pow(1.0 - dot(normalColor.rgb, viewDir), fresnelFactor), 1.0);
+	float fresnelFactor = 6.0;
+	float fresnel = max(1.0 - dot(normalColor.rgb, viewDir), 0.0);
+	fresnel = min(pow(fresnel, fresnelFactor), 1.0);
 
 	
 	float farWaterFresnel = min(pow(1.0 - dot(initNormalColor.rgb, viewDir), fresnelFactor), 1.0);
@@ -255,27 +255,23 @@ void main()
 	resultLighting += vec3(isHell * 0.175);// Ambient highlighting in hell
 	resultLighting += moonLightColor * sunDot * fakeMoonShadow.r * (1.0 - isDay) * (1.0 - isRain );
 	
-	diffuse.rgb *= resultLighting.rgb * 1.8; 
-	diffuse.rgb += pointLightsFresnel.rgb * pointLightsFresnel.a;
-	diffuse.rgb +=  pointLightsSpec.rgb * pointLightsSpec.a;
+	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	
+	vec3 reflection = buildReflection(relativePosition.xyz, normalColor.rgb, skyLightReflected, isRain, roughness) * 1.0;
 
-
-	vec3 reflection = buildReflection(relativePosition.xyz, normalColor.rgb, skyLightReflected, isRain, roughness) * 2.0;
-
-	reflection += skyLightReflected.rgb * skyLightReflected.a * 2.0;
-	reflection += sunLightSpecular.rgb * sunLightSpecular.a * fakeShadow.r * 10.0;
-	reflection += moonLightSpecular.rgb * moonLightSpecular.a * fakeShadow.r * 10.0;
+    reflection += sunLightSpecular.rgb * sunLightSpecular.a * fakeShadow.r * 4.0;
+	reflection += moonLightSpecular.rgb * moonLightSpecular.a * fakeShadow.r * 4.0;
+	reflection += pointLightsSpec.rgb * pointLightsSpec.a * 10.0;
 
 
 
-	vec3 metalnessReflection = diffuse.rgb * reflection * metalness;
+	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
 	vec3 insulatorsReflection = reflection * (1.0 - metalness) * roughness;
 	vec3 resultReflections = metalnessReflection + insulatorsReflection;
 
-	float f0 = metalness * 0.25;
-	float f1 = 0.75 + 0.25 * roughness;
+	float f0 = metalness * 0.5 + (1.0 - metalness) * 0.05;
+	float f1 = 1.0;
 	
 	
 	diffuse.rgb = mix(diffuse.rgb, resultReflections, f0 + skyLightReflected.a * f1);
