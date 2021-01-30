@@ -5,6 +5,10 @@ float rand(highp vec2 coord){
     return fract(sin(dot(coord.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
+//float rand(vec2 xy){
+//       return fract(tan(distance(xy*1.61803398874989484820459, xy)*1.0)*xy.x);
+//}
+
 float step_random(highp vec2 coord){
     vec2 flooredCoord = floor(coord);
 	return rand(flooredCoord);
