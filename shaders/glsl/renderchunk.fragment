@@ -41,6 +41,7 @@ varying highp vec4 relativePosition;// Calculates from vec4 position
 #include "includes/random.glsl"
 #include "includes/color_correction.glsl"
 #include "includes/reflections.glsl"
+#include "includes/lighting.glsl"
 
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
@@ -49,7 +50,6 @@ LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 
 varying vec4 blueFog;
 varying vec4 milkyFog;
-
 
 
 
@@ -158,19 +158,7 @@ void main()
 	
 	///////////////////////Lighting section//////////////////////////
 
-	const vec3 skyLightDirection  = vec3(0.0,1.0,0.0);
-	const float skyLightWrapping = 8.0;
-	float skyDot = max((dot(skyLightDirection, normalVector) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
-	
-	vec3 rainSkyLightColor = vec3(0.4, 0.4, 0.4) * isRain * isDay;
-	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(0.6)) /** isDay */* (1.0 - isRain); 
-	
-	if(isHell > 0.9){
-		clearSkyLightColor = vec3(0.0);
-		rainSkyLightColor = vec3(0.0);
-	}
-	
-	vec3 skyLightColor = rainSkyLightColor + clearSkyLightColor;
+	vec4 skyLightColor = calculateSkyLight(normalVector, isRain, isDay, isHell);
 
 	const vec3 sunLightDirection = vec3(0.55,0.4,0.05);
 	float sunDot = max(dot(sunLightDirection, normalVector), 0.0);	
@@ -248,7 +236,7 @@ void main()
 
 
 	// Mix lighting
-	vec3 resultLighting = ambientOclusion.rgb * skyLightColor * skyDot * 0.5;	
+	vec3 resultLighting = ambientOclusion.rgb * skyLightColor.rgb * skyLightColor.a * 0.5;	
 	vec4 skyLightReflected = vec4(resultLighting * 2.0, fresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * wetness, 0.0, 1.0)));
 
 	resultLighting += pointLights.rgb;
@@ -278,6 +266,7 @@ void main()
 	diffuse.rgb = mix(diffuse.rgb, resultReflections, f0 + skyLightReflected.a * f1);
 
 	diffuse.a = max(diffuse.a, skyLightReflected.a + sunLightSpecular.a +  moonLightSpecular.a + pointLightsSpec.a);	
+	
 	// diffuse.rgb = vec3(1.0, 0.0, 0.0);	
 #endif //ALWAYS_LIT
 
@@ -293,7 +282,7 @@ void main()
 	vec3 milkyFogColor = mix(vec3(0.1), milkyFog.rgb, isDay);
 	diffuse.rgb = mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
 // #ifdef FOG
-	diffuse.rgb = mix( diffuse.rgb, clearSkyLightColor + rainSkyLightColor * 0.3, fogColor.a);
+	diffuse.rgb = mix( diffuse.rgb, skyLightColor.rgb * 0.3, fogColor.a);
 // #endif //FOG
 
 	diffuse.rgb = colorCorrection(diffuse.rgb);
