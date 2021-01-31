@@ -16,3 +16,11 @@ vec4 calculateSkyLight(vec3 normalVector, float isRain, float isDay, float isHel
 	
 	return vec4(rainSkyLightColor + clearSkyLightColor, skyDot);
 }
+
+vec4 calculateGlobalLight(vec3 normalVector, float isDay){
+	vec3 sunLightDirection = vec3(0.55,0.4,0.05);
+	float globalLightSourceDot = max(dot(sunLightDirection, normalVector), 0.0);	
+	vec3 sunLightColor = vec3(1.0, 0.88, 0.69);
+	vec3 moonLightColor = vec3(0.35, 0.6,1.0) * 0.35;
+	return vec4(mix(moonLightColor, sunLightColor, isDay), globalLightSourceDot);
+}

@@ -160,23 +160,18 @@ void main()
 
 	vec4 skyLightColor = calculateSkyLight(normalVector, isRain, isDay, isHell);
 
-	const vec3 sunLightDirection = vec3(0.55,0.4,0.05);
-	float sunDot = max(dot(sunLightDirection, normalVector), 0.0);	
-	const vec3 sunLightColor = vec3(1.0, 0.88, 0.69);
-	const vec3 moonLightColor = vec3(0.35, 0.6,1.0) * 0.35;
-	
+	vec4 resutlGlobalLight = calculateGlobalLight(normalVector, isDay);
 	
 	// Blinn-phong
-	highp vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
+	highp vec3 fakeLightDir = vec3(0.975, 0.025, 0.0);
 	highp vec3 viewDir = normalize(relativePosition.xyz);
-	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
+	highp vec3 halfwayDir = normalize(fakeLightDir + viewDir); 
 	highp float shininess = 512.0 * roughness;
-	highp float spec = pow(max(dot(normalVector, halfwayDir), 0.0), shininess) * (1.0 - isRain);
+	highp float spec = pow(max(dot(normalVector, halfwayDir), 0.0), shininess) * (1.0 - isRain) * 10.0;
 	
-
 	// Phong (fake halo effect)
 	float haloPhongIntecity = 0.06 * isSunrize;
-	vec3 reflectDir = reflect(-debugLightDir, normalVector);
+	vec3 reflectDir = reflect(-fakeLightDir, normalVector);
 	float haloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
 
 	// The same for onther light source (sunrize, sunset)
@@ -186,8 +181,7 @@ void main()
 
 	spec += haloPhong + secondHaloPhong;
 
-	vec4 sunLightSpecular = vec4(sunLightColor * 2.0, spec * (isDay - isRain));
-	vec4 moonLightSpecular = vec4(moonLightColor, spec * ((1.0 - isDay) - isRain));
+	vec4 globalLightSpecular = vec4(resutlGlobalLight.rgb, spec * (1.0 - isRain) * resutlGlobalLight.a);
 
 	// Torches, lamps and lava lights
 	float srcPointLights = uv1.x;
@@ -240,17 +234,15 @@ void main()
 	vec4 skyLightReflected = vec4(resultLighting * 2.0, fresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * wetness, 0.0, 1.0)));
 
 	resultLighting += pointLights.rgb;
-	resultLighting += sunLightColor * sunDot * fakeShadow.r * isDay * (1.0 - isRain);
+	resultLighting += resutlGlobalLight.rgb * resutlGlobalLight.a * fakeShadow.r * (1.0 - isRain);
 	resultLighting += vec3(isHell * 0.175);// Ambient highlighting in hell
-	resultLighting += moonLightColor * sunDot * fakeMoonShadow.r * (1.0 - isDay) * (1.0 - isRain );
 	
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	
 	vec3 reflection = buildReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness) * 1.0;
 
-    reflection += sunLightSpecular.rgb * sunLightSpecular.a * fakeShadow.r * 4.0;
-	reflection += moonLightSpecular.rgb * moonLightSpecular.a * fakeShadow.r * 4.0;
+    reflection += globalLightSpecular.rgb * globalLightSpecular.a * fakeShadow.r * 4.0;
 	reflection += pointLightsSpec.rgb * pointLightsSpec.a * 10.0;
 
 
@@ -265,7 +257,7 @@ void main()
 	
 	diffuse.rgb = mix(diffuse.rgb, resultReflections, f0 + skyLightReflected.a * f1);
 
-	diffuse.a = max(diffuse.a, skyLightReflected.a + sunLightSpecular.a +  moonLightSpecular.a + pointLightsSpec.a);	
+	diffuse.a = max(diffuse.a, skyLightReflected.a + globalLightSpecular.a + pointLightsSpec.a);	
 	
 	// diffuse.rgb = vec3(1.0, 0.0, 0.0);	
 #endif //ALWAYS_LIT
@@ -282,7 +274,7 @@ void main()
 	vec3 milkyFogColor = mix(vec3(0.1), milkyFog.rgb, isDay);
 	diffuse.rgb = mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
 // #ifdef FOG
-	diffuse.rgb = mix( diffuse.rgb, skyLightColor.rgb * 0.3, fogColor.a);
+	diffuse.rgb = mix( diffuse.rgb, skyLightColor.rgb, fogColor.a);
 // #endif //FOG
 
 	diffuse.rgb = colorCorrection(diffuse.rgb);
