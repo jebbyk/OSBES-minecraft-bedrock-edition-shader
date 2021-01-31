@@ -73,9 +73,9 @@
 		vec3 normalMap = texture2D(texture0, fract(position.xz*1.0*wnScale + t*wnScale * 2.0)/33.0 + waterNormalOffset).rgb;
 		normalMap += texture2D(texture0, fract(position.xz*0.5*wnScale - t*wnScale * 1.5)/33.0 + waterNormalOffset).rgb;// 
 		normalMap += texture2D(texture0, fract(position.xz*0.25*wnScale + t*wnScale * 1.15)/33.0 + waterNormalOffset).rgb;
-		normalMap += texture2D(texture0, fract(position.xz*0.125*wnScale - t*wnScale*0.9)/33.0 + waterNormalOffset).rgb;
+		//normalMap += texture2D(texture0, fract(position.xz*0.125*wnScale - t*wnScale*0.9)/33.0 + waterNormalOffset).rgb;
 		
-		return normalMap * 0.25;
+		return normalMap * 0.33333333333333;
     }
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){

@@ -79,38 +79,35 @@ void main()
 	
 	// Top left texture - default diffuse
 	highp vec2 localDiffuseCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
-	// Top right texture - specular map
-	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
-
 	vec4 diffuseMap = texelFetch(TEXTURE_0, ivec2((uv0 - localDiffuseCoord) * 1024.0), 0);
 	vec4 diffuse = diffuseMap;
 	
-
-	highp vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
 	vec3 normalMap = vec3(0.0);	
-	vec3 normalColor = vec3(0.0);
-
+	vec3 normalVector = vec3(0.0);
 	if(isWater < 0.9){
 		// Bottom left texture - normalmap
 		highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 0.015625);
 		normalMap = texelFetch(TEXTURE_0, ivec2((uv0 - localNormalCoord) * 1024.0), 0).rgb;
 	}
 	
-	
-	vec4  wetness = vec4(0.0);
+	// Top right texture - specular map
+	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
+    highp vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
 
+	
+	float  wetness = 0.0;
 	if(isRain > 0.1 && isWater < 0.1){
-		wetness.rgb = vec3(mapPuddles(TEXTURE_0, position.xz, isRain));	
+		wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
 	}
 
-	highp float metalness = mix(pow(specularMap.g, 4.0), 0.0, wetness.r);
-	highp float roughness = mix(pow(specularMap.r, 4.0), 1.0, wetness.r);
+	highp float metalness = mix(pow(specularMap.g, 4.0), 0.0, wetness);
+	highp float roughness = mix(pow(specularMap.r, 4.0), 1.0, wetness);
 
 
 
 #if defined(BLEND)
 	if(isWater >  0.9){
-		normalMap.rgb = mapWaterNormals(TEXTURE_0);
+		normalMap = mapWaterNormals(TEXTURE_0);
 		metalness = 0.0;
 		roughness = 1.0;
 		diffuse.rgb *= 0.5;
@@ -143,8 +140,8 @@ void main()
 	highp vec3 dp1 = dFdx(position.xyz);
 	highp vec3 dp2 = dFdy(position.xyz);
 
-	vec3 initNormalColor = normalize(cross(dp1, dp2));
-	normalColor = initNormalColor;
+	vec3 initnormalVector = normalize(cross(dp1, dp2));
+	normalVector = initnormalVector;
 
 	
 
@@ -153,17 +150,17 @@ void main()
 
 
 	// Dark wetness color (affected by fresnel later)
-	wetness.r = max(initNormalColor.g * wetness.r, 0.5);
-	diffuse.rgb = mix(diffuse.rgb, vec3(0.15,0.15,0.15),wetness.r * isRain);
+	wetness = max(initnormalVector.g * wetness, 0.5);
+	diffuse.rgb = mix(diffuse.rgb, vec3(0.15,0.15,0.15), wetness * isRain);
 
-	normalColor = rotateNormals(normalColor, normalMap);
+	normalVector = rotateNormals(normalVector, normalMap);
 	
 	
 	///////////////////////Lighting section//////////////////////////
 
 	const vec3 skyLightDirection  = vec3(0.0,1.0,0.0);
 	const float skyLightWrapping = 8.0;
-	float skyDot = max((dot(skyLightDirection, normalColor) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
+	float skyDot = max((dot(skyLightDirection, normalVector) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
 	
 	vec3 rainSkyLightColor = vec3(0.4, 0.4, 0.4) * isRain * isDay;
 	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(0.6)) /** isDay */* (1.0 - isRain); 
@@ -176,7 +173,7 @@ void main()
 	vec3 skyLightColor = rainSkyLightColor + clearSkyLightColor;
 
 	const vec3 sunLightDirection = vec3(0.55,0.4,0.05);
-	float sunDot = max(dot(sunLightDirection, normalColor), 0.0);	
+	float sunDot = max(dot(sunLightDirection, normalVector), 0.0);	
 	const vec3 sunLightColor = vec3(1.0, 0.88, 0.69);
 	const vec3 moonLightColor = vec3(0.35, 0.6,1.0) * 0.35;
 	
@@ -186,17 +183,17 @@ void main()
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
 	highp float shininess = 512.0 * roughness;
-	highp float spec = pow(max(dot(normalColor, halfwayDir), 0.0), shininess) * (1.0 - isRain);
+	highp float spec = pow(max(dot(normalVector, halfwayDir), 0.0), shininess) * (1.0 - isRain);
 	
 
 	// Phong (fake halo effect)
 	float haloPhongIntecity = 0.06 * isSunrize;
-	vec3 reflectDir = reflect(-debugLightDir, normalColor);
+	vec3 reflectDir = reflect(-debugLightDir, normalVector);
 	float haloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
 
 	// The same for onther light source (sunrize, sunset)
 	highp vec3 reverseDebugLightDir = vec3(-0.975, 0.025, 0.0);
-	reflectDir = reflect(-reverseDebugLightDir, normalColor);
+	reflectDir = reflect(-reverseDebugLightDir, normalVector);
 	float secondHaloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
 
 	spec += haloPhong + secondHaloPhong;
@@ -226,24 +223,24 @@ void main()
 	
 	
 
-	spec = pow(max(dot(normalColor.rgb, viewDir), 0.0), shininess * 0.25);
+	spec = pow(max(dot(normalVector, viewDir), 0.0), shininess * 0.25);
 	vec4 pointLightsSpec = vec4(pow(min(pointLights.rgb * 3.0, 1.0), vec3(2.0)), spec * pointLights.r);
 	
 	
 
 	// Fake effect when surface is hit at a very small angle and light bounces from the surface 
 	float fresnelFactor = 6.0;
-	float fresnel = max(1.0 - dot(normalColor, viewDir), 0.0);
+	float fresnel = max(1.0 - dot(normalVector, viewDir), 0.0);
 	fresnel = min(pow(fresnel, fresnelFactor), 1.0);
 
 	
-	float farWaterFresnel = min(pow(1.0 - dot(initNormalColor, viewDir), fresnelFactor), 1.0);
+	float farWaterFresnel = min(pow(1.0 - dot(initnormalVector, viewDir), fresnelFactor), 1.0);
 	fresnel = mix(fresnel, 1.0, farWaterFresnel * isWater);
 	
 
 	// The same tweak but with wetness
-	float puddlesFresnel = pow(1.0 - dot(initNormalColor.rgb, viewDir), fresnelFactor * 0.5 );	
-	fresnel = mix(fresnel, puddlesFresnel, wetness.r * isRain * initNormalColor.g * (1.0 - isWater));
+	float puddlesFresnel = pow(1.0 - dot(initnormalVector.rgb, viewDir), fresnelFactor * 0.5 );	
+	fresnel = mix(fresnel, puddlesFresnel, wetness * isRain * initnormalVector.g * (1.0 - isWater));
 	
 
 
@@ -252,7 +249,7 @@ void main()
 
 	// Mix lighting
 	vec3 resultLighting = ambientOclusion.rgb * skyLightColor * skyDot * 0.5;	
-	vec4 skyLightReflected = vec4(resultLighting * 2.0, fresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * wetness.r, 0.0, 1.0)));
+	vec4 skyLightReflected = vec4(resultLighting * 2.0, fresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * wetness, 0.0, 1.0)));
 
 	resultLighting += pointLights.rgb;
 	resultLighting += sunLightColor * sunDot * fakeShadow.r * isDay * (1.0 - isRain);
@@ -262,7 +259,7 @@ void main()
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	
-	vec3 reflection = buildReflection(relativePosition.xyz, normalColor, skyLightReflected, isRain, roughness) * 1.0;
+	vec3 reflection = buildReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness) * 1.0;
 
     reflection += sunLightSpecular.rgb * sunLightSpecular.a * fakeShadow.r * 4.0;
 	reflection += moonLightSpecular.rgb * moonLightSpecular.a * fakeShadow.r * 4.0;
