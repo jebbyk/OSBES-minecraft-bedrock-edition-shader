@@ -73,20 +73,18 @@
 		vec3 normalMap = texture2D(texture0, fract(position.xz*1.0*wnScale + t*wnScale * 2.0)/33.0 + waterNormalOffset).rgb;
 		normalMap += texture2D(texture0, fract(position.xz*0.5*wnScale - t*wnScale * 1.5)/33.0 + waterNormalOffset).rgb;// 
 		normalMap += texture2D(texture0, fract(position.xz*0.25*wnScale + t*wnScale * 1.15)/33.0 + waterNormalOffset).rgb;
-		//normalMap += texture2D(texture0, fract(position.xz*0.125*wnScale - t*wnScale*0.9)/33.0 + waterNormalOffset).rgb;
 		
 		return normalMap * 0.33333333333333;
     }
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
-        float puddlesSharpness = 2.0;
 		float puddlesCovering = 1.5;
 		float puddlesScale = 32.0;
-		float minRainWettneess = 0.25;
+		float minRainWettneess = 0.5;
 
 		vec2 noiseTextureOffset = vec2(1.0/32.0, 0.0); 
 		float puddles = texture2D(texture0, fract(position  / puddlesScale)/32.0 + noiseTextureOffset).r;
-		puddles = pow(puddles * isRain * puddlesCovering, puddlesSharpness);
+		puddles = puddles * isRain * puddlesCovering;
 		puddles = clamp(puddles, minRainWettneess, 1.0);
 
 		return puddles * pow(uv1.y, 2.0);// No puddles in dark places like caves
