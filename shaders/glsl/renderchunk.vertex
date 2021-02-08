@@ -117,7 +117,7 @@ void main()
 		
 		highp float wavesMovingSpeed = 4.0;
 		highp float wavesFreq = 10.0;
-		highp float wavesScale = 0.04;
+		highp float wavesScale = 0.02;
 
 		highp vec2 i = sin(t * impulsesMovingSpeed + rawPosCorrected.xz * impulsesFreq);
 		highp vec2 f = sin(t * wavesMovingSpeed + rawPosCorrected.xz * wavesFreq) * wavesScale;

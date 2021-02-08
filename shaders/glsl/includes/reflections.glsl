@@ -13,7 +13,7 @@ vec3 buildReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLightRefle
 	
 	float clouds = rand_bilinear(cldCoord);
 
-	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(roughness * 8.0, 2.0, isRain));
+	clouds = pow(clamp(clouds * 1.5, 0.0, 1.0), mix(roughness * 8.0, 2.0, isRain));
 	
 	vec3 clearSkyCloudsColor = vec3(1.5) * pow(length(skyLightReflected.gb), 2.0);
 	vec3 rainSkyCloudsColor = skyLightReflected.rgb * 0.75;
