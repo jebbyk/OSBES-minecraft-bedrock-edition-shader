@@ -17,7 +17,7 @@ float detectDay(sampler2D texture1){
 	return pow(dayTime, 5.0);
 }
 
-float detectSunRize(){
+float detectSunRize(){//TODO change detection method
 	float isSunrize = dot(normalize(FOG_COLOR.rgb), vec3(1.0, 0.0, 0.0));
 	return pow(isSunrize, 4.0);
 }

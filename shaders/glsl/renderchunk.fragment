@@ -94,7 +94,6 @@ void main()
 	// Top right texture - specular map
 	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
     highp vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
-
 	
 	float  wetness = 0.0;
 	if(isRain > 0.1 && isWater < 0.1){
@@ -109,8 +108,6 @@ void main()
 	float srcPointLights = uv1.x;
 	float ambientOclusion = uv1.y + isHell * 0.5;
 
-
-
 #if defined(BLEND)
 	if(isWater >  0.9){
 		normalMap = mapWaterNormals(TEXTURE_0);
@@ -120,9 +117,7 @@ void main()
 	}
 #endif
 	
-
 //#endif //USE_TEXEL_AA
-
 
 // Maybe it's about LOD (far trees and water becomes opaque)
 #ifdef SEASONS_FAR
@@ -143,8 +138,6 @@ void main()
 
 #if !defined(ALWAYS_LIT)
 
-	
-
 	//water, grass and leaves color
 	diffuse.rgb *= color.rgb;
 	// Dark wetness color (affected by detailedFresnel later)
@@ -164,40 +157,19 @@ void main()
 
 	// Torches, lamps and lava lights
 	vec3 pointLightsDiffused = calculatePointLightsDiffused(srcPointLights);
-
-
 	
-	// Blinn-phong
-	highp vec3 fakeLightDir = vec3(0.975, 0.025, 0.0);
-	highp vec3 halfwayDir = normalize(fakeLightDir + viewDir); 
-	highp float spec = pow(max(dot(normalVector, halfwayDir), 0.0), shininess) * (1.0 - isRain) * 10.0;
-	
-	// Phong (fake halo effect)
-	float haloPhongIntecity = 0.06 * isSunrize;
-	vec3 reflectDir = reflect(-fakeLightDir, normalVector);
-	float haloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
+	vec4 mainLightReflected = calculateMainLightsReflection(normalVector, viewDir, mainLightDiffused, shininess, isRain, isSunrize);
 
-	// The same for onther light source (sunrize, sunset)
-	highp vec3 reversedFakeLightDir = vec3(-0.975, 0.025, 0.0);
-	reflectDir = reflect(-reversedFakeLightDir, normalVector);
-	float secondHaloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
 
-	spec += haloPhong + secondHaloPhong;
 
-	vec4 mainLightReflected = vec4(mainLightDiffused.rgb, spec * (1.0 - isRain) * mainLightDiffused.a);
-
-	
-	
 	float fakeShadow = clamp(pow(ambientOclusion * 1.15, 128.0),0.0,1.0);
-
 
 	if(isUnderWater > 0.9){
 		fakeShadow += mapCaustics(TEXTURE_0, position.xyz);
 	}
 
 
-	spec = pow(max(dot(normalVector, viewDir), 0.0), shininess * 0.25);
-	vec4 pointLightsSpec = vec4(pow(min(pointLightsDiffused.rgb * 3.0, 1.0), vec3(2.0)), spec * pointLightsDiffused.r);
+	vec4 pointLightsReflected = calculatePointLightsReflected(normalVector, viewDir, shininess, pointLightsDiffused);
 	
 
 	// Fake effect when surface is hit at a very small angle and light bounces from the surface 
@@ -222,13 +194,10 @@ void main()
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	
-	vec3 reflection = buildReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness) * 1.0;
+	vec3 reflection = buildSkyPlaneReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness) * 1.0;
 
     reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadow * 4.0;
-	reflection += pointLightsSpec.rgb * pointLightsSpec.a * 10.0;
-
-
-
+	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 10.0;
 	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
 	vec3 insulatorsReflection = reflection * (1.0 - metalness) * roughness;
 	vec3 resultReflections = metalnessReflection + insulatorsReflection;
@@ -239,7 +208,7 @@ void main()
 	
 	diffuse.rgb = mix(diffuse.rgb, resultReflections, f0 + skyLightReflected.a * f1);
 
-	diffuse.a = max(diffuse.a, skyLightReflected.a + mainLightReflected.a + pointLightsSpec.a);	
+	diffuse.a = max(diffuse.a, skyLightReflected.a + mainLightReflected.a + pointLightsReflected.a);	
 	
 	// diffuse.rgb = vec3(1.0, 0.0, 0.0);	
 #endif //ALWAYS_LIT
@@ -260,7 +229,6 @@ void main()
 // #endif //FOG
 
 	diffuse.rgb = colorCorrection(diffuse.rgb);
-
 
 	// Default fog in hell because it has no skyplane
 	if(isHell > 0.9){
