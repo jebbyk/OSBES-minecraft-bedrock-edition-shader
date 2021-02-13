@@ -115,7 +115,7 @@
     }
 
 
-    void readTextures(inout vec4 diffuseMap, inout vec3 reliefMap, inout vec4 rmeMap, sampler2D texture0, vec2 uv0){
+    void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, vec2 uv0){
         ////////////////////////////Mapping section///////////////////////////////////
 
         // By default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
@@ -125,17 +125,41 @@
         highp vec2 diffuseMapCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
         diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * 1024.0), 0);
     
-        if(isWater < 0.9){
-            // Bottom left texture - normalmap
+        #if defined(BLEND)
+            if(isWater >  0.9){
+		        reliefMap = mapWaterNormals(texture0);
+            }else{
+                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, 0.015625);
+                reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * 1024.0), 0).rgb;
+            }
+        #else
             highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, 0.015625);
             reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * 1024.0), 0).rgb;
-        }
+        #endif
         
         // Top right texture - specular map
         highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
         rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * 1024.0), 0),0.01, 1.0);
     }
 		
+
+    void calculateMaterialProperties(out float metalness, out float roughness, out float shininess, vec4 rmeMap, float wetness){
+        #if !defined(BLEND)
+            metalness = mix(pow(rmeMap.g, 4.0), 0.0, wetness);
+            roughness = mix(pow(rmeMap.r, 4.0), 1.0, wetness);
+            shininess = 512.0 * roughness;
+        #else
+            if(isWater >  0.9){
+                metalness = 0.0;
+                roughness = 1.0;
+                shininess = 512.0;
+            }else{
+                metalness = mix(pow(rmeMap.g, 4.0), 0.0, wetness);
+                roughness = mix(pow(rmeMap.r, 4.0), 1.0, wetness);
+                shininess = 512.0 * roughness;
+            }
+        #endif
+    }
 
 
 

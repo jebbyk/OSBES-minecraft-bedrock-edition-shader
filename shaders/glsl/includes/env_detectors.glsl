@@ -21,3 +21,9 @@ float detectSunRize(){//TODO change detection method
 	float isSunrize = dot(normalize(FOG_COLOR.rgb), vec3(1.0, 0.0, 0.0));
 	return pow(isSunrize, 4.0);
 }
+
+void detectEnvironment(out float isDay, out float isHell, out float isSunrize, sampler2D texture1){
+	isDay = detectDay(texture1);
+   	isHell = detectHell(texture1);
+	isSunrize = detectSunRize();
+}

@@ -6,8 +6,7 @@ vec3 buildSkyPlaneReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLi
 	highp float cloudsSpeed = 0.1;
 
 	highp vec2 cldCoord = -relativePosition.xz;
-	cldCoord += normalColor.rb * 2.0;
-	cldCoord /= 1.0 + pow(skyLightReflected.a, 4.0);
+	cldCoord += cldCoord * normalColor.rb * 0.5;
 	cldCoord /= length(relativePosition.y);
 	cldCoord += vec2(time * cloudsSpeed);
 	
