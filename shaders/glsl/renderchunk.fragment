@@ -42,6 +42,7 @@ varying highp vec4 relativePosition;// Calculates from vec4 position
 #include "includes/color_correction.glsl"
 #include "includes/reflections.glsl"
 #include "includes/lighting.glsl"
+#include "includes/helpers.glsl"
 
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
@@ -68,41 +69,25 @@ void main()
    	float isHell = detectHell(TEXTURE_1);
 	float isSunrize = detectSunRize();
 
-	highp vec3 dp1 = dFdx(position.xyz);
-	highp vec3 dp2 = dFdy(position.xyz);
+	highp vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
+	highp vec3 normalVector = initialNormalVector;	
 
-	vec3 initNormalVector = normalize(cross(dp1, dp2));
-	vec3 normalVector = initNormalVector;	
+	vec4 diffuseMap = vec4(0.0);
+	vec3 reliefMap = vec3(0.0);
+	vec4 rmeMap = vec4(0.0);
 
-	////////////////////////////Mapping section///////////////////////////////////
+	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0);
 
-	// By default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
-	// but wtih my texture pack I have 1.0 x ture2D1.0. with your custom texuture pack you should check result texture  dimensions
-	
-	// Top left texture - default diffuse
-	highp vec2 localDiffuseCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
-	vec4 diffuseMap = texelFetch(TEXTURE_0, ivec2((uv0 - localDiffuseCoord) * 1024.0), 0);
 	vec4 diffuse = diffuseMap;
-	
-	vec3 normalMap = vec3(0.0);	
-	if(isWater < 0.9){
-		// Bottom left texture - normalmap
-		highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 0.015625);
-		normalMap = texelFetch(TEXTURE_0, ivec2((uv0 - localNormalCoord) * 1024.0), 0).rgb;
-	}
-	
-	// Top right texture - specular map
-	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
-    highp vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
 	
 	float  wetness = 0.0;
 	if(isRain > 0.1 && isWater < 0.1){
 		wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
-		wetness = max(initNormalVector.g * wetness, 0.5);		
+		wetness = max(initialNormalVector.g * wetness, 0.5);		
 	}
 
-	highp float metalness = mix(pow(specularMap.g, 4.0), 0.0, wetness);
-	highp float roughness = mix(pow(specularMap.r, 4.0), 1.0, wetness);
+	highp float metalness = mix(pow(rmeMap.g, 4.0), 0.0, wetness);
+	highp float roughness = mix(pow(rmeMap.r, 4.0), 1.0, wetness);
 	highp float shininess = 512.0 * roughness;
 
 	float srcPointLights = uv1.x;
@@ -110,7 +95,7 @@ void main()
 
 #if defined(BLEND)
 	if(isWater >  0.9){
-		normalMap = mapWaterNormals(TEXTURE_0);
+		reliefMap = mapWaterNormals(TEXTURE_0);
 		metalness = 0.0;
 		roughness = 1.0;
 		diffuse.rgb *= 0.5;
@@ -144,7 +129,7 @@ void main()
 	diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);
 	
 
-	normalVector = rotateNormals(normalVector, normalMap);
+	normalVector = rotateNormals(normalVector, reliefMap);
 
 	highp vec3 viewDir = normalize(relativePosition.xyz);
 	
@@ -173,19 +158,19 @@ void main()
 	
 
 	// Fake effect when surface is hit at a very small angle and light bounces from the surface 
-	float flatFresnel = min(1.0 - dot(initNormalVector, viewDir), 1.0);
+	float flatFresnel = min(1.0 - dot(initialNormalVector, viewDir), 1.0);
 	float detailedFresnel = min(1.0 - dot(normalVector, viewDir), 1.0);
 
 	detailedFresnel = pow(detailedFresnel, 6.0);
 	flatFresnel = pow(flatFresnel, 3.0);
 
 	detailedFresnel = mix(detailedFresnel, flatFresnel, isWater);
-	detailedFresnel = mix(detailedFresnel, flatFresnel, wetness * isRain * initNormalVector.g * (1.0 - isWater));
+	detailedFresnel = mix(detailedFresnel, flatFresnel, wetness * isRain * initialNormalVector.g * (1.0 - isWater));
 
 
 	// Mix lighting
 	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusion * 0.5;	
-	vec4 skyLightReflected = vec4(resultLighting * 2.0, detailedFresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * wetness, 0.0, 1.0)));
+	vec4 skyLightReflected = vec4(resultLighting * 2.0, detailedFresnel * (clamp(0.25 + (rmeMap.r * 0.75) + isRain * wetness, 0.0, 1.0)));
 
 	resultLighting += pointLightsDiffused;
 	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadow * (1.0 - isRain);

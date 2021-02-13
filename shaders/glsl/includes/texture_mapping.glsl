@@ -1,59 +1,59 @@
 #include "../uniformPerFrameConstants"
 #include "../uniformShaderConstants"
 
-    vec3 rotateNormals(vec3 baseNormal, vec3 normalMap){
+    vec3 rotateNormals(vec3 baseNormal, vec3 reliefMap){
         // Fake TBN transformations for normalmapps
         // TODO: Weird thing and takes alot of performance because of branching
         // TODO: Needs refactoring
-        if(length(normalMap) > 0.9){
+        if(length(reliefMap) > 0.9){
             
             float normalMapStrength = 2.0;
 
             if(baseNormal.g > 0.9){
-                normalMap.gb = normalMap.bg;
-                normalMap = normalMap * 2.0 - 1.0;
-                normalMap.rb *= normalMapStrength;
-                baseNormal = normalize(normalMap);
+                reliefMap.gb = reliefMap.bg;
+                reliefMap = reliefMap * 2.0 - 1.0;
+                reliefMap.rb *= normalMapStrength;
+                baseNormal = normalize(reliefMap);
             }else{
                 if(baseNormal.g < -0.9){
-                    normalMap.b = -normalMap.b;
-                    normalMap.gb = normalMap.bg;
-                    normalMap = normalMap * 2.0 - 1.0;
-                    normalMap.rb *= normalMapStrength;
-                    baseNormal = normalize(normalMap);
+                    reliefMap.b = -reliefMap.b;
+                    reliefMap.gb = reliefMap.bg;
+                    reliefMap = reliefMap * 2.0 - 1.0;
+                    reliefMap.rb *= normalMapStrength;
+                    baseNormal = normalize(reliefMap);
                 }else{
                     if (baseNormal.b > 0.9){
-                        normalMap.g = 1.0 - normalMap.g;// OpenGl needs G to be flipped
-                        normalMap = normalMap * 2.0 - 1.0;
-                        normalMap.rg *= normalMapStrength;
-                        baseNormal = normalize(normalMap);
+                        reliefMap.g = 1.0 - reliefMap.g;// OpenGl needs G to be flipped
+                        reliefMap = reliefMap * 2.0 - 1.0;
+                        reliefMap.rg *= normalMapStrength;
+                        baseNormal = normalize(reliefMap);
         
                     }else{
                         if(baseNormal.b < -0.9){
-                            normalMap.b = -normalMap.b;
-                            normalMap.g = 1.0 - normalMap.g;// OpenGl G flip
-                            normalMap.r = 1.0 - normalMap.r;
-                            normalMap.rg = normalMap.rg * 2.0 - 1.0;
-                            normalMap.b = normalMap.b * 2.0 + 1.0;
-                            normalMap.rg *= normalMapStrength;
-                            baseNormal = normalize(normalMap);
+                            reliefMap.b = -reliefMap.b;
+                            reliefMap.g = 1.0 - reliefMap.g;// OpenGl G flip
+                            reliefMap.r = 1.0 - reliefMap.r;
+                            reliefMap.rg = reliefMap.rg * 2.0 - 1.0;
+                            reliefMap.b = reliefMap.b * 2.0 + 1.0;
+                            reliefMap.rg *= normalMapStrength;
+                            baseNormal = normalize(reliefMap);
                         }else{
                             if(baseNormal.r > 0.9){
-                                normalMap.g = 1.0 - normalMap.g;// OpenGl G flip
-                                normalMap.r = 1.0 - normalMap.r;
-                                normalMap.rb = normalMap.br;
-                                normalMap = normalMap * 2.0 - 1.0;
-                                normalMap.gb *= normalMapStrength;
-                                baseNormal = normalize(normalMap);
+                                reliefMap.g = 1.0 - reliefMap.g;// OpenGl G flip
+                                reliefMap.r = 1.0 - reliefMap.r;
+                                reliefMap.rb = reliefMap.br;
+                                reliefMap = reliefMap * 2.0 - 1.0;
+                                reliefMap.gb *= normalMapStrength;
+                                baseNormal = normalize(reliefMap);
                             }else{
                                 if(baseNormal.r < -0.9){
-                                    normalMap.b = -normalMap.b;
-                                    normalMap.g = 1.0 - normalMap.g;//OpenGl G flip
-                                    normalMap.rb = normalMap.br;
-                                    normalMap.gb = normalMap.gb * 2.0 - 1.0;
-                                    normalMap.r = normalMap.r * 2.0 + 1.0;
-                                    normalMap.gb *= normalMapStrength;
-                                    baseNormal = normalize(normalMap);
+                                    reliefMap.b = -reliefMap.b;
+                                    reliefMap.g = 1.0 - reliefMap.g;//OpenGl G flip
+                                    reliefMap.rb = reliefMap.br;
+                                    reliefMap.gb = reliefMap.gb * 2.0 - 1.0;
+                                    reliefMap.r = reliefMap.r * 2.0 + 1.0;
+                                    reliefMap.gb *= normalMapStrength;
+                                    baseNormal = normalize(reliefMap);
                                 }
                             }
                         }
@@ -70,11 +70,11 @@
 		vec2 waterNormalOffset = vec2(4.0/32.0, 0.0);
 
 		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
-		vec3 normalMap = texture2D(texture0, fract(position.xz*1.0*wnScale + t*wnScale * 2.0)/33.0 + waterNormalOffset).rgb;
-		normalMap += texture2D(texture0, fract(position.xz*0.5*wnScale - t*wnScale * 1.5)/33.0 + waterNormalOffset).rgb;// 
-		normalMap += texture2D(texture0, fract(position.xz*0.25*wnScale + t*wnScale * 1.15)/33.0 + waterNormalOffset).rgb;
+		vec3 reliefMap = texture2D(texture0, fract(position.xz*1.0*wnScale + t*wnScale * 2.0)/33.0 + waterNormalOffset).rgb;
+		reliefMap += texture2D(texture0, fract(position.xz*0.5*wnScale - t*wnScale * 1.5)/33.0 + waterNormalOffset).rgb;// 
+		reliefMap += texture2D(texture0, fract(position.xz*0.25*wnScale + t*wnScale * 1.15)/33.0 + waterNormalOffset).rgb;
 		
-		return normalMap * 0.33333333333333;
+		return reliefMap * 0.33333333333333;
     }
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
@@ -113,6 +113,28 @@
 
 		return caustics;
     }
+
+
+    void readTextures(inout vec4 diffuseMap, inout vec3 reliefMap, inout vec4 rmeMap, sampler2D texture0, vec2 uv0){
+        ////////////////////////////Mapping section///////////////////////////////////
+
+        // By default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
+        // but wtih my texture pack I have 1.0 x ture2D1.0. with your custom texuture pack you should check result texture  dimensions
+        
+        // Top left texture - default diffuse
+        highp vec2 diffuseMapCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
+        diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * 1024.0), 0);
+    
+        if(isWater < 0.9){
+            // Bottom left texture - normalmap
+            highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, 0.015625);
+            reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * 1024.0), 0).rgb;
+        }
+        
+        // Top right texture - specular map
+        highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
+        rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * 1024.0), 0),0.01, 1.0);
+    }
 		
 
 
@@ -130,7 +152,7 @@
 
         highp float height_scale = 0.01;
 
-        //highp float height = texture2D(TEXTURE_0, uv).b;
+        //highp float height = texture2D(texture0, uv).b;
         highp float height = 0.5;
         highp vec2 p = viewDir.xy / viewDir.z * (height * height_scale);
 
@@ -154,9 +176,9 @@
 	
 	//highp mat3 tbn = mat3(T, B, initNormalColor);
 
-	//normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
+	//reliefMap.rgb = reliefMap.rgb * 2.0 - 1.0;
 	
-	//normalColor.rgb = tbn * normalMap.rgb;
+	//normalColor.rgb = tbn * reliefMap.rgb;
 
 
 
@@ -175,7 +197,7 @@
 
 	//normalColor.rgb = normalColor.rgb * 2.0 - 1.0;
 
-	//normalColor.rgb = normalMap.rgb * tbn;
+	//normalColor.rgb = reliefMap.rgb * tbn;
 
 
 
@@ -185,7 +207,7 @@
 
 	//highp mat3 tbn = mat3(t, b, n);
 
-	//normalColor.rgb = normalize(normalMap.rgb * tbn);
+	//normalColor.rgb = normalize(reliefMap.rgb * tbn);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
