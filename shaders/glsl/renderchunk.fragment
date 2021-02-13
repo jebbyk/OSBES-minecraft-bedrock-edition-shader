@@ -121,6 +121,7 @@ void main()
 
 	vec4 mainLightReflected = calculateMainLightsReflection(normalVector, viewDir, mainLightDiffused, shininess, isRain, isSunrize);
 
+	vec4 pointLightsReflected = calculatePointLightsReflected(normalVector, viewDir, shininess, pointLightsDiffused);
 
 
 	float fakeShadow = min(pow(ambientOclusion * 1.15, 128.0), 1.0);
@@ -129,24 +130,11 @@ void main()
 		fakeShadow += mapCaustics(TEXTURE_0, position.xyz);
 	}
 
-
-	vec4 pointLightsReflected = calculatePointLightsReflected(normalVector, viewDir, shininess, pointLightsDiffused);
-	
-
-	// Fake effect when surface is hit at a very small angle and light bounces from the surface 
-	float flatFresnel = min(1.0 - dot(initialNormalVector, viewDir), 1.0);
-	float detailedFresnel = min(1.0 - dot(normalVector, viewDir), 1.0);
-
-	detailedFresnel = pow(detailedFresnel, 6.0);
-	flatFresnel = pow(flatFresnel, 3.0);
-
-	detailedFresnel = mix(detailedFresnel, flatFresnel, isWater);
-	detailedFresnel = mix(detailedFresnel, flatFresnel, wetness * isRain * initialNormalVector.g * (1.0 - isWater));
-
+	float fresnel = calculateFresnel(initialNormalVector, normalVector, viewDir, isWater, isRain, wetness);
 
 	// Mix lighting
 	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusion * 0.5;	
-	vec4 skyLightReflected = vec4(resultLighting * 2.0, detailedFresnel * (clamp(0.25 + (rmeMap.r * 0.75) + isRain * wetness, 0.0, 1.0)));
+	vec4 skyLightReflected = vec4(resultLighting * 2.0, fresnel * (clamp(0.25 + (rmeMap.r * 0.75) + isRain * wetness, 0.0, 1.0)));
 
 	resultLighting += pointLightsDiffused;
 	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadow * (1.0 - isRain);
