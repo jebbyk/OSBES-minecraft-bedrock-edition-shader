@@ -43,6 +43,7 @@ varying highp vec4 relativePosition;// Calculates from vec4 position
 #include "includes/reflections.glsl"
 #include "includes/lighting.glsl"
 #include "includes/helpers.glsl"
+#include "includes/fogs.glsl"
 
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
@@ -142,22 +143,15 @@ void main()
 	diffuse.rgb = mix(diffuse.rgb, resultReflections, f0 + skyLightReflected.a * f1);
 	diffuse.a = max(diffuse.a, skyLightReflected.a + mainLightReflected.a + pointLightsReflected.a);	
 	
-	//Add blue fog everywhere when weather is good except water and hell
-	diffuse.rgb = mix(diffuse.rgb, blueFog.rgb, blueFog.a * pow(isDay, 2.0) * (1.0 - isWater) * (1.0 - isRain) * (1.0 - isHell));
 	
-	vec3 milkyFogColor = mix(vec3(0.1), milkyFog.rgb, isDay);
-	
-	diffuse.rgb = mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
-	
-	diffuse.rgb = mix( diffuse.rgb, skyLightDiffused.rgb, fogColor.a);
-
+	if(isHell < 0.9){
+		diffuse.rgb = applyBasicFogs(diffuse.rgb, skyLightDiffused.rgb, fogColor.a, milkyFog, isDay, isHell);
+		diffuse.rgb = applyBlueFog(diffuse.rgb, blueFog, isDay, isRain, isWater); 
+	}
 	
 	diffuse.rgb = colorCorrection(diffuse.rgb);
 
-	
-	if(isHell > 0.9){ // Default fog in hell because it has no skyplane
-		diffuse.rgb = mix( diffuse.rgb, FOG_COLOR.rgb, fogColor.a);
-	}
+	diffuse.rgb = applyVanillaFog(diffuse.rgb, fogColor.a, isHell);//hide difference between colorCorrected and vanilla fog
 
 	///////////////////////Debuging section//////////////////////
 	// Debug texture coordinates
