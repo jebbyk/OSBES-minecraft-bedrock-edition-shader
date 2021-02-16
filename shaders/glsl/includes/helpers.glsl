@@ -7,13 +7,14 @@ highp vec3 calculateRawNormalVector(highp vec3 position){
 }
 
 
-float calculateFresnel(vec3 initialNormalVector, vec3 normalVector, vec3 viewDir, float isWater, float isRain, float wetness){
-    float flatFresnel = min(1.0 - dot(initialNormalVector, viewDir), 1.0);
-	float detailedFresnel = min(1.0 - dot(normalVector, viewDir), 1.0);
+highp float calculateFresnel(highp vec3 initialNormalVector, highp vec3 normalVector, highp vec3 viewDir, float isWater, float isRain, float wetness){
+    highp float flatFresnel = min(1.0 - dot(initialNormalVector, viewDir), 1.0);
+	highp float detailedFresnel = min(1.0 - dot(normalVector, viewDir), 1.0);
 
 	detailedFresnel = pow(detailedFresnel, 6.0);
 	flatFresnel = pow(flatFresnel, 3.0);
 
 	detailedFresnel = mix(detailedFresnel, flatFresnel, isWater);
-	return mix(detailedFresnel, flatFresnel, wetness * isRain * initialNormalVector.g * (1.0 - isWater));
+	detailedFresnel = mix(detailedFresnel, flatFresnel, wetness * isRain * initialNormalVector.g * (1.0 - isWater));
+	return clamp(detailedFresnel, 0.0, 1.0);
 }

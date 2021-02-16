@@ -1,13 +1,13 @@
 #include "../uniformPerFrameConstants"
 #include "../uniformShaderConstants"
 
-    vec3 rotateNormals(vec3 baseNormal, vec3 reliefMap){
+    highp vec3 rotateNormals(highp vec3 baseNormal, highp vec3 reliefMap){
         // Fake TBN transformations for normalmapps
         // TODO: Weird thing and takes alot of performance because of branching
         // TODO: Needs refactoring
         if(length(reliefMap) > 0.9){
             
-            float normalMapStrength = 2.0;
+            highp float normalMapStrength = 1.0;
 
             if(baseNormal.g > 0.9){
                 reliefMap.gb = reliefMap.bg;
@@ -70,11 +70,9 @@
 		vec2 waterNormalOffset = vec2(4.0/32.0, 0.0);
 
 		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
-		vec3 reliefMap = texture2D(texture0, fract(position.xz*1.0*wnScale + t*wnScale * 2.0)/33.0 + waterNormalOffset).rgb;
-		reliefMap += texture2D(texture0, fract(position.xz*0.5*wnScale - t*wnScale * 1.5)/33.0 + waterNormalOffset).rgb;// 
-		reliefMap += texture2D(texture0, fract(position.xz*0.25*wnScale + t*wnScale * 1.15)/33.0 + waterNormalOffset).rgb;
-		
-		return reliefMap * 0.33333333333333;
+		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/33.0 + waterNormalOffset).rgb * 2.0 - 1.0;
+		vec3 n2 = texture2D(texture0, fract(position.xz*0.3*wnScale * vec2(-1.0, 1.0) - t*wnScale)/33.0 + waterNormalOffset).rgb * 2.0 - 1.0;
+        return normalize(vec3(n1.xy + n2.xy, n1.z)) * 0.5 + 0.5;
     }
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
@@ -115,7 +113,7 @@
     }
 
 
-    void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, vec2 uv0){
+    void readTextures(out vec4 diffuseMap, out highp vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, vec2 uv0){
         ////////////////////////////Mapping section///////////////////////////////////
 
         // By default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
@@ -143,10 +141,10 @@
     }
 		
 
-    void calculateMaterialProperties(out float metalness, out float roughness, out float shininess, vec4 rmeMap, float wetness){
+    void calculateMaterialProperties(out highp float metalness, out highp float roughness, out highp float shininess, highp vec4 rmeMap, float wetness){
         #if !defined(BLEND)
-            metalness = mix(pow(rmeMap.g, 4.0), 0.0, wetness);
-            roughness = mix(pow(rmeMap.r, 4.0), 1.0, wetness);
+            metalness = mix(pow(rmeMap.g, 3.0), 0.0, wetness);
+            roughness = mix(pow(rmeMap.r, 3.0), 1.0, wetness);
             shininess = 512.0 * roughness;
         #else
             if(isWater >  0.9){
@@ -154,8 +152,8 @@
                 roughness = 1.0;
                 shininess = 512.0;
             }else{
-                metalness = mix(pow(rmeMap.g, 4.0), 0.0, wetness);
-                roughness = mix(pow(rmeMap.r, 4.0), 1.0, wetness);
+                metalness = mix(pow(rmeMap.g, 3.0), 0.0, wetness);
+                roughness = mix(pow(rmeMap.r, 3.0), 1.0, wetness);
                 shininess = 512.0 * roughness;
             }
         #endif

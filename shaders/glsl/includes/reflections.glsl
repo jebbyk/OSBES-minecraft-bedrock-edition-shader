@@ -1,5 +1,13 @@
 #include "../uniformPerFrameConstants"
+#include "../uniformShaderConstants"
 
+vec4 buildRawSkyReflection(vec3 relativePosition, vec3 resultLighting)
+{
+	float horizonLine =  1.0 - (abs(relativePosition.y) / length(relativePosition.xyz));
+	vec3 horizonColor = resultLighting;
+	vec3 zenithColor = vec3(0.25, 0.5, 1.0) * length(resultLighting);
+	return vec4(mix(zenithColor, horizonColor, horizonLine), horizonLine);
+}
 
 vec3 buildSkyPlaneReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLightReflected, float isRain, float roughness){
 	highp float time = TIME;
@@ -12,14 +20,14 @@ vec3 buildSkyPlaneReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLi
 	
 	float clouds = rand_bilinear(cldCoord);
 
-	clouds = pow(clamp(clouds * 1.5, 0.0, 1.0), mix(roughness * 8.0, 2.0, isRain));
+	clouds = pow(clamp(clouds * 1.5, 0.0, 1.0), mix(roughness * 32.0, 2.0, isRain));
 	
 	vec3 clearSkyCloudsColor = vec3(1.5) * pow(length(skyLightReflected.gb), 2.0);
 	vec3 rainSkyCloudsColor = skyLightReflected.rgb * 0.75;
 	
 	vec3 cloudsColor = mix(clearSkyCloudsColor, rainSkyCloudsColor, isRain);
 
-	return mix(skyLightReflected.rgb, cloudsColor, clouds);
+	return mix(skyLightReflected.rgb, cloudsColor, clouds * max(pow(0.9 - skyLightReflected.a, 0.25), 0.0));
 }
 
 

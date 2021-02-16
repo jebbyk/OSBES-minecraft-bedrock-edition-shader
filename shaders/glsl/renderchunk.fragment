@@ -64,14 +64,14 @@ void main()
 	float isDay; float isHell; float isSunrize;
 	detectEnvironment(isDay, isHell, isSunrize, TEXTURE_1);
 	
-	vec4 diffuseMap; vec3 reliefMap; vec4 rmeMap;
+	vec4 diffuseMap; highp vec3 reliefMap; vec4 rmeMap;
 	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0);
 
 	highp vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
 	highp vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
 
-	vec4 diffuse = diffuseMap;
-	diffuse.rgb *= color.rgb;//water, grass and leaves color
+    //diffuseMap.rgb *= co;//water, grass and leaves color
+	vec4 diffuse = diffuseMap * color;
 	
 	float srcPointLights = uv1.x;
 	float ambientOclusion = uv1.y;
@@ -81,7 +81,7 @@ void main()
 		fakeShadow += mapCaustics(TEXTURE_0, position.xyz);
 	}
 	
-	float  wetness = 0.0;
+	highp float  wetness = 0.0;
 	if(isRain > 0.1 && isWater < 0.1){
 		wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
 		wetness = max(initialNormalVector.g * wetness, 0.5);
@@ -89,10 +89,10 @@ void main()
 		diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
 	}
 
-	float metalness; float roughness; float shininess;
+	highp float metalness; highp float roughness; highp float shininess;
 	calculateMaterialProperties(metalness, roughness, shininess, rmeMap, wetness);
-	float f0 = metalness * 0.5 + (1.0 - metalness) * 0.05;
-	float f1 = 1.0;
+	highp float f0 = (metalness * 0.5) + ((1.0 - metalness) * 0.1);
+	highp float f1 = 1.0;
 
 #ifdef SEASONS_FAR
 	diffuse.a = 1.0; //shader LOD (far trees and water becomes opaque)
@@ -120,28 +120,28 @@ void main()
 	vec4 mainLightReflected = calculateMainLightsReflection(normalVector, viewDir, mainLightDiffused, shininess, isRain, isSunrize);
 	vec4 pointLightsReflected = calculatePointLightsReflected(normalVector, viewDir, shininess, pointLightsDiffused);
 	
-	float fresnel = calculateFresnel(initialNormalVector, normalVector, viewDir, isWater, isRain, wetness);
+	highp float fresnel = calculateFresnel(initialNormalVector, normalVector, viewDir, isWater, isRain, wetness);
 
 	// Mix lighting
 	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusion * 0.5;	
-	vec4 skyLightReflected = vec4(resultLighting * 2.0, fresnel * (clamp(0.25 + (rmeMap.r * 0.75) + isRain * wetness, 0.0, 1.0)));
-
+	
+	highp vec4 skyLightReflected = clamp(buildRawSkyReflection(relativePosition.xyz, resultLighting), 0.0, 1.0);
+	
 	resultLighting += pointLightsDiffused;
 	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadow * (1.0 - isRain);
 	resultLighting += vec3(isHell * 0.175);// Ambient highlighting in hell
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	
-	vec3 reflection = buildSkyPlaneReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness);
+	highp vec3 reflection = buildSkyPlaneReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness);
+    reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadow * 2.0;
+	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 4.0;
+	highp vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
+	vec3 insulatorsReflection = reflection * (1.0 - metalness);
 
-    reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadow * 4.0;
-	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 10.0;
-	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
-	vec3 insulatorsReflection = reflection * (1.0 - metalness) * roughness;
-	vec3 resultReflections = metalnessReflection + insulatorsReflection;
-
-	diffuse.rgb = mix(diffuse.rgb, resultReflections, f0 + skyLightReflected.a * f1);
-	diffuse.a = max(diffuse.a, skyLightReflected.a + mainLightReflected.a + pointLightsReflected.a);	
+    diffuse.rgb = mix(diffuse.rgb, metalnessReflection * 1.5, metalness);
+    diffuse.rgb = mix(diffuse.rgb, insulatorsReflection * 2.0, (f0 * (1.0 - fresnel) + f1 * fresnel) * (1.0 - metalness) * roughness);
+	diffuse.a = max(diffuse.a, fresnel);	
 	
 	
 	if(isHell < 0.9){
