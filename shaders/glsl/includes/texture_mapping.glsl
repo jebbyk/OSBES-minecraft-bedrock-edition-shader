@@ -1,13 +1,13 @@
 #include "../uniformPerFrameConstants"
 #include "../uniformShaderConstants"
 
-    highp vec3 rotateNormals(highp vec3 baseNormal, highp vec3 reliefMap){
+    vec3 rotateNormals(vec3 baseNormal, vec3 reliefMap){
         // Fake TBN transformations for normalmapps
         // TODO: Weird thing and takes alot of performance because of branching
         // TODO: Needs refactoring
         if(length(reliefMap) > 0.9){
             
-            highp float normalMapStrength = 1.0;
+            float normalMapStrength = 1.0;
 
             if(baseNormal.g > 0.9){
                 reliefMap.gb = reliefMap.bg;
@@ -89,12 +89,12 @@
     }
 
     float mapCaustics(sampler2D texture0, vec3 position){
-        highp float time = TIME;
-		highp float causticsSpeed = 0.05;
+        float time = TIME;
+		float causticsSpeed = 0.05;
 		float causticsScale = 0.1;
 		
-		highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 8.0)) * causticsScale + vec2(time * causticsSpeed);
-		highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 8.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
+		vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 8.0)) * causticsScale + vec2(time * causticsSpeed);
+		vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 8.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
 		vec2 noiseTexOffset = vec2(5.0/64.0, 1.0/64.0); 
 		float caustics = texture2D(texture0, fract(cauLayerCoord_0)*0.015625 + noiseTexOffset).r;
@@ -113,7 +113,7 @@
     }
 
 
-    void readTextures(out vec4 diffuseMap, out highp vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, vec2 uv0){
+    void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, vec2 uv0){
         ////////////////////////////Mapping section///////////////////////////////////
 
         // By default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
@@ -141,10 +141,10 @@
     }
 		
 
-    void calculateMaterialProperties(out highp float metalness, out highp float roughness, out highp float shininess, highp vec4 rmeMap, float wetness){
+    void calculateMaterialProperties(out float metalness, out float roughness, out float shininess, vec4 rmeMap, float wetness){
         #if !defined(BLEND)
-            metalness = mix(pow(rmeMap.g, 3.0), 0.0, wetness);
-            roughness = mix(pow(rmeMap.r, 3.0), 1.0, wetness);
+            metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
+            roughness = mix(pow(rmeMap.r, 2.0), 1.0, wetness);
             shininess = 512.0 * roughness;
         #else
             if(isWater >  0.9){
@@ -152,8 +152,8 @@
                 roughness = 1.0;
                 shininess = 512.0;
             }else{
-                metalness = mix(pow(rmeMap.g, 3.0), 0.0, wetness);
-                roughness = mix(pow(rmeMap.r, 3.0), 1.0, wetness);
+                metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
+                roughness = mix(pow(rmeMap.r, 2.0), 1.0, wetness);
                 shininess = 512.0 * roughness;
             }
         #endif

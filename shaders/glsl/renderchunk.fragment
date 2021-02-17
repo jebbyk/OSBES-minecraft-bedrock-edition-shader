@@ -7,11 +7,11 @@
 #if __VERSION__ >= 300
 	#ifndef BYPASS_PIXEL_SHADER
 		#if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
-			_centroid in highp vec2 uv0;
-			_centroid in highp vec2 uv1;
+			_centroid in vec2 uv0;
+			_centroid in vec2 uv1;
 		#else
-			_centroid in highp vec2 uv0;
-			_centroid in highp vec2 uv1;
+			_centroid in vec2 uv0;
+			_centroid in vec2 uv1;
 		#endif
 	#endif //BYPASS_PIXEL_SHADER
 #else
@@ -27,8 +27,8 @@ varying float isRain;
 varying float isWater;
 varying float isUnderWater;
 varying vec4 color;
-varying highp vec4 position;// Get pixel position in world space (used for calculate fake normals)
-varying highp vec4 relativePosition;// Calculates from vec4 position
+varying vec4 position;// Get pixel position in world space (used for calculate fake normals)
+varying vec4 relativePosition;// Calculates from vec4 position
 //#ifdef FOG
 	varying vec4 fogColor;
 //#endif //FOG
@@ -64,11 +64,11 @@ void main()
 	float isDay; float isHell; float isSunrize;
 	detectEnvironment(isDay, isHell, isSunrize, TEXTURE_1);
 	
-	vec4 diffuseMap; highp vec3 reliefMap; vec4 rmeMap;
+	vec4 diffuseMap; vec3 reliefMap; vec4 rmeMap;
 	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0);
 
-	highp vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
-	highp vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
+	vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
+	vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
 
     //diffuseMap.rgb *= co;//water, grass and leaves color
 	vec4 diffuse = diffuseMap * color;
@@ -81,7 +81,7 @@ void main()
 		fakeShadow += mapCaustics(TEXTURE_0, position.xyz);
 	}
 	
-	highp float  wetness = 0.0;
+	float  wetness = 0.0;
 	if(isRain > 0.1 && isWater < 0.1){
 		wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
 		wetness = max(initialNormalVector.g * wetness, 0.5);
@@ -89,10 +89,10 @@ void main()
 		diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
 	}
 
-	highp float metalness; highp float roughness; highp float shininess;
+	float metalness; float roughness; float shininess;
 	calculateMaterialProperties(metalness, roughness, shininess, rmeMap, wetness);
-	highp float f0 = (metalness * 0.5) + ((1.0 - metalness) * 0.1);
-	highp float f1 = 1.0;
+	float f0 = (metalness * 0.5) + ((1.0 - metalness) * 0.1);
+	float f1 = 1.0;
 
 #ifdef SEASONS_FAR
 	diffuse.a = 1.0; //shader LOD (far trees and water becomes opaque)
@@ -115,17 +115,17 @@ void main()
 	vec3 pointLightsDiffused = calculatePointLightsDiffused(srcPointLights);
 
 
-	highp vec3 viewDir = normalize(relativePosition.xyz);
+	vec3 viewDir = normalize(relativePosition.xyz);
 
 	vec4 mainLightReflected = calculateMainLightsReflection(normalVector, viewDir, mainLightDiffused, shininess, isRain, isSunrize);
 	vec4 pointLightsReflected = calculatePointLightsReflected(normalVector, viewDir, shininess, pointLightsDiffused);
 	
-	highp float fresnel = calculateFresnel(initialNormalVector, normalVector, viewDir, isWater, isRain, wetness);
+	float fresnel = calculateFresnel(initialNormalVector, normalVector, viewDir, isWater, isRain, wetness);
 
 	// Mix lighting
 	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusion * 0.5;	
 	
-	highp vec4 skyLightReflected = clamp(buildRawSkyReflection(relativePosition.xyz, resultLighting), 0.0, 1.0);
+	vec4 skyLightReflected = clamp(buildRawSkyReflection(relativePosition.xyz, resultLighting), 0.0, 1.0);
 	
 	resultLighting += pointLightsDiffused;
 	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadow * (1.0 - isRain);
@@ -133,15 +133,16 @@ void main()
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	
-	highp vec3 reflection = buildSkyPlaneReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness);
-    reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadow * 2.0;
+	vec3 reflection = buildSkyPlaneReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness);
+    reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadow * 8.0;
 	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 4.0;
-	highp vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
+	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
 	vec3 insulatorsReflection = reflection * (1.0 - metalness);
 
     diffuse.rgb = mix(diffuse.rgb, metalnessReflection * 1.5, metalness);
     diffuse.rgb = mix(diffuse.rgb, insulatorsReflection * 2.0, (f0 * (1.0 - fresnel) + f1 * fresnel) * (1.0 - metalness) * roughness);
-	diffuse.a = max(diffuse.a, fresnel);	
+	diffuse.a = max(diffuse.a, fresnel * 1.5);	
+	diffuse.a += isWater * mainLightReflected.a; 
 	
 	
 	if(isHell < 0.9){

@@ -112,17 +112,17 @@ void main()
 	if(isWater > 0.9){
 		highp float t = TIME;
 		highp vec3 rawPosCorrected = position.xyz / 2.5463;//2.5463 - chunk scale (detaching prevention)
-		highp vec2 impulsesMovingSpeed = vec2(1.0, 1.0);
-		highp vec2 impulsesFreq = vec2(1.0, 1.0);
+		highp vec2 impulsesMovingSpeed = vec2(1.0);
+		highp vec2 impulsesFreq = vec2(1.0);
 		
-		highp float wavesMovingSpeed = 4.0;
-		highp float wavesFreq = 10.0;
-		highp float wavesScale = 0.04;
+		highp vec2 wavesMovingSpeed = vec2(1.0, 0.25);
+		highp vec2 wavesFreq = vec2(2.0, 1.0);
+		highp float wavesScale = 0.05;
 
 		highp vec2 i = sin(t * impulsesMovingSpeed + rawPosCorrected.xz * impulsesFreq);
-		highp vec2 f = sin(t * wavesMovingSpeed + rawPosCorrected.xz * wavesFreq) * wavesScale;
+		highp vec2 f = pow(sin(t * wavesMovingSpeed + rawPosCorrected.xz * wavesFreq), vec2(3.0)) * wavesScale;
 
-		position.y += f.x + f.y;
+		position.y += (f.x + f.y) /* (f.x + f.y)*/;
 	}
 
 #endif //BYPASS_PIXEL_SHADER
