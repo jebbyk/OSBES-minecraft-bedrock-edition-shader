@@ -89,27 +89,29 @@
     }
 
     float mapCaustics(sampler2D texture0, vec3 position){
-        float time = TIME;
-		float causticsSpeed = 0.05;
-		float causticsScale = 0.1;
-		
-		vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 8.0)) * causticsScale + vec2(time * causticsSpeed);
-		vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 8.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
+        if(isUnderWater > 0.9){
+            float time = TIME;
+            float causticsSpeed = 0.05;
+            float causticsScale = 0.1;
+            
+            vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 8.0)) * causticsScale + vec2(time * causticsSpeed);
+            vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 8.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
-		vec2 noiseTexOffset = vec2(5.0/64.0, 1.0/64.0); 
-		float caustics = texture2D(texture0, fract(cauLayerCoord_0)*0.015625 + noiseTexOffset).r;
-		caustics += texture(texture0, fract(cauLayerCoord_1)*0.015625 + noiseTexOffset).r;
-		
-		
-		caustics = clamp(caustics, 0.0, 2.0);
-		if(caustics > 1.0){
-			caustics = 2.0 - caustics;
-		}
-		float cauHardness = 2.0;
-		float cauStrength = 0.8;
-		caustics = pow(caustics * cauStrength * (0.2 + length(FOG_COLOR.rgb)) , cauHardness);
+            vec2 noiseTexOffset = vec2(5.0/64.0, 1.0/64.0); 
+            float caustics = texture2D(texture0, fract(cauLayerCoord_0)*0.015625 + noiseTexOffset).r;
+            caustics += texture(texture0, fract(cauLayerCoord_1)*0.015625 + noiseTexOffset).r;
+            
+            
+            caustics = clamp(caustics, 0.0, 2.0);
+            if(caustics > 1.0){
+                caustics = 2.0 - caustics;
+            }
+            float cauHardness = 2.0;
+            float cauStrength = 0.8;
+            caustics = pow(caustics * cauStrength * (0.2 + length(FOG_COLOR.rgb)) , cauHardness);
 
-		return caustics;
+            return caustics;
+        }else return 0.0;
     }
 
 
@@ -157,6 +159,12 @@
                 shininess = 512.0 * roughness;
             }
         #endif
+    }
+
+    void readLightMaps(out float srcPointLights, out float ambientOclusion, out float fakeShadow, vec2 uv1){
+        srcPointLights = uv1.x;
+        ambientOclusion = uv1.y;
+        fakeShadow = min(pow(ambientOclusion * 1.15, 128.0), 1.0);
     }
 
 
