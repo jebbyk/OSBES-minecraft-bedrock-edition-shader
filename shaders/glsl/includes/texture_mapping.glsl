@@ -141,10 +141,10 @@
     }
 		
 
-    void calculateMaterialProperties(out float metalness, out float roughness, out float shininess, vec4 rmeMap, float wetness){
+    void calculateMaterialProperties(out float metalness, out highp float roughness, out float shininess, highp vec4 rmeMap, float wetness){
         #if !defined(BLEND)
             metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
-            roughness = mix(pow(rmeMap.r, 2.0), 1.0, wetness);
+            roughness = mix(pow(rmeMap.r, 3.46), 1.0, wetness);
             shininess = 512.0 * roughness;
         #else
             if(isWater >  0.9){

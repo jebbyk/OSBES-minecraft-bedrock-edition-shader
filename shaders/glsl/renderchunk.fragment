@@ -134,12 +134,12 @@ void main()
 
 	
 	vec3 reflection = buildSkyPlaneReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness);
-    reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadow * 8.0;
+    reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadow * 1.0;
 	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 4.0;
 	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
 	vec3 insulatorsReflection = reflection * (1.0 - metalness);
 
-    diffuse.rgb = mix(diffuse.rgb, metalnessReflection * 1.5, metalness);
+    diffuse.rgb = mix(diffuse.rgb, metalnessReflection * 1.25, metalness);
     diffuse.rgb = mix(diffuse.rgb, insulatorsReflection * 2.0, (f0 * (1.0 - fresnel) + f1 * fresnel) * (1.0 - metalness) * roughness);
 	diffuse.a = max(diffuse.a, fresnel * 1.5);	
 	diffuse.a += isWater * mainLightReflected.a; 
