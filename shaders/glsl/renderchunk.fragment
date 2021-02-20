@@ -70,8 +70,8 @@ void main()
 	vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
 	vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
 
-    //diffuseMap.rgb *= co;//water, grass and leaves color
-	vec4 diffuse = diffuseMap * color;
+	vec4 diffuse = diffuseMap;
+	diffuse.rgb *= color.rgb;
 	
 	float srcPointLights = uv1.x;
 	float ambientOclusion = uv1.y;
