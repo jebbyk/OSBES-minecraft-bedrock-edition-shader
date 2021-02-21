@@ -1,5 +1,6 @@
 #include "../uniformPerFrameConstants"
 #include "../uniformShaderConstants"
+#include "random.glsl"
 
 vec4 buildRawSkyReflection(vec3 relativePosition, vec3 resultLighting)
 {
@@ -10,17 +11,18 @@ vec4 buildRawSkyReflection(vec3 relativePosition, vec3 resultLighting)
 }
 
 vec3 buildSkyPlaneReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLightReflected, float isRain, float roughness){
-	highp float time = TIME; 
-	float cloudsSpeed = 0.1;
+	//highp float time = TIME; 
+	//float cloudsSpeed = 0.1;
 
 	highp vec2 cldCoord = -relativePosition.xz;
 	cldCoord += cldCoord * normalColor.rb * 0.5;
 	cldCoord /= length(relativePosition.y);
-	cldCoord += vec2(time * cloudsSpeed);
+	// cldCoord += vec2(time * cloudsSpeed);
 	
-	float clouds = rand_bilinear(cldCoord);
+	// float clouds = rand_bilinear(cldCoord);
+	float clouds = cloudsPerlin(0, cldCoord / 16.0);
 
-	clouds = pow(clamp(clouds * 1.5, 0.0, 1.0), mix(roughness * 32.0, 2.0, isRain));
+	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(roughness * 32.0, 2.0, isRain));
 	
 	vec3 clearSkyCloudsColor = vec3(1.75) * pow(length(skyLightReflected.gb), 2.0);
 	vec3 rainSkyCloudsColor = skyLightReflected.rgb * 0.75;
