@@ -82,6 +82,9 @@ void main()
 	if(isRain > 0.1 && isWater < 0.1){
 		wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
 		wetness = max(initialNormalVector.g * wetness, 0.5);
+		wetness *= fakeShadowMap;
+		//make normals to be flat on puddless
+		normalVector = mix(normalVector, initialNormalVector, (wetness - 0.5) * 2.0);
 		// make ground darker under puddless
 		diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
 	}
