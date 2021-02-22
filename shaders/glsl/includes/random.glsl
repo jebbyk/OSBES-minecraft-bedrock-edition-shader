@@ -44,7 +44,7 @@ float cloudsPerlin(int octaves, vec2 position){
 	float intencityMultiplier = 1.0;
 	float resultDevider = 0.0;
 
-	float noise;
+	float noise = 0.0;
 
 	while(scaleMultiplier > 1.5){
 		noise += rand_bilinear(position * scale * scaleMultiplier) * intencityMultiplier;
