@@ -120,7 +120,7 @@ void main()
 	float fresnel = calculateFresnel(initialNormalVector, normalVector, viewDir, isWater, isRain, wetness);
 
 	// Mix lighting
-	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusionMap * 0.5;	
+	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusionMap;	
 	
 	vec4 skyLightReflected = clamp(buildRawSkyReflection(relativePosition.xyz, resultLighting), 0.0, 1.0);
 	
