@@ -6,36 +6,13 @@
 #include "uniformShaderConstants.h"
 #include "uniformPerFrameConstants.h"
 
+#include "includes/random.glsl"
+#include "includes/color_correction.glsl"
+
 varying float height;
 varying vec4 position;
 varying float isUnderWater;
 
-
-
-float rand(highp vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
-
-float rand_bilinear(highp vec2 coord){
-	
-	vec2 flooredCoord = floor(coord);
-
-	float leftTopSample = rand(flooredCoord);
-	float righTopSample = rand(flooredCoord + vec2(0.0, 1.0));
-	float leftBottomSample = rand(flooredCoord + vec2(1.0, 0.0));
-	float rightBottomSample = rand(flooredCoord + vec2(1.0, 1.0));
-
-	vec2 fractionalPart = coord - flooredCoord;
-
-	float topRow = mix(leftTopSample, righTopSample, fractionalPart.y);
-	float botRow = mix(leftBottomSample, rightBottomSample, fractionalPart.y);
-
-	float result = mix(topRow, botRow, fractionalPart.x);
-	
-	return result;
-}
-
-// Skyplane fragment shader and maybe clouds
 void main()
 {
     
@@ -45,69 +22,17 @@ void main()
 		isRain = 0.0;
 	}
 
-	//float isNight = 1.0 - pow(length(FOG_COLOR.rgb), 0.01);
-
-
-
-	//vec3 clearSkyColor = vec3(0.41, 0.69, 1.0);
-
-	//vec3 clearSkyColor = normalize(pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r) * 2.0)));
-
 	vec3 clearSkyColor = pow(FOG_COLOR.rgb, vec3(0.6));
 	
-	
-	
-	// Get the shade (not related to brightness) of fog_color
-	
-
-	
-
-	//vec3 nightClearSkyColor = vec3(0.1, 0.2, 0.3) * 1.0;
-
-	//clearSkyColor = mix(clearSkyColor, nightClearSkyColor, isNight);
-
-
-
 	vec3 clearSkyZenithColor = vec3(0.1, 0.2, 0.4) * length(clearSkyColor);
-	vec3 rainSkyColor = vec3(0.25, 0.25, 0.25) * length(FOG_COLOR.rgb);
-	//float isDay = 1.0 - isRain;
-
+	vec3 rainSkyColor = vec3(0.6, 0.6, 0.6) * length(FOG_COLOR.rgb);
 
 	float skyAttenuation = 2.0;
 	float skyZenithEdgeOffset = 3.0;
 	vec3 skyColor = mix(clearSkyZenithColor, clearSkyColor, pow(min(height * skyZenithEdgeOffset, 1.0), skyAttenuation));
 	skyColor = mix(skyColor, rainSkyColor, isRain);
 
-	
-
-
-
-
-
-	highp float time = TIME;
-	float cloudsSpeed = 0.1;
-	float cloudsScale = 16.0;
-
-	//float clouds = rand_bilinear(position.xz * cloudsScale ) * 128.0;
-	highp vec2 cldCoord = position.xz * cloudsScale;
-	cldCoord += vec2(time * cloudsSpeed);
-	
-	
-	float clouds = rand_bilinear(cldCoord) * 128.0;
-
-	clouds += rand_bilinear(position.xz * cloudsScale * 2.0) * 64.0;
-	clouds += rand_bilinear(position.xz * cloudsScale * 4.0) * 32.0;
-	clouds += rand_bilinear(position.xz * cloudsScale * 8.0) * 16.0;	
-	clouds += rand_bilinear(position.xz * cloudsScale * 16.0) * 8.0;	
-	clouds += rand_bilinear(position.xz * cloudsScale * 32.0) * 4.0;
-	//clouds += rand_bilinear(position.xz * cloudsScale * 64.0) * 2.0;		
-	//clouds += rand_bilinear(position.xz * cloudsScale * 128.0);
-
-	clouds /= 252.0;
-
-
-	
-	
+	float clouds = cloudsPerlin(4, position.xz);
 	
 	float cloudsShadow = pow(clamp(clouds * 1.5, 0.0, 1.0), 0.75);
 
@@ -115,66 +40,24 @@ void main()
 	
 	vec3 cloudsColor = vec3(1.5) * pow(length(FOG_COLOR.gb), 2.0);
 	vec3 clearSkyCloudsShadowColor = (skyColor * (0.5 + pow(length(FOG_COLOR.gb), 2.0) * 0.5)) * 0.75;
-	vec3 rainSkyCloudsShadowColor = cloudsColor;
+	vec3 rainSkyCloudsShadowColor = cloudsColor * 2.0;
 	vec3 cloudsShadowColor = mix(clearSkyCloudsShadowColor, rainSkyCloudsShadowColor, isRain);
 	
 	cloudsShadowColor = mix(cloudsShadowColor, vec3(length(cloudsShadowColor)), 0.125); //desaturate
 
 	cloudsColor = mix(cloudsColor, cloudsShadowColor, cloudsShadow);
-
-
-
 	
 	vec4 diffuse;
 
 	diffuse.rgb = mix(skyColor, cloudsColor, cloudsCutout);
 
-	//cloudsCutout = pow(min(clouds, 1.0), 2.0);
-
-	//diffuse.rgb -= vec3(cloudsCutout);
-	
-
+	diffuse.rgb = colorCorrection(diffuse.rgb);
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//vec4 diffuse;
-	//diffuse.rgb = skyColor;
-	
-	
-	
-	vec3 tint = vec3(1.5, 1.25, 1.0)*2.75;
-	diffuse.rgb *= tint;
-
-	float contrast = 2.0;
-	diffuse.rgb = pow(diffuse.rgb, vec3(contrast));
-
-	// Tone compensation
-	diffuse.rgb = diffuse.rgb/(diffuse.rgb + vec3(1.0));
-	
-	// Gamma correction
-	float gamma = 1.0;
-	diffuse.rgb = pow(diffuse.rgb, vec3(1.0 / gamma));
-
-	float saturation = 1.0;
-	float grayScale = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
-	diffuse.rgb = mix(vec3(grayScale), diffuse.rgb, saturation);
-
 	if(isUnderWater > 0.9){
 		diffuse.rgb = FOG_COLOR.rgb;
 	}
 
-
-	//gl_FragColor = diffuse;
 	gl_FragColor.rgb = diffuse.rgb;
 	gl_FragColor.a = 1.0;
-	//gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-	//gl_FragColor.rgb = vec3(1.0, 0.0, 0.0);
 }

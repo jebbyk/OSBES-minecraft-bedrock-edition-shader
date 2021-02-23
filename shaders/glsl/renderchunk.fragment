@@ -8,15 +8,15 @@
 	#ifndef BYPASS_PIXEL_SHADER
 		#if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
 			_centroid in highp vec2 uv0;
-			_centroid in highp vec2 uv1;
+			_centroid in vec2 uv1;
 		#else
 			_centroid in highp vec2 uv0;
-			_centroid in highp vec2 uv1;
+			_centroid in vec2 uv1;
 		#endif
 	#endif //BYPASS_PIXEL_SHADER
 #else
 	#ifndef BYPASS_PIXEL_SHADER
-		varying vec2 uv0;
+		varying highp vec2 uv0;
 		varying vec2 uv1;
 	#endif	//BYPASS_PIXEL_SHADER
 #endif //VERSION
@@ -27,9 +27,8 @@ varying float isRain;
 varying float isWater;
 varying float isUnderWater;
 varying vec4 color;
-vec4 normalColor;// Fake normal vector will be stored here or may be later will be passed from vertex shader
-varying highp vec4 position;// Get pixel position in world space (used for calculate fake normals)
-varying highp vec4 relativePosition;// Calculates from vec4 position
+varying vec4 position;// Get pixel position in world space (used for calculate fake normals)
+varying vec4 relativePosition;// Calculates from vec4 position
 //#ifdef FOG
 	varying vec4 fogColor;
 //#endif //FOG
@@ -37,6 +36,16 @@ varying highp vec4 relativePosition;// Calculates from vec4 position
 #include "uniformShaderConstants.h"
 #include "util.h"
 #include "uniformPerFrameConstants.h"
+#include "includes/env_detectors.glsl"
+#include "includes/texture_mapping.glsl"
+#include "includes/random.glsl"
+#include "includes/color_correction.glsl"
+#include "includes/reflections.glsl"
+#include "includes/lighting.glsl"
+#include "includes/helpers.glsl"
+#include "includes/fogs.glsl"
+
+
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
 LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
@@ -44,160 +53,49 @@ LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 varying vec4 blueFog;
 varying vec4 milkyFog;
 
-float rand(highp vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
-
-float rand_bilinear(highp vec2 coord){
-	
-	vec2 flooredCoord = floor(coord);
-
-	float leftTopSample = rand(flooredCoord);
-	float righTopSample = rand(flooredCoord + vec2(0.0, 1.0));
-	float leftBottomSample = rand(flooredCoord + vec2(1.0, 0.0));
-	float rightBottomSample = rand(flooredCoord + vec2(1.0, 1.0));
-
-	vec2 fractionalPart = coord - flooredCoord;
-
-	float topRow = mix(leftTopSample, righTopSample, fractionalPart.y);
-	float botRow = mix(leftBottomSample, rightBottomSample, fractionalPart.y);
-
-	float result = mix(topRow, botRow, fractionalPart.x);
-	
-	return result;
-}
-
-
-
-highp vec2 parallax(highp vec2 uv, highp vec3 viewDir){
-	
-	highp vec3 n = vec3(0.0, 1.0, 0.0);
-	highp vec3 t = vec3(0.0, 0.0, 1.0);
-	highp vec3 b = vec3(1.0, 0.0, 0.0);
-
-	highp mat3 tbn = transpose(mat3(t, b, n));
-
-	viewDir = tbn * viewDir;
-
-	highp float height_scale = 0.01;
-
-	//highp float height = texture2D(TEXTURE_0, uv).b;
-	highp float height = 0.5;
-	highp vec2 p = viewDir.xy / viewDir.z * (height * height_scale);
-
-	//return uv;
-	return uv - p;
-}
-
 
 void main()
 {
-	// Bottom left pixel becomes bluish at night. So we can get exact day time by calulating how much bigger b is than g
-	vec3 dayTimeDetectionPixel = texture2D(TEXTURE_1, vec2(0.0, 1.0)).rgb;
-	float dayTime = dayTimeDetectionPixel.g / dayTimeDetectionPixel.b;
-	float isDay = pow(dayTime, 5.0);
+	#ifdef BYPASS_PIXEL_SHADER
+		gl_FragColor = vec4(1.0, 0, 0, 1.0);
+		return;
+	#else 
 
-	float isSunrize = dot(normalize(FOG_COLOR.rgb), vec3(1.0, 0.0, 0.0));
-	isSunrize = pow(isSunrize, 4.0);
+	float isDay; float isHell; float isSunrize;
+	detectEnvironment(isDay, isHell, isSunrize, TEXTURE_1);
 	
-	// Top left pixel is darker in overworld and brighter in the Nether
-    float hellDetectionPixel = texture2D(TEXTURE_1, vec2(0.0)).r;
-    float isHell = 0.0;
-	if (hellDetectionPixel > 0.15){
-		isHell = 1.0;
-	}
-   
+	vec4 diffuseMap; vec3 reliefMap; vec4 rmeMap;
+	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0);
 
-#ifdef BYPASS_PIXEL_SHADER
-	gl_FragColor = vec4(1.0, 0, 0, 1.0);
-	return;
-#else 
+	vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
+	vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
 
-/*#if USE_TEXEL_AA
-	vec4 diffuse = texture2D_AA(TEXTURE_0,uv0);
-#else*/
-
-
-	////////////////////////////Mapping section///////////////////////////////////
-
-	// By default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
-	// but wtih my texture pack I have 1.0 x ture2D1.0. with your custom texuture pack you should check result texture  dimensions
+	vec4 diffuse = diffuseMap;
+	diffuse.rgb *= color.rgb;
 	
-	// Top left texture - default diffuse
-	highp vec2 localDiffuseCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
-	// Top right texture - specular map
-	highp vec2 localSpecularCoord = localDiffuseCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
+	float pointLightsMap; float ambientOclusionMap; float fakeShadowMap;
+	readLightMaps(pointLightsMap, ambientOclusionMap, fakeShadowMap, uv1);
 
-
-	// Debug checking result texture (you should find block with top left corner texture and place it somewhere in the world)
-	//vec4 diffuse = texture2D(TEXTURE_0, uv0 * 32.0 - vec2(1.0, 0.0));
+	fakeShadowMap += mapCaustics(TEXTURE_0, position.xyz);
 	
-	//vec4 diffuse = texture2D(TEXTURE_0, uv0 - localDiffuseCoord);
-	vec4 diffuse = texelFetch(TEXTURE_0, ivec2((uv0 - localDiffuseCoord) * 1024.0), 0);
-	//vec4 diffuse = texture2D(TEXTURE_0, parallax(uv0 - localDiffuseCoord, relativePosition.xyz));
-
-
-	//vec4 specularMap = clamp(texture2D(TEXTURE_0, uv0 - localSpecularCoord),0.01, 1.0);
-	vec4 specularMap = clamp(texelFetch(TEXTURE_0, ivec2((uv0 - localSpecularCoord) * 1024.0), 0),0.01, 1.0);
-	vec4 normalMap = vec4(0.0);	
-	normalColor.rgb = vec3(0.0);
-	
-	vec4  puddles = vec4(0.0, 0.0, 0.0, 0.0);
-
+	float  wetness = 0.0;
 	if(isRain > 0.1 && isWater < 0.1){
-		
-		float puddlesSharpness = 2.0;
-		float puddlesCovering = 1.5;
-		float puddlesScale = 32.0;
-		float minRainWettneess = 0.25;
-
-		vec2 noiseTextureOffset = vec2(1.0/32.0, 0.0); 
-		puddles = texture(TEXTURE_0, fract(position.xz  / puddlesScale)/32.0 + noiseTextureOffset);
-		puddles.rgb = pow(puddles.rgb * isRain * puddlesCovering, vec3(puddlesSharpness));
-		puddles.rgb = clamp(puddles.rgb, minRainWettneess, 1.0);
-
-		puddles.rgb *= vec3(pow(uv1.y, 2.0));// No puddles in dark places like caves
+		wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
+		wetness = max(initialNormalVector.g * wetness, 0.5);
+		wetness *= fakeShadowMap;
+		//make normals to be flat on puddless
+		normalVector = mix(normalVector, initialNormalVector, (wetness - 0.5) * 2.0);
+		// make ground darker under puddless
+		diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
 	}
 
-	if(isWater >  0.9){
-		//normalColor.rgb = vec3(0.0,1.0,0.0);
-		highp float t = TIME * 0.1;
-		
-		float wnScale = 1.0;
-		
-		vec2 waterNormalOffset = vec2(4.0/32.0, 0.0);
+	float metalness; float roughness; float shininess;
+	calculateMaterialProperties(metalness, roughness, shininess, rmeMap, wetness);
+	float f0 = (metalness * 0.5) + ((1.0 - metalness) * 0.1);
+	float f1 = 1.0;
 
-		
-		// 1.0/64.0 = 0.0156251          1.5 / 32.0 =  0.046875 (water normal map offset)
-		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
-		normalMap = texture2D(TEXTURE_0, fract(position.xz*1.0*wnScale + t*wnScale * 2.0)/33.0 + waterNormalOffset);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.5*wnScale - t*wnScale * 1.5)/33.0 + waterNormalOffset);// 
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.25*wnScale + t*wnScale * 1.15)/33.0 + waterNormalOffset);
-		normalMap += texture2D(TEXTURE_0, fract(position.xz*0.125*wnScale - t*wnScale*0.9)/33.0 + waterNormalOffset);
-		
-		
-		// normalMap *= 0.5;
-		// normalMap *= 0.33;
-		normalMap *= 0.25;
-		//normalMap.b = clamp(normalMap.b, 0.5, 1.0);
-		
-		
-		
-		
-		
-
-	}else{
-		// Bottom left texture - normalmap
-		highp vec2 localNormalCoord = localDiffuseCoord - vec2(0.0, 0.015625);
-		normalMap = texelFetch(TEXTURE_0, ivec2((uv0 - localNormalCoord) * 1024.0), 0);
-	}
-	
-//#endif //USE_TEXEL_AA
-
-
-// Maybe it's about LOD (far trees and water becomes opaque)
 #ifdef SEASONS_FAR
-	diffuse.a = 1.0;
+	diffuse.a = 1.0; //shader LOD (far trees and water becomes opaque)
 #endif //SEASONS_FAR
 
 
@@ -212,449 +110,60 @@ void main()
 #endif //USE_ALPHA_TEST
 	
 
-#if defined(BLEND)
-	//diffuse.a *= inColor.a;
-#endif //BLEND
+	vec4 skyLightDiffused = calculateSkyLightDiffused(normalVector, isRain, isDay, isHell);
+	vec4 mainLightDiffused = calculateMainLightDiffused(normalVector, isDay);
+	vec3 pointLightsDiffused = calculatePointLightsDiffused(pointLightsMap);
 
-#if !defined(ALWAYS_LIT)
+
+	vec3 viewDir = normalize(relativePosition.xyz);
+
+	vec4 mainLightReflected = calculateMainLightsReflection(normalVector, viewDir, mainLightDiffused, shininess, isRain, isSunrize);
+	vec4 pointLightsReflected = calculatePointLightsReflected(normalVector, viewDir, shininess, pointLightsDiffused);
 	
-	////////////////////////////Normal maps and lighting section////////////////////////////////
-
-
-
-
-	highp vec3 dp1 = dFdx(position.xyz);
-	highp vec3 dp2 = dFdy(position.xyz);
-
-	vec3 initNormalColor = normalize(cross(dp1, dp2));
-	normalColor.rgb = initNormalColor;
-
-	
-	
-
-	
-	
-	/////////////////////////////////////////////some experiments with TBN calculation ///////////////////////////////////////////////
-	//highp vec2 duv1 = dFdx(uv0);
-	//highp vec2 duv2 = dFdy(uv0);
-
-	//highp vec3 dp2perp = cross(dp2, initNormalColor);
-	//highp vec3 dp1perp = cross(initNormalColor, dp1);
-
-	//highp vec3 T = normalize(dp2perp * duv1.x + dp1perp * duv2.x);
-	//highp vec3 B = normalize(dp2perp * duv1.y + dp1perp * duv2.y);
-
-	//highp float invmax = inversesqrt(max(dot(T,T), dot(B,B)));
-	
-	//highp mat3 tbn = mat3(T, B, initNormalColor);
-
-	//normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-	
-	//normalColor.rgb = tbn * normalMap.rgb;
-
-
-
-
-
-	//highp vec3 q1 = dFdx(-position.xyz);
-	//highp vec3 q2 = dFdy(-position.xyz);
-
-	//highp vec2 st1 = dFdx(uv0);
-	//highp vec2 st2 = dFdy(uv0);
-
-	//highp vec3 T = normalize(q1*st2.t - q2*st1.t);
-	//highp vec3 B = normalize(-q1*st2.s + q2*st1.s);
-
-	//highp mat3 tbn = mat3(T, B, initNormalColor);
-
-	//normalColor.rgb = normalColor.rgb * 2.0 - 1.0;
-
-	//normalColor.rgb = normalMap.rgb * tbn;
-
-
-
-	//highp vec3 t = normalize(dFdx(position.xyz));
-	//highp vec3 b = normalize(dFdy(position.xyz));
-	//highp vec3 n = normalize(cross(t, b));
-
-	//highp mat3 tbn = mat3(t, b, n);
-
-	//normalColor.rgb = normalize(normalMap.rgb * tbn);
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-	// Water, grass and leaves color
-	diffuse.rgb *= color.rgb;
-
-	// Dark puddles color (affected by fresnel later)
-	puddles.r = max(initNormalColor.g * puddles.r, 0.5);
-	diffuse.rgb = mix(diffuse.rgb, vec3(0.15,0.15,0.15),puddles.r * isRain);
-
-
-
-	// Fake TBN transformations for normalmapps
-	// TODO: Weird thing and takes alot of performance because of branching
-	// TODO: Needs refactoring
- 	if(length(normalMap.rgb) > 0.9){
-		
-		float normalMapStrength = 2.0;
-
-		if(normalColor.g > 0.9){
-			normalMap.gb = normalMap.bg;
-			normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-			normalMap.rb *= normalMapStrength;
-    		normalColor.rgb = normalize(normalMap.rgb);
-		}else{
-			if(normalColor.g < -0.9){
-				normalMap.b = -normalMap.b;
-				normalMap.gb = normalMap.bg;
-				normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-				normalMap.rb *= normalMapStrength;
-    			normalColor.rgb = normalize(normalMap.rgb);
-			}else{
-				if (normalColor.b > 0.9){
-					normalMap.g = 1.0 - normalMap.g;// OpenGl needs G to be flipped
-					normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-					normalMap.rg *= normalMapStrength;
-					normalColor.rgb = normalize(normalMap.rgb);
-	
-				}else{
-					if(normalColor.b < -0.9){
-						normalMap.b = -normalMap.b;
-						normalMap.g = 1.0 - normalMap.g;// OpenGl G flip
-						normalMap.r = 1.0 - normalMap.r;
-						normalMap.rg = normalMap.rg * 2.0 - 1.0;
-						normalMap.b = normalMap.b * 2.0 + 1.0;
-						normalMap.rg *= normalMapStrength;
-						normalColor.rgb = normalize(normalMap.rgb);
-					}else{
-						if(normalColor.r > 0.9){
-							normalMap.g = 1.0 - normalMap.g;// OpenGl G flip
-							normalMap.r = 1.0 - normalMap.r;
-							normalMap.rb = normalMap.br;
-							normalMap.rgb = normalMap.rgb * 2.0 - 1.0;
-							normalMap.gb *= normalMapStrength;
-							normalColor.rgb = normalize(normalMap.rgb);
-						}else{
-							if(normalColor.r < -0.9){
-								normalMap.b = -normalMap.b;
-								normalMap.g = 1.0 - normalMap.g;//OpenGl G flip
-								normalMap.rb = normalMap.br;
-								normalMap.gb = normalMap.gb * 2.0 - 1.0;
-								normalMap.r = normalMap.r * 2.0 + 1.0;
-								normalMap.gb *= normalMapStrength;
-								normalColor.rgb = normalize(normalMap.rgb);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-
-
-
-	///////////////////////Lighting section//////////////////////////
-
-	const vec3 skyLightDirection  = vec3(0.0,1.0,0.0);
-	const float skyLightWrapping = 4.0;
-	float skyDot = max((dot(skyLightDirection, normalColor.rgb) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
-	
-	vec3 rainSkyLightColor = vec3(0.5, 0.5, 0.5) * isRain * isDay;
-	//vec3 clearSkyLightColor = (vec3(0.08, 0.14, 0.2) + vec3(0.41, 0.69, 1.0) * isDay * (1.0 - isRain));
-	//vec3 clearSkyLightColor = normalize(pow(FOG_COLOR.rgb, vec3(1.0 + (1.0 - FOG_COLOR.r) * 2.0))) * (1.0 - isRain)/* * isDay*/;
-	vec3 clearSkyLightColor = pow(FOG_COLOR.rgb, vec3(1.25)) /** isDay */* (1.0 - isRain); 
-	
-	if(isHell > 0.9){
-		clearSkyLightColor = vec3(0.0);
-		rainSkyLightColor = vec3(0.0);
-	}
-
-	//vec3 nightClearSkyColor = vec3(0.4, 0.8, 0.);
-	
-	//clearSkyLightColor.r = max(clearSkyLightColor.r, nightClearSkyColor.r);
-	//clearSkyLightColor.g = max(clearSkyLightColor.g, nightClearSkyColor.g);
-	//clearSkyLightColor.b = max(clearSkyLightColor.b, nightClearSkyColor.b);
-	
-	vec3 skyLightColor = rainSkyLightColor + clearSkyLightColor;
-
-	const vec3 sunLightDirection = vec3(0.55,0.4,0.05);
-	float sunDot = max(dot(sunLightDirection, normalColor.rgb), 0.0);	
-	const vec3 sunLightColor = vec3(1.0, 0.88, 0.69);
-	const vec3 moonLightColor = vec3(0.35, 0.6,1.0) * 0.35;
-	
-	
-	// Blinn-phong
-	highp vec3 debugLightDir = vec3(0.975, 0.025, 0.0);
-	highp vec3 viewDir = normalize(relativePosition.xyz);
-	highp vec3 halfwayDir = normalize(debugLightDir + viewDir); 
-//	halfwayDir = clamp(halfwayDir, 0.0, 1.0);
-	highp float shininess = 32.0 * pow(specularMap.r, 2.0)  + 1024.0 * isWater;
-	highp float spec = pow(max(dot(normalColor.rgb, halfwayDir), 0.0), shininess) * (1.0 - isRain);
-	
-
-	// Phong (fake halo effect)
-	float haloPhongIntecity = 0.06 * isSunrize;
-	vec3 reflectDir = reflect(-debugLightDir, normalColor.rgb);
-	float haloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
-
-	// The same for onther light source (sunrize, sunset)
-	highp vec3 reverseDebugLightDir = vec3(-0.975, 0.025, 0.0);
-	reflectDir = reflect(-reverseDebugLightDir, normalColor.rgb);
-	float secondHaloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
-
-	spec += haloPhong + secondHaloPhong;
-
-	vec4 sunLightSpecular = vec4(sunLightColor, spec * specularMap.r * (isDay - isRain));
-	vec4 moonLightSpecular = vec4(moonLightColor, spec * specularMap.r * ((1.0 - isDay) - isRain));
-
-
-	
-
-
-
-
-	// Torches, lamps and lava lights
-	float srcPointLights = uv1.x;
-	float nearPointLightsBrightness = pow(srcPointLights * 1.15, 32.0);
-	float overalPointLightsBrightness = pow(srcPointLights, 2.0) * 0.5 + nearPointLightsBrightness;
-	overalPointLightsBrightness *= 2.0;
-	overalPointLightsBrightness = clamp(overalPointLightsBrightness, 0.0, 2.0);
-	vec3 pointLightsTint = vec3(1.0, 0.66, 0.33);
-	vec4 pointLights = vec4(1.0);
-	pointLights.rgb = vec3(overalPointLightsBrightness) * pointLightsTint;
-
-
-	vec4 ambientOclusion = vec4(uv1.y + isHell* 0.5);
-	vec4 fakeShadow = clamp(pow(ambientOclusion * 1.15, vec4(128.0)),0.0,1.0);
-	vec4 fakeMoonShadow = clamp(pow(ambientOclusion * 1.15, vec4(64.0)), 0.0, 1.0);
-
-
-	if(isUnderWater > 0.9){
-		highp float time = TIME;
-		highp float causticsSpeed = 0.05;
-		float causticsScale = 0.1;
-		
-		highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 8.0)) * causticsScale + vec2(time * causticsSpeed);
-		highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 8.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
-		
-		//float caustics = rand_bilinear(cauLayerCoord_0);
-		//caustics += rand_bilinear(cauLayerCoord_1);
-
-
-		vec2 noiseTexOffset = vec2(5.0/64.0, 1.0/64.0); 
-		float caustics = texture(TEXTURE_0, fract(cauLayerCoord_0)*0.015625 + noiseTexOffset).r;
-		caustics += texture(TEXTURE_0, fract(cauLayerCoord_1)*0.015625 + noiseTexOffset).r;
-		
-		
-		caustics = clamp(caustics, 0.0, 2.0);
-		if(caustics > 1.0){
-			caustics = 2.0 - caustics;
-		}
-		float cauHardness = 2.0;
-		float cauStrength = 0.8;
-		caustics = pow(caustics * cauStrength * (0.2 + length(FOG_COLOR.rgb)) , cauHardness);
-
-		fakeShadow += vec4(caustics);
-	}
-	
-	
-
-	spec = pow(max(dot(normalColor.rgb, viewDir), 0.0), shininess * 0.25);
-	vec4 pointLightsSpec = vec4(pow(min(pointLights.rgb * 3.0, 1.0), vec3(2.0)), spec * specularMap.r * pointLights.r * max((2.0 - (isDay + fakeShadow)), 0.0));
-	
-	
-
-	// Fake effect when surface is hit at a very small angle and light bounces from the surface 
-	const float fresnelFactor = 4.0;
-	float fresnel = min(pow(1.0 - dot(normalColor.rgb, viewDir), fresnelFactor), 1.0);
-
-	
-	float farWaterFresnel = min(pow(1.0 - dot(initNormalColor.rgb, viewDir), fresnelFactor), 1.0);
-	fresnel = mix(fresnel, 1.0, farWaterFresnel * isWater);
-	
-
-	// The same tweak but with puddles
-	float puddlesFresnel = pow(1.0 - dot(initNormalColor.rgb, viewDir), fresnelFactor * 0.5 );	
-	fresnel = mix(fresnel, puddlesFresnel, puddles.r * isRain * initNormalColor.g * (1.0 - isWater));
-	
-
-
-	vec4 pointLightsFresnel = vec4(pointLights.rgb, fresnel * (2.0 - (isDay + fakeShadow)));
-
+	float fresnel = calculateFresnel(initialNormalVector, normalVector, viewDir, isWater, isRain, wetness);
 
 	// Mix lighting
-	vec3 resultLighting = ambientOclusion.rgb * skyLightColor * skyDot * 0.5;	
-	vec4 skyLightFresnel = vec4(resultLighting, fresnel * (clamp(0.25 + (specularMap.r * 0.75) + isRain * puddles.r, 0.0, 1.0)));
-
-	resultLighting += pointLights.rgb;
-	resultLighting += sunLightColor * sunDot * fakeShadow.r * isDay * (1.0 - isRain);
+	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusionMap;	
+	
+	vec4 skyLightReflected = clamp(buildRawSkyReflection(relativePosition.xyz, resultLighting), 0.0, 1.0);
+	
+	resultLighting += pointLightsDiffused;
+	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadowMap * (1.0 - isRain);
 	resultLighting += vec3(isHell * 0.175);// Ambient highlighting in hell
-	resultLighting += moonLightColor * sunDot * fakeMoonShadow.r * (1.0 - isDay) * (1.0 - isRain );
+	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
+
 	
-	diffuse.rgb *= resultLighting.rgb * 1.8; 
-	diffuse.rgb = mix(diffuse.rgb, skyLightFresnel.rgb, skyLightFresnel.a);
-	diffuse.rgb = mix(diffuse.rgb, sunLightSpecular.rgb, sunLightSpecular.a * fakeShadow.r);
-	diffuse.rgb = mix(diffuse.rgb, moonLightSpecular.rgb, moonLightSpecular.a * fakeShadow.r);
-#endif //ALWAYS_LIT
+	vec3 reflection = buildSkyPlaneReflection(relativePosition.xyz, normalVector, skyLightReflected, isRain, roughness);
+    reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadowMap * 1.0;
+	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 4.0;
+	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
+	vec3 insulatorsReflection = reflection * (1.0 - metalness);
 
-
-// Water
-#ifndef SEASONS
-	#if !USE_ALPHA_TEST && !defined(BLEND)
-		//diffuse.a = inColor.a;//with this parameter we can detirmane if it's water or leaves 
-	#endif //USE_ALPHA_TEST
-		//TODO: Move to default pipeline with default fog and sun colors
-		//diffuse.rgb *= color.rgb;
-		if(isWater > 0.9){
-		    highp float time = TIME;
-	        highp float cloudsSpeed = 0.1;
-			
-
-
-
-
-
-			highp vec2 cldCoord = -relativePosition.xz;
-			cldCoord += normalColor.rb * 2.0;
-			cldCoord /= 1.0 + pow(skyLightFresnel.a, 4.0);
-			cldCoord /= length(relativePosition.y);
-			cldCoord += vec2(time * cloudsSpeed);
-			
-			float clouds = rand_bilinear(cldCoord);
-
-			//float cloudsShadow = pow(clamp(clouds * 1.25, 0.0, 1.0), 4.0);
-
-			clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(128.0, 2.0, isRain));
-
-		    
-			vec3 clearSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0);
-			vec3 rainSkyCloudsColor = vec3(0.6, 0.75, 0.9) * pow(FOG_COLOR.b, 2.0) * 2.0;
-			
-			vec3 cloudsColor = mix(clearSkyCloudsColor, rainSkyCloudsColor, isRain);
-
-		    
-		    
-		    
-			diffuse.rgb = mix(diffuse.rgb * 0.125 + length(clearSkyLightColor) * vec3(0.05, 0.1, 0.2), skyLightFresnel.rgb * 1.25, pow(skyLightFresnel.a, 2.0));
-
-			diffuse.rgb = mix(diffuse.rgb, cloudsColor, clouds * (0.25 + skyLightFresnel.a * 0.75));
-			//diffuse.rgb = mix(diffuse.rgb, vec3(0.6, 0.8, 1.0) * 0.5, cloudsShadow * (0.01 + pow(skyLightFresnel.a, 1.5) * 0.99));
-
-			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * sunLightColor * 20.0 * isDay, sunLightSpecular.a);
-			diffuse.rgb = mix(diffuse.rgb, fakeShadow.rgb * moonLightColor * 1.5 * (1.0 - isDay), moonLightSpecular.a);
-
-			diffuse.rgb += pointLightsFresnel.rgb * pointLightsFresnel.a;
-			diffuse.rgb +=  pointLightsSpec.rgb * pointLightsSpec.a;
-
-			diffuse.a = skyLightFresnel.a + sunLightSpecular.a +  moonLightSpecular.a + pointLightsSpec.a;
-			diffuse.a = min(diffuse.a + 0.5, 1.0);
-			//diffuse.a = 1.0;
-		}
-
-#else
-
-	//vec2 uv = inColor.xy;
-	//diffuse.rgb *= mix(vec3(1.0,1.0,1.0), texture2D( TEXTURE_2, uv).rgb*2.0, inColor.b);
-	//diffuse.rgb *= inColor.aaa;
-	//diffuse.a = 1.0;
-#endif //SEASONS;
-
-
-	//TODO: connect FOG_COLOR.rgb (available here 100%) and TIME attribute (hope it's available) with ownFogColor value
-	//to change its color depending on day/night cicle and weater
-	//Add blue fog everywhere when weather is good except water and hell
-	diffuse.rgb = mix(diffuse.rgb, blueFog.rgb, blueFog.a * pow(isDay, 2.0) * (1.0 - isWater) * (1.0 - isRain) * (1.0 - isHell));// 1.0/1.5 = 0.6666667
+    diffuse.rgb = mix(diffuse.rgb, metalnessReflection * 1.25, metalness);
+    diffuse.rgb = mix(diffuse.rgb, insulatorsReflection * 2.0, (f0 * (1.0 - fresnel) + f1 * fresnel) * (1.0 - metalness) * roughness);
+	diffuse.a = max(diffuse.a, fresnel * 1.5);	
+	diffuse.a += isWater * mainLightReflected.a; 
 	
-	//TODO: user actual position instead of relativePosition
-	vec3 milkyFogColor = mix(vec3(0.1), milkyFog.rgb, isDay);
-	diffuse.rgb = mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
-#ifdef FOG
-	//diffuse.rgb = mix( diffuse.rgb, fogColor.rgb * vec3(0.5, 0.75, 1.0), fogColor.a);
-	diffuse.rgb = mix( diffuse.rgb, clearSkyLightColor + rainSkyLightColor * 0.3, fogColor.a);
-#endif //FOG
-
-	///////////////////Color correction section////////////////////
-
-
-	vec3 tint = vec3(1.5, 1.25, 1.0)*2.75;
-	diffuse.rgb *= tint;
-
-	float contrast = 2.0;
-	diffuse.rgb = pow(diffuse.rgb, vec3(contrast));
-
-	// Tone compensation
-	diffuse.rgb = diffuse.rgb/(diffuse.rgb + vec3(1.0));
 	
-	// Gamma correction
-	float gamma = 1.0;
-	diffuse.rgb = pow(diffuse.rgb, vec3(1.0 / gamma));
-
-	float saturation = 1.0;
-	float grayScale = (diffuse.r + diffuse.g + diffuse.b) / 3.0;
-	diffuse.rgb = mix(vec3(grayScale), diffuse.rgb, saturation);
-
-
-	// Default fog in hell because it has no skyplane
-	if(isHell > 0.9){
-		diffuse.rgb = mix( diffuse.rgb, FOG_COLOR.rgb, fogColor.a);
+	if(isHell < 0.9){
+		diffuse.rgb = applyBasicFogs(diffuse.rgb, skyLightDiffused.rgb, fogColor.a, milkyFog, isDay, isHell);
+		diffuse.rgb = applyBlueFog(diffuse.rgb, blueFog, isDay, isRain, isWater); 
 	}
+	
+	diffuse.rgb = colorCorrection(diffuse.rgb);
+
+	diffuse.rgb = applyVanillaFog(diffuse.rgb, fogColor.a, isHell);//hide difference between colorCorrected and vanilla fog
 
 	///////////////////////Debuging section//////////////////////
-
 	// Debug texture coordinates
 	//diffuse.rgb *= vec3(fract(uv0.x*32.0), fract(uv0.y*32.0), 1.0);
 
-	// Debug all lighting 
-	//diffuse.rgb = sunLightColor * sunDot;
-	//diffuse.rgb = mix(diffuse.rgb, perPixelFresnel.rgb, perPixelFresnel.a);
-	//diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a);
-	//diffuse.rgb /= 2.0;
-
-	// Debug only reflective components
-	//diffuse.rgb = mix(vec3(0.0), skyLightFresnel.rgb, skyLightFresnel.a);
-	//diffuse.rgb = mix(diffuse.rgb, perPixelSpecular.rgb, perPixelSpecular.a);
-	
-	//diffuse.rgb = mix(vec3(0.1), perPixelSpecular.rgb, perPixelSpecular.a);
-
-	// Debug normals
-	//diffuse.rgb = (normalColor.rgb + 1.0) * 0.5;
-
-	// Debug normalsOffsets
-	//diffuse.rg = localNormalCoord * 64.0;
-	//diffuse.b = 0.0;
-	//diffuse.a = 1.0;
-
-
 	// Debug position
 	//diffuse.rgb = sin(position.xyz/2.545) * 0.5 + 0.5;
-	
-	// Debug inColor
-	//diffuse = color;
-	//if(color.r > 0.59 && color.b > 0.99 && color.g > 0.11){
-	//	diffuse = color;
-	//}
-
-	// Debug fog
-	//diffuse.rgb = mix(vec3(0.0), blueFog.rgb, blueFog.a);
-	//diffuse.rgb = mix(diffuse.rgb, milkyFog.rgb, milkyFog.a);
-	//diffuse.rgb = mix(vec3(0.0), fogColor.rgb, fogColor.a);
-   
-    // Debug daytime and weather
-	//diffuse.rgb = vec3(isDay, isSunrise, isNight);
-    //diffuse.r = isHell;
-    //diffuse.g = isDay;
-	//diffuse.b = isRain;
 
     // Debug tile texture
 	// diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 128.0), 0);
 
-	
-	
 	//vec3 sphereNormal = (normalize(position.xyz) + 1.0) / 2.0;
 	//diffuse.rgb = sphereNormal;
 
@@ -662,9 +171,5 @@ void main()
 	//diffuse.rgb = texture2D(TEXTURE_1, vec2(0.0, 1.0)).rgb;
 	
 	gl_FragColor = diffuse;
-
-	// gl_FragColor.rg = FOG_CONTROL;
-	//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
-	//gl_FragColor.r += isHell;
-#endif // BYPASS_PIXEL_SHADER
+#endif // !BYPASS_PIXEL_SHADER
 }

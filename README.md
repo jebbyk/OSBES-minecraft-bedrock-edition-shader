@@ -1,7 +1,9 @@
-# OSBES v0.11.2
+# OSBES v0.12.1
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will be listed as a developer!-----------**
+
+Slightly tuned and converted to OSBES format Vanilla Normals Renewed texturepack by Poudingue is used for preview  (https://github.com/Poudingue/Vanilla-Normals-Renewed)
 
 **HOW TO CONTRIBUTE**
 I recomend you to use rooted device with installed Termux <span style="color:green">**terminal**</span> emulator
@@ -116,35 +118,33 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |                          |0.9.1        |Underwater caustics            |<span style="color:green">Ready</span>|
 |                          |0.9.2        |Improvements                   |<span style="color:green">Ready</span>|
 |                          |0.9.3        |Fixes                          |<span style="color:green">Ready</span>|
-|Make hell great again     |0.10.0       |Improve hell detection         |<span style="color:green">Ready</span>|
-|                          |0.10.1       |Fix rainy weather              |<span style="color:green">Ready</span>|
-|                          |0.10.2       |Fix some texutres              |<span style="color:green">Ready</span>|
-|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |Hotfixes|<span style="color:green">Ready</span>|
-|Bug fixes and improvements|0.11.1       | Bugfixes                      |<span style="color:green">Ready</span>
-|                          |0.11.2       | Improvements                  |<span style="color:green">Ready</span>
-|Refactoring               |0.12.0       | Separate include files        |<span style="color:purple">**In progress**</span>| 
-|                          |-            | Clean up code                  |<span style="color:orange">**Planned**</span>|
-|settings                  |-            | Quality presets packages      |<span style="color:orange">**Planned**</span>|
-|                          |-            | Brightness setting            |<span style="color:orange">**Planned**</span>|
-|                          |-            | Bug fixes                     |<span style="color:orange">**Planned**</span>|
-|                          |-            | Improvements                   |<span style="color:orange">**Planned**</span>|
-|                          |0.13.0       | Metallicness and reflections   |<span style="color:orange">**Planned**</span>|
-|Make entity and item      |-            | Held items                   |<span style="color:orange">**Planned**</span>|
-|lighting and shading      |-            | Entity lighting              |<span style="color:orange">**Planned**</span>|
-|                          |-            | Bug fixes                     |<span style="color:orange">**Planned**</span>|
-|                          |-            | Improvements                   |<span style="color:orange">**Planned**</span>|
-|Win10 support             |0.14.0       | Terrain shaders               |<span style="color:orange">**Planned**</span>|
-|                          |-            | Sky shaders                   |<span style="color:orange">**Planned**</span>|
-|                          |-            | Entity shaders              |<span style="color:orange">**Planned**</span>|
-|                          |-            | Held item shaders          |<span style="color:orange">**Planned**</span>|
-|                          |-            | Inventory item shaders       |<span style="color:orange">**Planned**</span>|
-|                          |-            | Improvements                  |<span style="color:orange">**Planned**</span>|
-|                          |-            | Bugfixes                      |<span style="color:orange">**Planned**</span>|
-|<span style="color:green">**BETA RELEASE**</span>|0.16.0|-             |<span style="color:orange">**Planned**</span>| 
-|Bug fixes                 |-            | -                             |<span style="color:orange">**Planned**</span>|
-|<span style="color:green">**RELEASE**</span>|1.0.0|-                    |<span style="color:orange">**Planned**</span>| 
-|Bug fixes                 |-            | -                             |<span style="color:orange">**Planned**</span>|
-|Parallax mapping           |1.1.0        | Simple parallax mapping        |<span style="color:orange">**Planned**</span>|  
-|                          |-            | Parallax occlusion mapping      |<span style="color:orange">**Planned**</span>|
-|                          |-            | Optimizations                 |<span style="color:orange">**Planned**</span>|
-|                          |-            | Bugfixes                      |<span style="color:orange">**Planned**</span>|
+|Make hell great again     |0.10.0       |Improve hell detection              |<span style="color:green">Ready</span>|
+|                          |0.10.1       |Fix rainy weather                   |<span style="color:green">Ready</span>|
+|                          |0.10.2       |Fix some texutres                   |<span style="color:green">Ready</span>|
+|<span style="color:green">**ALPHA RELEASE**</span>| 0.11.0 |Hotfixes         |<span style="color:green">Ready</span>|
+|Bug fixes and improvements|0.11.1       | Bugfixes                           |<span style="color:green">Ready</span>
+|                          |0.11.2       | Improvements                       |<span style="color:green">Ready</span>
+|=|=|=|=|
+|reflections               |0.12.0       | Renderchunk refactoring            |<span style="color:green">Ready</span>
+|reflections               |0.12.1       | Metallness pipeline and reflections|<span style="color:green">Ready</span>
+|reflections               |0.12.2       | bugfixes                           |<span style="color:purple">**In progress**</span>|
+|=|=|=|=|
+|presets                   |0.13.0       | shaders refactoring and comments   |<span style="color:orange">**Planned**</span>|
+|presets                   |0.13.1       | Preset defines                     |<span style="color:orange">**Planned**</span>|
+|presets                   |0.13.2       | bugfixes                           |<span style="color:orange">**Planned**</span>|
+|=|=|=|=|
+|parallax mapping          |0.14.0       | Inner Core experimental defines    |<span style="color:orange">**Planned**</span>|
+|parallax mapping          |0.14.1       | simple parallax mapping            |<span style="color:orange">**Planned**</span>|
+|parallax mapping          |0.14.2       | bugfixes                           |<span style="color:orange">**Planned**</span>|
+|=|=|=|=|
+|improved reflections      |0.15.0       | optimizations and code improvements|<span style="color:orange">**Planned**</span>|
+|improved reflections      |0.15.1       | fake terrain reflections           |<span style="color:orange">**Planned**</span>|
+|improved reflections      |0.15.2       | bugfixes                           |<span style="color:orange">**Planned**</span>|
+|=|=|=|=|
+|advanced parallax mapping |0.16.x       |                                    |<span style="color:orange">**Planned**</span>|
+|=|=|=|=|
+|fully correct PBR         |0.17.x       |                                    |<span style="color:orange">**Planned**</span>|
+|=|=|=|=|
+|rednerdragon support      |1.0.x        |                                    |<span style="color:orange">**Planned**</span>|
+
+
