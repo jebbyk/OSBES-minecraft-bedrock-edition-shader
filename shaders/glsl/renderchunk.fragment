@@ -7,16 +7,16 @@
 #if __VERSION__ >= 300
 	#ifndef BYPASS_PIXEL_SHADER
 		#if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
-			_centroid in vec2 uv0;
+			_centroid in highp vec2 uv0;
 			_centroid in vec2 uv1;
 		#else
-			_centroid in vec2 uv0;
+			_centroid in highp vec2 uv0;
 			_centroid in vec2 uv1;
 		#endif
 	#endif //BYPASS_PIXEL_SHADER
 #else
 	#ifndef BYPASS_PIXEL_SHADER
-		varying vec2 uv0;
+		varying highp vec2 uv0;
 		varying vec2 uv1;
 	#endif	//BYPASS_PIXEL_SHADER
 #endif //VERSION

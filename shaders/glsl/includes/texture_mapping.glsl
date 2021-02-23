@@ -115,7 +115,7 @@
     }
 
 
-    void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, vec2 uv0){
+    void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, highp vec2 uv0){
         ////////////////////////////Mapping section///////////////////////////////////
 
         // By default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
