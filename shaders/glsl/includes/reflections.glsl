@@ -25,7 +25,7 @@ vec3 buildSkyPlaneReflection(vec3 relativePosition, vec3 normalColor, vec4 skyLi
 	
 	vec3 cloudsColor = mix(clearSkyCloudsColor, rainSkyCloudsColor, isRain);
 
-	return mix(skyLightReflected.rgb, cloudsColor, clouds * max(pow(0.9 - skyLightReflected.a, 0.25), 0.0));
+	return mix(skyLightReflected.rgb, cloudsColor, clouds * (1.0 - clamp(pow(skyLightReflected.a * 1.0625, 4.0), 0.0, 1.0)));
 }
 
 
