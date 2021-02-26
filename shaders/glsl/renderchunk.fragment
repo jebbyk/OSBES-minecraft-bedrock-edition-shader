@@ -27,7 +27,7 @@ varying float isRain;
 varying float isWater;
 varying float isUnderWater;
 varying vec4 color;
-varying vec4 position;// Get pixel position in world space (used for calculate fake normals)
+varying highp vec4 position;// Get pixel position in world space (used for calculate fake normals)
 varying vec4 relativePosition;// Calculates from vec4 position
 //#ifdef FOG
 	varying vec4 fogColor;
@@ -75,9 +75,12 @@ void main()
 	
 	float pointLightsMap; float ambientOclusionMap; float fakeShadowMap;
 	readLightMaps(pointLightsMap, ambientOclusionMap, fakeShadowMap, uv1);
-
-	fakeShadowMap += mapCaustics(TEXTURE_0, position.xyz);
 	
+    fakeShadowMap = clamp(fakeShadowMap, 0.0, 1.0);
+    if(isUnderWater  > 0.9){
+        fakeShadowMap = ambientOclusionMap; 
+    }
+
 	float  wetness = 0.0;
 	if(isRain > 0.1 && isWater < 0.1){
 		wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
@@ -128,8 +131,9 @@ void main()
 	vec4 skyLightReflected = clamp(buildRawSkyReflection(relativePosition.xyz, resultLighting), 0.0, 1.0);
 	
 	resultLighting += pointLightsDiffused;
-	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadowMap * (1.0 - isRain);
-	resultLighting += vec3(isHell * 0.175);// Ambient highlighting in hell
+	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadowMap /* (1.0 - isRain + isUnderWater)*/;
+	resultLighting += vec3((isHell - isUnderWater )* 0.175);// Ambient highlighting in hell
+	resultLighting += resultLighting * mapCaustics(TEXTURE_0, position.xyz, isUnderWater);
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	
@@ -162,7 +166,7 @@ void main()
 	//diffuse.rgb = sin(position.xyz/2.545) * 0.5 + 0.5;
 
     // Debug tile texture
-	// diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 128.0), 0);
+	 //diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 128.0), 0);
 
 	//vec3 sphereNormal = (normalize(position.xyz) + 1.0) / 2.0;
 	//diffuse.rgb = sphereNormal;

@@ -88,30 +88,53 @@
 		return puddles * pow(uv1.y, 2.0);// No puddles in dark places like caves
     }
 
-    float mapCaustics(sampler2D texture0, vec3 position){
+    vec3 mapCaustics(sampler2D texture0, highp vec3 position, float isUnderWater){
         if(isUnderWater > 0.9){
-            float time = TIME;
-            float causticsSpeed = 0.05;
-            float causticsScale = 0.1;
+            highp float time = TIME;
+            highp float causticsSpeed = 0.05;
+            highp float causticsScale = 0.1;
             
-            vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 8.0)) * causticsScale + vec2(time * causticsSpeed);
-            vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 8.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
+            highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 4.0)) * causticsScale + vec2(time * causticsSpeed);
+            highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 4.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
-            vec2 noiseTexOffset = vec2(5.0/64.0, 1.0/64.0); 
-            float caustics = texture2D(texture0, fract(cauLayerCoord_0)*0.015625 + noiseTexOffset).r;
-            caustics += texture(texture0, fract(cauLayerCoord_1)*0.015625 + noiseTexOffset).r;
+            highp vec2 noiseTexOffset = vec2(1.0/32.0, 0.0); 
+            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/32.0+ noiseTexOffset).r;
+            caustics += texture(texture0, fract(cauLayerCoord_1)/32.0 + noiseTexOffset).r;
+            
+            highp float redCaustics = texture2D(texture0, fract(cauLayerCoord_0 + 0.006)/32.0+ noiseTexOffset).r;
+            redCaustics += texture(texture0, fract(cauLayerCoord_1 + 0.006)/32.0 + noiseTexOffset).r;
+            
+            highp float blueCaustics = texture2D(texture0, fract(cauLayerCoord_0 - 0.006)/32.0+ noiseTexOffset).r;
+            blueCaustics += texture(texture0, fract(cauLayerCoord_1 - 0.006)/32.0 + noiseTexOffset).r;
             
             
-            caustics = clamp(caustics, 0.0, 2.0);
+            
+            
+            
+         //   caustics = clamp(caustics, 0.0, 2.0);
             if(caustics > 1.0){
                 caustics = 2.0 - caustics;
             }
-            float cauHardness = 2.0;
-            float cauStrength = 0.8;
-            caustics = pow(caustics * cauStrength * (0.2 + length(FOG_COLOR.rgb)) , cauHardness);
+            
+            if(redCaustics > 1.0){
+                redCaustics = 2.0 - redCaustics;
+            }
+            
+            if(blueCaustics > 1.0){
+                blueCaustics = 2.0 - blueCaustics;
+            }
+            
+            
+            highp float cauHardness = 8.0;
+            highp float cauStrength = 1.0;
+            
+           // highp float blueCaustics = ;
+            caustics = pow(caustics, cauHardness);
+            redCaustics = pow(redCaustics, cauHardness);
+            blueCaustics = pow(blueCaustics, cauHardness);
 
-            return caustics;
-        }else return 0.0;
+            return vec3(redCaustics, caustics, blueCaustics) * cauStrength;
+        }else return vec3(0.0);
     }
 
 
