@@ -131,7 +131,7 @@ void main()
 	vec4 skyLightReflected = clamp(buildRawSkyReflection(relativePosition.xyz, resultLighting), 0.0, 1.0);
 	
 	resultLighting += pointLightsDiffused;
-	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadowMap /* (1.0 - isRain + isUnderWater)*/;
+	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadowMap * (1.0 - isRain + isUnderWater);
 	resultLighting += vec3((isHell - isUnderWater )* 0.175);// Ambient highlighting in hell
 	resultLighting += resultLighting * mapCaustics(TEXTURE_0, position.xyz, isUnderWater);
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
@@ -150,8 +150,8 @@ void main()
 	
 	
 	if(isHell < 0.9){
-		diffuse.rgb = applyBasicFogs(diffuse.rgb, skyLightDiffused.rgb, fogColor.a, milkyFog, isDay, isHell);
-		diffuse.rgb = applyBlueFog(diffuse.rgb, blueFog, isDay, isRain, isWater); 
+	    diffuse.rgb = applyBlueFog(diffuse.rgb, blueFog, isDay, isRain, isWater); 
+		diffuse.rgb = applyBasicFogs(diffuse.rgb, skyLightDiffused.rgb * 2.0, fogColor.a, milkyFog, isDay, isHell);
 	}
 	
 	diffuse.rgb = colorCorrection(diffuse.rgb);
