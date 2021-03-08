@@ -1,5 +1,4 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
 #include "fragmentVersionCentroid.h"
 
@@ -63,7 +62,7 @@ void main()
 	vec4 haloTint = mix(moonHaloColor, sunHaloColor, isDay);
 
 
-	float l = 1.0 - length(position.xyz)/4.0;
+	float l = 1.0 - length(position.xyz)/2.0;
 
 	float halo = l;
 
@@ -80,6 +79,6 @@ void main()
 	
 
 	gl_FragColor = CURRENT_COLOR * diffuse * length(diffuse.rgb);
-	gl_FragColor += halo * haloTint /*+ sun * sunTint*/;
+	gl_FragColor += halo * haloTint * 0.8 /*+ sun * sunTint*/;
 	gl_FragColor.a *= 1.0 - isRain;
 }
