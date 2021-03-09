@@ -1,0 +1,132 @@
+{
+  "resource_pack_name": "vanilla",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "axe": {
+      "textures": [
+        "textures/items/wood_axe",
+        "textures/items/stone_axe",
+        "textures/items/iron_axe",
+        "textures/items/gold_axe",
+        "textures/items/diamond_axe",
+        "textures/items/netherite_axe"
+      ]
+    },
+    "boots": {
+      "textures": [
+        "textures/items/leather_boots",
+        "textures/items/chainmail_boots",
+        "textures/items/iron_boots",
+        "textures/items/gold_boots",
+        "textures/items/diamond_boots",
+        "textures/items/netherite_boots"
+      ]
+    },
+    "chestplate": {
+      "textures": [
+        "textures/items/leather_chestplate",
+        "textures/items/chainmail_chestplate",
+        "textures/items/iron_chestplate",
+        "textures/items/gold_chestplate",
+        "textures/items/diamond_chestplate",
+        "textures/items/netherite_chestplate"
+      ]
+    },
+    "helmet": {
+      "textures": [
+        "textures/items/leather_helmet",
+        "textures/items/chainmail_helmet",
+        "textures/items/iron_helmet",
+        "textures/items/gold_helmet",
+        "textures/items/diamond_helmet",
+        "textures/items/netherite_helmet"
+      ]
+    },
+    "hoe": {
+      "textures": [
+        "textures/items/wood_hoe",
+        "textures/items/stone_hoe",
+        "textures/items/iron_hoe",
+        "textures/items/gold_hoe",
+        "textures/items/diamond_hoe",
+        "textures/items/netherite_hoe"
+      ]
+    },
+    "leggings": {
+      "textures": [
+        "textures/items/leather_leggings",
+        "textures/items/chainmail_leggings",
+        "textures/items/iron_leggings",
+        "textures/items/gold_leggings",
+        "textures/items/diamond_leggings",
+        "textures/items/netherite_leggings"
+      ]
+    },
+    "pickaxe": {
+      "textures": [
+        "textures/items/wood_pickaxe",
+        "textures/items/stone_pickaxe",
+        "textures/items/iron_pickaxe",
+        "textures/items/gold_pickaxe",
+        "textures/items/diamond_pickaxe",
+        "textures/items/netherite_pickaxe"
+      ]
+    },
+    "shovel": {
+      "textures": [
+        "textures/items/wood_shovel",
+        "textures/items/stone_shovel",
+        "textures/items/iron_shovel",
+        "textures/items/gold_shovel",
+        "textures/items/diamond_shovel",
+        "textures/items/netherite_shovel"
+      ]
+    },
+    "sword": {
+      "textures": [
+        "textures/items/wood_sword",
+        "textures/items/stone_sword",
+        "textures/items/iron_sword",
+        "textures/items/gold_sword",
+        "textures/items/diamond_sword",
+        "textures/items/netherite_sword"
+      ]
+    },
+    "netherite_ingot": {
+      "textures": "textures/items/netherite_ingot"
+    },
+    "netherite_scrap": {
+      "textures": "textures/items/netherite_scrap"
+    },
+    "warped_sign_item": {
+      "textures": "textures/items/sign_warped"
+    },
+    "crimson_sign_item": {
+      "textures": "textures/items/sign_crimson"
+    },
+    "crimson_door": {
+      "textures": "textures/items/crimson_door"
+    },
+    "warped_door": {
+      "textures": "textures/items/warped_door"
+    },
+    "lodestonecompass_item": {
+      "textures": "textures/items/lodestonecompass_item"
+    },
+    "warped_fungus_on_a_stick": {
+      "textures": "textures/items/warped_fungus_on_a_stick"
+    },
+    "chain": {
+      "textures": "textures/items/chain"
+    },
+    "soul_campfire": {
+      "textures": "textures/items/soul_campfire"
+    },
+    "record_pigstep": {
+      "textures": "textures/items/record_pigstep"
+    },
+    "nether_sprouts": {
+      "textures": "textures/items/nether_sprouts"
+    }
+  }
+}
