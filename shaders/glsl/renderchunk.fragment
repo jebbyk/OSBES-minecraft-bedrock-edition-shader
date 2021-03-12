@@ -69,9 +69,19 @@ void main()
 
 	vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
 	vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
-
-	vec4 diffuse = diffuseMap;
-	diffuse.rgb *= color.rgb;
+    
+    vec4 diffuse = diffuseMap;
+    #ifndef SEASONS
+        
+	    diffuse.rgb *= color.rgb;
+	
+    #else
+    	vec2 uv = color.xy;
+	    diffuse.rgb *= mix(vec3(1.0,1.0,1.0), texture2D( TEXTURE_2, uv).rgb*2.0, color.b);
+	    diffuse.rgb *= color.aaa;
+	  //  diffuse.a = 1.0;
+    #endif
+	
 	
 	float pointLightsMap; float ambientOclusionMap; float fakeShadowMap;
 	readLightMaps(pointLightsMap, ambientOclusionMap, fakeShadowMap, uv1);

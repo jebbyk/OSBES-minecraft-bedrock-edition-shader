@@ -84,30 +84,29 @@ void main()
 	color = COLOR;
 
 	isLeaves = 0.0; 
-	if(fract(position.y) <  0.01){
+	if(fract(position.y) <  0.01 && fract(position.x) < 0.01 && fract(position.z) < 0.01){
 		isLeaves = 1.0;
 	}
 
 
 	isPlantTop = 0.0;
-	if(isLeaves < 0.1 && fract(uv0.y * 16.0) > 0.5){
+	if(isLeaves < 0.1 && fract(uv0.y * 16.0) < 0.5){
 		isPlantTop = 1.0;
 	}
 
 
+#endif //BYPASS_PIXEL_SHADER
 
+#ifdef BLEND
     if(
-		color.b > color.g * 0.84 
-		&& color.b > color.r * 1.69
+
+		color.b > color.g * 0.8
+
+		&& color.b > color.r * 1.17
 	){
 		isWater = 1.0;
 	}
-	float spruce = 0.0;
-	if(color.b > 0.9 && color.r > 0.5 && color.g > 0.01 && color.g < 0.2 && color.r < 0.95){
-		isWater = 0.0;
-		spruce = 1.0;
-		color.rgb = vec3(1.0);
-	}
+	
 
 	if(isWater > 0.9){
 		highp float t = TIME;
@@ -124,11 +123,7 @@ void main()
 
 		position.y += (f.x + f.y)/* (f.x + f.y)*/;
 	}
-
-#endif //BYPASS_PIXEL_SHADER
-
-
-
+#endif
 
 
 
@@ -136,7 +131,7 @@ void main()
 #if defined ALPHA_TEST
 
 	//if((isWater < 0.1 && color.g > color.r) || spruce > 0.5 ){
-	if((isLeaves > 0.5 || isPlantTop > 0.5) && isWater < 0.1 && color.g > color.r){
+	if((isLeaves > 0.5 || isPlantTop > 0.5) && color.g > (color.r + color.b)/2.0 ){
 		// Wind waves
 		vec3 correctedRawPos = position.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
 		highp float t = TIME;
