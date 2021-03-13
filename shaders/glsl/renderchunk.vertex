@@ -220,12 +220,11 @@ if(isUnderWater > 0.9){
 	blueFog.a = clamp(ownFogAlpha, 0.0, 0.75);
 	
 	milkyFog.rgb = mix(vec3(2.0), vec3(0.5), isRain);
-	float milkyFogHeightShift = -32.0 + isRain * 128.0;
-	float milkyFogHeightAtenuation = 1.0/64.0;
-	milkyFog.a = (relativePosition.y + milkyFogHeightShift * ownFogAlpha) * milkyFogHeightAtenuation;
-	milkyFog.a = pow(clamp(milkyFog.a, 0.0, 1.0), 1.5);
-	milkyFog.a *= 0.7 + isRain*0.3;
-	//milkyFog.a *= ownFogAlpha;
+	float milkyFogHeightShift = -RENDER_DISTANCE/8.0 + isRain * 128.0;
+	float milkyFogHeightAtenuation = 1.0 / (RENDER_DISTANCE / 4.0);
+	milkyFog.a = (relativePosition.y + milkyFogHeightShift) * milkyFogHeightAtenuation;
+	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
+	milkyFog.a *= 0.3 + isRain*0.7;
 	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
 
 
