@@ -146,23 +146,23 @@
         
         // Top left texture - default diffuse
         highp vec2 diffuseMapCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
-        diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * 1024.0), 0);
+        diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
     
         #if defined(BLEND)
             if(isWater >  0.9){
 		        reliefMap = mapWaterNormals(texture0);
             }else{
                 highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, 0.015625);
-                reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * 1024.0), 0).rgb;
+                reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
             }
         #else
             highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, 0.015625);
-            reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * 1024.0), 0).rgb;
+            reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
         #endif
         
         // Top right texture - specular map
         highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
-        rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * 1024.0), 0),0.01, 1.0);
+        rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
     }
 		
 
