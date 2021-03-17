@@ -102,7 +102,7 @@ void main()
 
 		color.b > color.g * 0.8
 
-		&& color.b > color.r * 1.17
+		&& color.b > color.r * 1.13
 	){
 		isWater = 1.0;
 	}
