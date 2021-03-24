@@ -56,11 +56,11 @@ void main()
 
 	vec3 lighting = texture2D( TEXTURE_2, lightingUVs ).rgb;
 	
-	float albedoR = albedo.r;
-	float albedoG = albedo.g;
-	float albedoB = albedo.b;
+	//if it is a rain drops then mke them gray
+	if(albedo.b > albedo.r + albedo.g){
+	    albedo.rgb = vec3((albedo.r + albedo.g + albedo.b) / 2.0);
+	}
 	
-	albedo.rgb = vec3(albedoR + albedoG + albedoB)/3.0;
 	vec4 finalOutput = albedo;
 	finalOutput.rgb *= lighting.rgb;
 

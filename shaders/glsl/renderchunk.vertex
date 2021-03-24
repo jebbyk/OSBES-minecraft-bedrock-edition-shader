@@ -84,51 +84,46 @@ void main()
 	color = COLOR;
 
 	isLeaves = 0.0; 
-	if(fract(position.y) <  0.01){
+	if(fract(position.y) <  0.01 && fract(position.x) < 0.01 && fract(position.z) < 0.01){
 		isLeaves = 1.0;
 	}
 
 
 	isPlantTop = 0.0;
-	if(isLeaves < 0.1 && fract(uv0.y * 16.0) > 0.5){
+	if(isLeaves < 0.1 && fract(uv0.y * 16.0) < 0.5){
 		isPlantTop = 1.0;
 	}
 
 
+#endif //BYPASS_PIXEL_SHADER
 
+#ifdef BLEND
     if(
-		color.b > color.g * 0.84 
-		&& color.b > color.r * 1.69
+
+		color.b > color.g * 0.8
+
+		&& color.b > color.r * 1.13
 	){
 		isWater = 1.0;
 	}
-	float spruce = 0.0;
-	if(color.b > 0.9 && color.r > 0.5 && color.g > 0.01 && color.g < 0.2 && color.r < 0.95){
-		isWater = 0.0;
-		spruce = 1.0;
-		color.rgb = vec3(1.0);
-	}
+	
 
 	if(isWater > 0.9){
 		highp float t = TIME;
 		highp vec3 rawPosCorrected = position.xyz / 2.5463;//2.5463 - chunk scale (detaching prevention)
-		highp vec2 impulsesMovingSpeed = vec2(1.0);
-		highp vec2 impulsesFreq = vec2(1.0);
+//		highp vec2 impulsesMovingSpeed = vec2(1.0);
+//		highp vec2 impulsesFreq = vec2(1.0);
 		
-		highp vec2 wavesMovingSpeed = vec2(1.0, 0.25);
-		highp vec2 wavesFreq = vec2(2.0, 1.0);
-		highp float wavesScale = 0.05;
+		highp vec2 wavesMovingSpeed = vec2(3.0, 3.0);
+		highp vec2 wavesFreq = vec2(3.0, 3.0);
+		highp float wavesScale = 0.035;
 
-		highp vec2 i = sin(t * impulsesMovingSpeed + rawPosCorrected.xz * impulsesFreq);
-		highp vec2 f = pow(sin(t * wavesMovingSpeed + rawPosCorrected.xz * wavesFreq), vec2(3.0)) * wavesScale;
+//		highp vec2 i = sin(t * impulsesMovingSpeed + rawPosCorrected.xz * impulsesFreq);
+		highp vec2 f = sin(t * wavesMovingSpeed + rawPosCorrected.xz * wavesFreq) * wavesScale;
 
-		position.y += (f.x + f.y) /* (f.x + f.y)*/;
+		position.y += (f.x + f.y)/* (f.x + f.y)*/;
 	}
-
-#endif //BYPASS_PIXEL_SHADER
-
-
-
+#endif
 
 
 
@@ -136,7 +131,7 @@ void main()
 #if defined ALPHA_TEST
 
 	//if((isWater < 0.1 && color.g > color.r) || spruce > 0.5 ){
-	if((isLeaves > 0.5 || isPlantTop > 0.5) && isWater < 0.1 && color.g > color.r){
+	if((isLeaves > 0.5 || isPlantTop > 0.5) && color.g > (color.r + color.b)/2.0 ){
 		// Wind waves
 		vec3 correctedRawPos = position.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
 		highp float t = TIME;
@@ -225,12 +220,11 @@ if(isUnderWater > 0.9){
 	blueFog.a = clamp(ownFogAlpha, 0.0, 0.75);
 	
 	milkyFog.rgb = mix(vec3(2.0), vec3(0.5), isRain);
-	float milkyFogHeightShift = -32.0 + isRain * 128.0;
-	float milkyFogHeightAtenuation = 1.0/64.0;
-	milkyFog.a = (relativePosition.y + milkyFogHeightShift * ownFogAlpha) * milkyFogHeightAtenuation;
-	milkyFog.a = pow(clamp(milkyFog.a, 0.0, 1.0), 1.5);
-	milkyFog.a *= 0.7 + isRain*0.3;
-	//milkyFog.a *= ownFogAlpha;
+	float milkyFogHeightShift = -RENDER_DISTANCE/8.0 + isRain * 128.0;
+	float milkyFogHeightAtenuation = 1.0 / (RENDER_DISTANCE / 4.0);
+	milkyFog.a = (relativePosition.y + milkyFogHeightShift) * milkyFogHeightAtenuation;
+	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
+	milkyFog.a *= 0.3 + isRain*0.7;
 	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
 
 

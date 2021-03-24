@@ -1,4 +1,4 @@
-# OSBES v0.12.1
+# OSBES v0.12.2
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will be listed as a developer!-----------**
@@ -127,9 +127,9 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |=|=|=|=|
 |reflections               |0.12.0       | Renderchunk refactoring            |<span style="color:green">Ready</span>
 |reflections               |0.12.1       | Metallness pipeline and reflections|<span style="color:green">Ready</span>
-|reflections               |0.12.2       | bugfixes                           |<span style="color:purple">**In progress**</span>|
+|reflections               |0.12.2       | bugfixes                           |<span style="color:green">Ready</span>
 |=|=|=|=|
-|presets                   |0.13.0       | shaders refactoring and comments   |<span style="color:orange">**Planned**</span>|
+|presets                   |0.13.0       | shaders refactoring and comments   |<span style="color:purple">**In progress**</span>|
 |presets                   |0.13.1       | Preset defines                     |<span style="color:orange">**Planned**</span>|
 |presets                   |0.13.2       | bugfixes                           |<span style="color:orange">**Planned**</span>|
 |=|=|=|=|
