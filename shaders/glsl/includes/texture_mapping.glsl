@@ -101,13 +101,13 @@
             highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/32.0+ noiseTexOffset).r;
             caustics += texture(texture0, fract(cauLayerCoord_1)/32.0 + noiseTexOffset).r;
             
-            highp float redCaustics = texture2D(texture0, fract(cauLayerCoord_0 + 0.006)/32.0+ noiseTexOffset).r;
-            redCaustics += texture(texture0, fract(cauLayerCoord_1 + 0.006)/32.0 + noiseTexOffset).r;
+           /* highp float redCaustics = texture2D(texture0, fract(cauLayerCoord_0 + 0.001)/32.0+ noiseTexOffset).r;
+            redCaustics += texture(texture0, fract(cauLayerCoord_1 + 0.001)/32.0 + noiseTexOffset).r;
             
-            highp float blueCaustics = texture2D(texture0, fract(cauLayerCoord_0 - 0.006)/32.0+ noiseTexOffset).r;
-            blueCaustics += texture(texture0, fract(cauLayerCoord_1 - 0.006)/32.0 + noiseTexOffset).r;
+            highp float blueCaustics = texture2D(texture0, fract(cauLayerCoord_0 - 0.001)/32.0+ noiseTexOffset).r;
+            blueCaustics += texture(texture0, fract(cauLayerCoord_1 - 0.001)/32.0 + noiseTexOffset).r;
             
-            
+            */
             
             
             
@@ -116,24 +116,24 @@
                 caustics = 2.0 - caustics;
             }
             
-            if(redCaustics > 1.0){
+          /*  if(redCaustics > 1.0){
                 redCaustics = 2.0 - redCaustics;
             }
             
             if(blueCaustics > 1.0){
                 blueCaustics = 2.0 - blueCaustics;
-            }
+            }*/
             
             
             highp float cauHardness = 8.0;
-            highp float cauStrength = 1.0;
+            highp float cauStrength = 1.5;
             
            // highp float blueCaustics = ;
             caustics = pow(caustics, cauHardness);
-            redCaustics = pow(redCaustics, cauHardness);
-            blueCaustics = pow(blueCaustics, cauHardness);
+          /*  redCaustics = pow(redCaustics, cauHardness);
+            blueCaustics = pow(blueCaustics, cauHardness);*/
 
-            return vec3(redCaustics, caustics, blueCaustics) * cauStrength;
+            return vec3(caustics) * cauStrength;
         }else return vec3(0.0);
     }
 
