@@ -1,4 +1,4 @@
-# OSBES v0.12.2
+# OSBES v0.12.3
 Open Source Bedrock Edition Shader  
 
 **------------Every contributor will be listed as a developer!-----------**
