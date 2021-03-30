@@ -125,26 +125,26 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 |Bug fixes and improvements|0.11.1       | Bugfixes                           |<span style="color:green">Ready</span>
 |                          |0.11.2       | Improvements                       |<span style="color:green">Ready</span>
 |=|=|=|=|
-|reflections               |0.12.0       | Renderchunk refactoring            |<span style="color:green">Ready</span>
-|reflections               |0.12.1       | Metallness pipeline and reflections|<span style="color:green">Ready</span>
-|reflections               |0.12.2       | bugfixes                           |<span style="color:green">Ready</span>
+|Reflections               |0.12.0       | Renderchunk refactoring            |<span style="color:green">Ready</span>
+|Reflections               |0.12.1       | Metallicness pipeline and reflections|<span style="color:green">Ready</span>
+|Reflections               |0.12.2       | Bugfixes                           |<span style="color:green">Ready</span>
 |=|=|=|=|
-|presets                   |0.13.0       | shaders refactoring and comments   |<span style="color:purple">**In progress**</span>|
-|presets                   |0.13.1       | Preset defines                     |<span style="color:orange">**Planned**</span>|
-|presets                   |0.13.2       | bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Presets                   |0.13.0       | Shaders refactoring and comments   |<span style="color:purple">**In progress**</span>|
+|Presets                   |0.13.1       | Preset defines                     |<span style="color:orange">**Planned**</span>|
+|Presets                   |0.13.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |=|=|=|=|
-|parallax mapping          |0.14.0       | Inner Core experimental defines    |<span style="color:orange">**Planned**</span>|
-|parallax mapping          |0.14.1       | simple parallax mapping            |<span style="color:orange">**Planned**</span>|
-|parallax mapping          |0.14.2       | bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Parallax mapping          |0.14.0       | Inner Core experimental defines    |<span style="color:orange">**Planned**</span>|
+|Parallax mapping          |0.14.1       | Simple parallax mapping            |<span style="color:orange">**Planned**</span>|
+|Parallax mapping          |0.14.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |=|=|=|=|
-|improved reflections      |0.15.0       | optimizations and code improvements|<span style="color:orange">**Planned**</span>|
-|improved reflections      |0.15.1       | fake terrain reflections           |<span style="color:orange">**Planned**</span>|
-|improved reflections      |0.15.2       | bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Improved reflections      |0.15.0       | Optimizations and code improvements|<span style="color:orange">**Planned**</span>|
+|Improved reflections      |0.15.1       | Fake terrain reflections           |<span style="color:orange">**Planned**</span>|
+|Improved reflections      |0.15.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |=|=|=|=|
-|advanced parallax mapping |0.16.x       |                                    |<span style="color:orange">**Planned**</span>|
+|Advanced parallax mapping |0.16.x       |                                    |<span style="color:orange">**Planned**</span>|
 |=|=|=|=|
-|fully correct PBR         |0.17.x       |                                    |<span style="color:orange">**Planned**</span>|
+|Fully correct PBR         |0.17.x       |                                    |<span style="color:orange">**Planned**</span>|
 |=|=|=|=|
-|rednerdragon support      |1.0.x        |                                    |<span style="color:orange">**Planned**</span>|
+|Renderdragon support      |1.0.x        |                                    |<span style="color:orange">**Planned**</span>|
 
 
