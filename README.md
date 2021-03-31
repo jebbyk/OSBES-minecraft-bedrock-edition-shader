@@ -35,7 +35,7 @@ I recomend you to use rooted device with installed Termux <span style="color:gre
 #### 8. Make your changes to be committed 
     - Run in your terminal: git status
     - You should see a list of modified files
-    - For each file you want to add run: git add .
+    - When you've finished making your changes, run: git add .
 #### 9. Create a commit 
     - Run in your terminal: git commit -m "[Message goes here]"
 #### 10. Checkout to develop branch 
