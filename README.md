@@ -1,16 +1,16 @@
 # OSBES v0.12.3a
 Open Source Bedrock Edition Shader  
 
-**------------Every contributor will be listed as a developer!-----------**
+A tweaked version of the Vanilla Normals Renewed texturepack by [Poudingue](https://github.com/Poudingue) is being used for preview versions (https://github.com/Poudingue/Vanilla-Normals-Renewed).
 
-A tweaked version of the Vanilla Normals Renewed texturepack by [Poudingue](https://github.com/Poudingue) is being used for preview versions (https://github.com/Poudingue/Vanilla-Normals-Renewed)
+## How to Contribute
+*Every contributor will be listed as a developer!*
 
-**HOW TO CONTRIBUTE**
-I recomend you to use rooted device with installed Termux <span style="color:green">**terminal**</span> emulator
+I recomend you to use a rooted device with Termux, the <span style="color:green">**terminal**</span> emulator installed.
 #### 0. Fork this repository
-    - Click "Fork" button in the top right corner of this page
+    - Click "Fork" button in the top right corner of this page.
 #### 1. Go to the directory where you want to save shader pack
-    - Run in your terminal: cd /path/where/you/want/to/save/this/shaderpack
+    - Run in your terminal: `cd /path/where/you/want/to/save/this/shaderpack`.
 #### 2. Clone your repository 
     - When your are in your forked repository page click the green "Code" button and the clipboard button to copy the git link
     - Run in your terminal: git clone [your copied link goes here]
