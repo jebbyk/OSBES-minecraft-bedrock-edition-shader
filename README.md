@@ -6,7 +6,6 @@ A tweaked version of the Vanilla Normals Renewed texturepack by [Poudingue](http
 ## How to Contribute
 *Every contributor will be listed as a developer!*
 
-I recomend you to use a rooted device with Termux, the <span style="color:green">**terminal**</span> emulator installed.
 #### 0. Fork this repository
     - Click "Fork" button in the top right corner of this page.
 #### 1. Go to the directory where you want to save shader pack
