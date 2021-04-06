@@ -54,7 +54,7 @@ void main()
 {
 
 	position = POSITION;
-	
+
 
 
 	fogColor = vec4(0.0);
@@ -63,12 +63,12 @@ void main()
     isRain = clamp(isRain * 5.0, 0.0, 1.0);
 
 	isWater = 0.0;
-    
+
     isUnderWater = 0.0;
-	
+
 	// Get the shade (not related to brightness) of fog_color
 	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
-	if(fogColorNormalized.r < 0.22 
+	if(fogColorNormalized.r < 0.22
 	&& fogColorNormalized.b < 0.90 && fogColorNormalized.b > 0.77
 	&& fogColorNormalized.g < 0.61 && fogColorNormalized.g > 0.44){
 		isUnderWater = 1.0;
@@ -83,7 +83,7 @@ void main()
     uv1 = TEXCOORD_1;
 	color = COLOR;
 
-	isLeaves = 0.0; 
+	isLeaves = 0.0;
 	if(fract(position.y) <  0.01 && fract(position.x) < 0.01 && fract(position.z) < 0.01){
 		isLeaves = 1.0;
 	}
@@ -106,14 +106,14 @@ void main()
 	){
 		isWater = 1.0;
 	}
-	
+
 
 	if(isWater > 0.9){
 		highp float t = TIME;
 		highp vec3 rawPosCorrected = position.xyz / 2.5463;//2.5463 - chunk scale (detaching prevention)
 //		highp vec2 impulsesMovingSpeed = vec2(1.0);
 //		highp vec2 impulsesFreq = vec2(1.0);
-		
+
 		highp vec2 wavesMovingSpeed = vec2(3.0, 3.0);
 		highp vec2 wavesFreq = vec2(3.0, 3.0);
 		highp float wavesScale = 0.035;
@@ -147,14 +147,14 @@ void main()
 		f = clamp(pow(f, impulseDuration), 0.1 + isRain * 0.3, 1.0);
 		wavesScale *= f * (1.0 + isRain * 2.0);
 
-		position.xz += (1.0 + sin(t * wavesMovingSpeed + (correctedRawPos.x + correctedRawPos.z + correctedRawPos.y) * wavesFreq)) * wavesScale;  
+		position.xz += (1.0 + sin(t * wavesMovingSpeed + (correctedRawPos.x + correctedRawPos.z + correctedRawPos.y) * wavesFreq)) * wavesScale;
 	}
 #endif
 
 
 
 POS4 worldPos;
-	
+
 #ifdef AS_ENTITY_RENDERER
 		POS4 worldViewPosScaled = WORLDVIEWPROJ * position;
 		worldPos = worldViewPosScaled;
@@ -169,7 +169,7 @@ POS4 worldPos;
 	worldViewPosScaled = PROJ * worldViewPosScaled;
 #endif //AS_ENTITY_RENDERER
 
-relativePosition.xyz = -worldPos.xyz;
+relativePosition.xyz = worldPos.xyz;
 relativePosition.w = worldPos.w;
 
 gl_Position = worldViewPosScaled;
@@ -180,7 +180,7 @@ if(isUnderWater > 0.9){
 	float wMovingSpeed = 4.0;
 	float wFreq  = 32.0 / length(worldPos.xyz);
 
-	gl_Position.x += (1.0 + sin(t * wMovingSpeed + (worldPos.x + worldPos.z + worldPos.y) * wFreq)) * wScale;  
+	gl_Position.x += (1.0 + sin(t * wMovingSpeed + (worldPos.x + worldPos.z + worldPos.y) * wFreq)) * wScale;
 }
 
 
@@ -190,7 +190,7 @@ if(isUnderWater > 0.9){
 
 //#if defined(FOG) || defined(BLEND)
 //#if defined(BLEND)
-	
+
 	#ifdef FANCY
 		float cameraDepth = length(relativePosition.xyz);
 	#else
@@ -213,12 +213,12 @@ if(isUnderWater > 0.9){
 	fogColor.a = clamp((len - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
 //#endif //FOG
 
-	
+
 
 	blueFog.rgb = vec3(0.25,0.35,1.0);
 	float ownFogAlpha = length(relativePosition.xyz) / RENDER_DISTANCE;
 	blueFog.a = clamp(ownFogAlpha, 0.0, 0.75);
-	
+
 	milkyFog.rgb = mix(vec3(2.0), vec3(0.5), isRain);
 	float milkyFogHeightShift = -RENDER_DISTANCE/8.0 + isRain * 8.0;
 	float milkyFogHeightAtenuation = (isRain + 1.0) / (RENDER_DISTANCE / 4.0);
@@ -242,14 +242,14 @@ if(isUnderWater > 0.9){
 			// Completely insane, but if I don't have these two lines in here, the water doesn't render on a Nexus 6
 			vec4 surfColor = vec4(color.rgb, 1.0);
 			color = surfColor;
-				
+
 			float camDist = length(relativePosition.xyz);
 			float cameraDist = camDist / FAR_CHUNKS_DISTANCE;
 		#endif //FANCY
-		
+
 		float alphaFadeOut = clamp(cameraDist, 0.0, 1.0);
 		color.a = mix(color.a, 1.0, alphaFadeOut);
-		
+
 	}
 #endif //BLEND
 
@@ -261,4 +261,3 @@ if(isUnderWater > 0.9){
 	#endif //FOG
 #endif //BYPASS_PIXEL_SHADER
 }
-
