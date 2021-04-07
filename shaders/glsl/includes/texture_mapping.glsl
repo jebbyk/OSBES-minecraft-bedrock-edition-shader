@@ -79,9 +79,10 @@
 		float puddlesCovering = 1.5;
 		float puddlesScale = 32.0;
 		float minRainWettneess = 0.5;
+        float edgePadding = 0.5; //prevent interpolation issues on texture edges
 
-		vec2 noiseTextureOffset = vec2(1.0/32.0, 0.0); 
-		float puddles = texture2D(texture0, fract(position  / puddlesScale)/32.0 + noiseTextureOffset).r;
+		vec2 noiseTextureOffset = vec2(1.0/(32.0 - edgePadding), 0.0); 
+		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(32.0 + edgePadding) + noiseTextureOffset).r;
 		puddles = puddles * isRain * puddlesCovering;
 		puddles = clamp(puddles, minRainWettneess, 1.0);
 
