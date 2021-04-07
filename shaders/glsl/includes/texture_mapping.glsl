@@ -77,7 +77,7 @@
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
 		float puddlesCovering = 1.5;
-		float puddlesScale = 32.0;
+		float puddlesScale = 16.0;
 		float minRainWettneess = 0.5;
         float edgePadding = 0.5; //prevent interpolation issues on texture edges
 
