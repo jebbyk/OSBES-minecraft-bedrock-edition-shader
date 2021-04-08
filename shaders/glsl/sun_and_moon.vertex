@@ -17,7 +17,7 @@ varying vec3 viewPosition;
 
 void main()
 {
-    gl_Position = WORLDVIEWPROJ * (POSITION * vec4(8.0, 8.0, 8.0, 1.0));
+    gl_Position = WORLDVIEWPROJ * (POSITION * vec4(16.0, 16.0, 16.0, 16.0)); // <-- The sun's visual position
 
     position = POSITION.xyz * vec3(8.0);
     worldPosition = POSITION * vec4(8.0, 8.0, 8.0, 1.0) *  WORLD; 
