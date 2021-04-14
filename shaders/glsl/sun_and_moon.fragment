@@ -81,6 +81,10 @@ void main()
 
 	gl_FragColor = CURRENT_COLOR * diffuse * length(diffuse.rgb);
 	gl_FragColor += halo * haloTint /*+ sun * sunTint*/;
-	float haloMultiplier = 0.6 + abs((isDay * 0.4) - 0.4); /* Halo brightness multiplier */
-	gl_FragColor.a *= haloMultiplier - (isRain * haloMultiplier);
+
+  float sunHaloIntensity = 0.6;
+  float moonHaloIntensity = 0.4;
+	float haloIntensity = sunHaloIntensity + abs((isDay * moonHaloIntensity) - moonHaloIntensity);
+
+	gl_FragColor.a *= haloIntensity - (isRain * haloMultiplier);
 }
