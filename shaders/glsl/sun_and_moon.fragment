@@ -76,14 +76,14 @@ void main()
 	highp vec3 dp1 = dFdx(worldPosition.xyz);
 	highp vec3 dp2 = dFdy(worldPosition.xyz);
 
-	 vec3 normal = (normalize(cross(dp1, dp2)) + 1.0) / 2.0;
+	vec3 normal = (normalize(cross(dp1, dp2)) + 1.0) / 2.0;
 	
 
 	gl_FragColor = CURRENT_COLOR * diffuse * length(diffuse.rgb);
 	gl_FragColor += halo * haloTint /*+ sun * sunTint*/;
 
-  float sunHaloIntensity = 0.6;
-  float moonHaloIntensity = 0.4;
+	float sunHaloIntensity = 0.6;
+	float moonHaloIntensity = 0.4;
 	float haloIntensity = sunHaloIntensity + abs((isDay * moonHaloIntensity) - moonHaloIntensity);
 
 	gl_FragColor.a *= haloIntensity - (isRain * haloMultiplier);
