@@ -22,9 +22,9 @@ void main()
 		isRain = 0.0;
 	}
 
-	vec3 clearSkyColor = pow(FOG_COLOR.rgb, vec3(0.6));
+	vec3 clearSkyColor = pow(FOG_COLOR.rgb, vec3(0.8));
 	
-	vec3 clearSkyZenithColor = vec3(0.1, 0.2, 0.4) * length(clearSkyColor);
+	vec3 clearSkyZenithColor = vec3(0.1, 0.2, 0.5) * length(clearSkyColor);
 	vec3 rainSkyColor = vec3(0.6, 0.6, 0.6) * length(FOG_COLOR.rgb);
 
 	float skyAttenuation = 1.0;
