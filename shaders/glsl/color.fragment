@@ -24,11 +24,11 @@ void main()
 
 	vec3 clearSkyColor = pow(FOG_COLOR.rgb, vec3(0.8));
 	
-	vec3 clearSkyZenithColor = vec3(0.1, 0.2, 0.5) * length(clearSkyColor);
+	vec3 clearSkyZenithColor = vec3(0.1, 0.2, 0.8) * length(clearSkyColor);
 	vec3 rainSkyColor = vec3(0.6, 0.6, 0.6) * length(FOG_COLOR.rgb);
 
 	float skyAttenuation = 1.0;
-	float skyZenithEdgeOffset = 1.0;
+	float skyZenithEdgeOffset = 1.5;
 	vec3 skyColor = mix(clearSkyZenithColor, clearSkyColor, pow(min(height * skyZenithEdgeOffset, 1.0), skyAttenuation));
 	skyColor = mix(skyColor, rainSkyColor, isRain);
 
