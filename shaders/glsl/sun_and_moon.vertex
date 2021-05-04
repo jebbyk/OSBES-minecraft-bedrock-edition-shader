@@ -1,8 +1,9 @@
 // __multiversion__
 // This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
-#include "vertexVersionCentroidUV.h"
+#include "config/default.h"
 
+#include "vertexVersionCentroidUV.h"
 #include "uniformWorldConstants.h"
 
 attribute POS4 POSITION;
@@ -17,7 +18,7 @@ varying vec3 viewPosition;
 
 void main()
 {
-    gl_Position = WORLDVIEWPROJ * (POSITION * vec4(16.0, 16.0, 16.0, 8.0)); // <-- The sun's visual position
+    gl_Position = WORLDVIEWPROJ * (POSITION * vec4(16.0, 16.0, 16.0, 8.0*sunVisSize)); // <-- The sun's visual position
 
     position = POSITION.xyz * vec3(8.0);
     worldPosition = POSITION * vec4(8.0, 8.0, 8.0, 1.0) *  WORLD; 
