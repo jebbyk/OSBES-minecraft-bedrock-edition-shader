@@ -2,6 +2,14 @@
 // This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 //#extension GL_EXT_shader_framebuffer_fetch : require
 
+// CONFIG LOADING //
+#include "config/default/water.h"
+#include "config/default/nether.h"
+
+#include "config/custom/water.h"
+#include "config/custom/nether.h"
+// END //
+
 #include "fragmentVersionCentroid.h"
 
 #if __VERSION__ >= 300
@@ -138,14 +146,14 @@ void main()
 	// Mix lighting
 	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusionMap;	
 
-	resultLighting += vec3((-isUnderWater) * 0.175); // Underwater ambient light subtraction
-	resultLighting += vec3((isHell) * 0.3); // Nether ambient light
+	resultLighting += vec3((-isUnderWater) * underwaterLightSub); // Underwater ambient light subtraction
+	resultLighting += vec3((isHell) * netherAmbientLight); // Nether ambient light
 	
-	resultLighting += pointLightsDiffused * 0.25;//imagine this is a reflection of 25% of an evironment hihglighted by point light
+	resultLighting += pointLightsDiffused * 0.25;//imagine this is a reflection of 25% of an evironment highlighted by point light
 	
 	vec4 skyLightReflected = clamp(buildRawSkyReflection(relativePosition.xyz, resultLighting), 0.0, 1.0);
 	
-	resultLighting += pointLightsDiffused * 0.75;// remaining point ligt isnt beign reflected
+	resultLighting += pointLightsDiffused * 0.75;// remaining point light isn't being reflected
 	
 	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadowMap * (1.0 - isRain + isUnderWater);
 	
