@@ -1,15 +1,15 @@
 // __multiversion__
 // This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
-// CONFIG LOADING //
-#include "config/default/sky.h"
-#include "config/custom/sky.h"
-// END //
-
 #include "fragmentVersionSimple.h"
 
 #include "uniformShaderConstants.h"
 #include "uniformPerFrameConstants.h"
+
+// CONFIG LOADING //
+#include "config/default/sky.h"
+#include "config/custom/sky.h"
+// END //
 
 #include "includes/random.glsl"
 #include "includes/color_correction.glsl"
