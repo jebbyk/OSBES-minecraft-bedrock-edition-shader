@@ -1,6 +1,6 @@
 #include "../uniformShaderConstants.h"
 
-vec3 applyBasicFogs(vec3 diffuse, vec3 skyLightDiffused, float fogIntancity, vec4 milkyFog, float isDay, float isHell){
+vec3 applyBasicFogs(vec3 diffuse, vec3 skyLightDiffused, float fogIntensity, vec4 milkyFog, float isDay, float isHell){
     diffuse = mix( diffuse, skyLightDiffused, fogIntancity);
     vec3 milkyFogColor = mix(vec3(0.01), milkyFog.rgb, isDay);
     return mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
