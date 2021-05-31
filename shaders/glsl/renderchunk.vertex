@@ -90,7 +90,7 @@ void main()
 
 
 	isPlantTop = 0.0;
-	if(isLeaves < 0.1 && fract(uv0.y * 16.0) > 0.5){
+	if(isLeaves < 0.1 && fract(uv0.y * 16.0) < 0.5){
 		isPlantTop = 1.0;
 	}
 
