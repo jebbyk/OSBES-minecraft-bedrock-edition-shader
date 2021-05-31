@@ -28,6 +28,8 @@
 #include "uniformShaderConstants.h"
 #include "uniformRenderChunkConstants.h"
 
+#include "includes/env_detectors.glsl"
+
 
 attribute POS4 POSITION;
 attribute vec4 COLOR;
@@ -59,8 +61,7 @@ void main()
 
 	fogColor = vec4(0.0);
 
-    isRain = 0.5 - FOG_CONTROL.r;
-    isRain = clamp(isRain * 5.0, 0.0, 1.0);
+    isRain = detectRain();
 
 	isWater = 0.0;
     

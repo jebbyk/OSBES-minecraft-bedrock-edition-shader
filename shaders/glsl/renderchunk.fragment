@@ -171,7 +171,7 @@ void main()
 	
 	diffuse.rgb = colorCorrection(diffuse.rgb);
 
-	diffuse.rgb = applyVanillaFog(diffuse.rgb, fogColor.a, isHell);//hide difference between colorCorrected and vanilla fog
+	diffuse.rgb = applyVanillaFog(diffuse.rgb, fogColor.a, isHell);//hide difference between colorCorrected and vanilla fog in hell
 
 	///////////////////////Debuging section//////////////////////
 	// Debug texture coordinates
