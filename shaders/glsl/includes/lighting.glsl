@@ -3,7 +3,7 @@
 
 vec4 calculateSkyLightDiffused(vec3 normalVector, float isRain, float isDay, float isHell){
 	vec3 skyLightDirection  = vec3(0.0,1.0,0.0);
-	float skyLightWrapping = 8.0;
+	float skyLightWrapping = 4.0;
 	float skyDot = max((dot(skyLightDirection, normalVector) + skyLightWrapping)/(1.0 + skyLightWrapping),0.0);
 	
 	vec3 rainSkyLightColor = vec3(0.6, 0.6, 0.6) * isRain * isDay * 0.5;

@@ -12,6 +12,7 @@ attribute vec4 COLOR;
 
 varying float height;
 varying vec4 position;
+
 varying float isUnderWater;
 
 const float fogNear = 0.3;
@@ -36,9 +37,12 @@ void main()
     position = POSITION;
     
     // pos.y -= 0.03;
-    position.y -= length(position.xz)/(4.0 * (1.1 - isUnderWater));
+    // position.y -= length(position.xz)/(4.0 * (1.1 - isUnderWater));
     gl_Position = WORLDVIEWPROJ * position;
 
+    position *= WORLD;
+    position *= PROJ;
+   
     //color.rgb = mix(clearSkyColor * vec3(0.25, 0.25, 0.5), clearSkyColor, COLOR.r * 3.0);
 
     //color = mix( CURRENT_COLOR * (clearSkyColorMult * isDay + rainSkyColorMult * (1.0 - isDay)), FOG_COLOR, COLOR.r);
