@@ -38,7 +38,7 @@ float cloudsPerlin(int octaves, vec2 position){
 	position = clamp(position, -2.0, 2.0);
 	
 	highp float time = TIME;
-	float speed = 0.05;
+	float speed = 0.1;
 	float scale = 16.0;
 	float scaleMultiplier = pow(2.0, float(octaves)); //  smaller scale - bigger noise
 	float intencityMultiplier = 1.0;
