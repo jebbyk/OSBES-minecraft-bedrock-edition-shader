@@ -12,6 +12,7 @@
 #include "uniformInterFrameConstants.h"
 
 #include "includes/color_correction.glsl"
+#include "includes/random.glsl"
 
 varying vec4 position;
 
@@ -23,6 +24,7 @@ void main()
 	float horizonOffset = -0.125;
 	float horizonScale = 4.0;
 	
+	//atmosphere
 	//this code is from "includes/reflections.glsl buildRawSkySphere()"
 	//idk why but I cant include this file here
 	float horizonLine =  1.0 - (abs(position.y + horizonOffset) / length(position.xyz));
@@ -32,8 +34,35 @@ void main()
 	vec3 zenithColor = vec3(0.125, 0.25, 0.5) * length(horizonColor);
 	vec3 skyColor = mix(zenithColor, horizonColor, horizonLine);
 
+
+
+
+	//clouds
+	highp vec2 cldCoord = vec2(-sphereNormal.x, sphereNormal.z);
+	cldCoord /= (abs(position.y + horizonOffset) / length(position.xyz));
+	
+	float clouds = cloudsPerlin(4, cldCoord / 16.0);
+	float cloudsShadow = cloudsPerlin(0, cldCoord * 0.85 / 16.0) * clouds;
+
+	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(16.0, 2.0, 0.0 /*isRain*/));
+	cloudsShadow = pow(clamp(cloudsShadow * 2.0, 0.0, 1.0), 1.0);
+
+	vec3 clearSkyCloudsColor = vec3(1.75) * pow(length(skyColor.gb), 2.0);
+	vec3 rainSkyCloudsColor = skyColor.rgb * 0.75;
+	vec3 cloudsColor = mix(clearSkyCloudsColor, rainSkyCloudsColor, 0.0 /*isRain*/);
+
+	vec3 cloudsShadowColor = mix(skyColor.rgb, vec3((skyColor.r + skyColor.g + skyColor.b) / 3.0), 0.25) * 0.9;
+	cloudsColor = mix(cloudsColor, cloudsShadowColor, cloudsShadow);
+
+	skyColor.rgb = mix(skyColor.rgb, cloudsColor, clouds * (1.0 - horizonLine));
+
+
+
+	//final stage
 	skyColor.rgb = colorCorrection(skyColor.rgb);
 
 	gl_FragColor.rgb = skyColor.rgb;
+
+	// gl_FragColor.rgb = sphereNormal;
 	gl_FragColor.a = 1.0;
 }
