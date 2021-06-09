@@ -62,7 +62,5 @@ void main()
 	skyColor.rgb = colorCorrection(skyColor.rgb);
 
 	gl_FragColor.rgb = skyColor.rgb;
-
-	// gl_FragColor.rgb = sphereNormal;
 	gl_FragColor.a = 1.0;
 }
