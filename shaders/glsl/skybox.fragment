@@ -1,9 +1,6 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
 
-// #include "fragmentVersionCentroid.h"
-
-// do not delete comments above. It breaks the shader for some reason
+#include "fragmentVersionCentroid.h"
 
 #include "uniformShaderConstants.h"
 #include "uniformPerFrameConstants.h"
@@ -13,26 +10,33 @@
 
 #include "includes/color_correction.glsl"
 #include "includes/random.glsl"
+#include "includes/env_detectors.glsl"
 
 varying vec4 position;
 
 void main()
 {
-	vec3 sphereNormal = normalize(-position.xyz);
+	float is_rain = detectRain();
+	is_rain = clamp(is_rain, 0.0, 1.0);// todo: have no idea why but clamp() doesnt work in detectRain() for this shader file
 
+
+	vec3 sphereNormal = normalize(-position.xyz);
 
 	float horizonOffset = -0.125;
 	float horizonScale = 4.0;
-	
-	//atmosphere
-	//this code is from "includes/reflections.glsl buildRawSkySphere()"
-	//idk why but I cant include this file here
-	float horizonLine =  1.0 - (abs(position.y + horizonOffset) / length(position.xyz));
-	horizonLine = pow(horizonLine, 16.0 / horizonScale);
-	horizonLine = clamp(horizonLine, 0.0, 1.0);
+
+	float horizon =  1.0 - abs(position.y + horizonOffset) / length(position.xyz);
+	horizon = pow(horizon, 16.0 / horizonScale);
+	horizon = clamp(horizon, 0.0, 1.0);
+	float zenith = 1.0 - horizon;
+
 	vec3 horizonColor = pow(FOG_COLOR.rgb, vec3(0.6));
+	
 	vec3 zenithColor = vec3(0.125, 0.25, 0.5) * length(horizonColor);
-	vec3 skyColor = mix(zenithColor, horizonColor, horizonLine);
+	// zenithColor = mix(zenithColor, horizonColor, is_rain);
+
+	vec3 skyColor = mix(zenithColor, horizonColor, horizon);
+	vec3 skyColorGrayscale = vec3((skyColor.r + skyColor.g + skyColor.b) / 3.0);
 
 
 
@@ -44,17 +48,27 @@ void main()
 	float clouds = cloudsPerlin(4, cldCoord / 16.0);
 	float cloudsShadow = cloudsPerlin(0, cldCoord * 0.85 / 16.0) * clouds;
 
-	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(16.0, 2.0, 0.0 /*isRain*/));
+	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(16.0, 0.25, is_rain));
+	clouds = clamp(clouds, 0.0, 1.0);
 	cloudsShadow = pow(clamp(cloudsShadow * 2.0, 0.0, 1.0), 1.0);
 
-	vec3 clearSkyCloudsColor = vec3(1.75) * pow(length(skyColor.gb), 2.0);
-	vec3 rainSkyCloudsColor = skyColor.rgb * 0.75;
-	vec3 cloudsColor = mix(clearSkyCloudsColor, rainSkyCloudsColor, 0.0 /*isRain*/);
 
-	vec3 cloudsShadowColor = mix(skyColor.rgb, vec3((skyColor.r + skyColor.g + skyColor.b) / 3.0), 0.25) * 0.9;
+	vec3 cloudsColor = vec3(1.75) * pow(length(skyColor.gb), 2.0);
+
+
+	float shadowDesaturation = 0.25;
+	float additionalRainShadowDesaturation = 0.5;
+	float resultShadowDesaturation = shadowDesaturation + additionalRainShadowDesaturation * is_rain;
+
+	float shadowDarkening = 0.1;
+	float additionalRainShadowDarkening = 0.1;
+	float resultDarkening = 1.0 - shadowDarkening - (additionalRainShadowDarkening * is_rain);
+	
+	vec3 cloudsShadowColor = mix(skyColor.rgb, skyColorGrayscale, resultShadowDesaturation) * resultDarkening;
+
 	cloudsColor = mix(cloudsColor, cloudsShadowColor, cloudsShadow);
 
-	skyColor.rgb = mix(skyColor.rgb, cloudsColor, clouds * (1.0 - horizonLine));
+	skyColor.rgb = mix(skyColor.rgb, cloudsColor, clouds * zenith);
 
 
 
