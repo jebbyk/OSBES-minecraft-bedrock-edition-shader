@@ -13,6 +13,6 @@ attribute vec4 COLOR;
 void main()
 {
     vec4 position = POSITION;
-    position.y -= length(position.xz);
+    position.y -= length(position.xz) * 0.85;
     gl_Position = WORLDVIEWPROJ * position;
 }
