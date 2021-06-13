@@ -67,12 +67,12 @@
     vec3 mapWaterNormals(sampler2D texture0){
 		highp float t = TIME * 0.1;
 		float wnScale = 1.0;
-		vec2 waterNormalOffset = vec2(4.0/32.0, 0.0);
+		vec2 waterNormalOffset = vec2(4.0/64.0, 0.0);
 
 		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
-		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/33.0 + waterNormalOffset).rgb * 2.0 - 1.0;
-		vec3 n2 = texture2D(texture0, fract(position.xz*0.3*wnScale * vec2(-1.0, 1.0) - t*wnScale)/33.0 + waterNormalOffset).rgb * 2.0 - 1.0;
-        return normalize(vec3(n1.xy + n2.xy, n1.z)) * 0.5 + 0.5;
+		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/vec2(65.0, 33.0) + waterNormalOffset).rgb * 2.0 - 1.0;
+		vec3 n2 = texture2D(texture0, fract(position.xz*0.3*wnScale * vec2(-1.0, 1.0) - t*wnScale)/vec2(65.0, 33.0) + waterNormalOffset).rgb * 2.0 - 1.0;
+        return normalize(vec3(n1.xy + n2.xy, n1.z * 8.0)) * 0.5 + 0.5;
     }
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
@@ -81,8 +81,8 @@
 		float minRainWettneess = 0.5;
         float edgePadding = 0.5; //prevent interpolation issues on texture edges
 
-		vec2 noiseTextureOffset = vec2(1.0/(32.0 - edgePadding), 0.0); 
-		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(32.0 + edgePadding) + noiseTextureOffset).r;
+		vec2 noiseTextureOffset = vec2(1.0/(64.0 - edgePadding), 0.0); 
+		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(64.0 + edgePadding) + noiseTextureOffset).r;
 		puddles = puddles * isRain * puddlesCovering;
 		puddles = clamp(puddles, minRainWettneess, 1.0);
 
@@ -98,9 +98,9 @@
             highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 4.0)) * causticsScale + vec2(time * causticsSpeed);
             highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 4.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
-            highp vec2 noiseTexOffset = vec2(1.0/32.0, 0.0); 
-            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/32.0+ noiseTexOffset).r;
-            caustics += texture(texture0, fract(cauLayerCoord_1)/32.0 + noiseTexOffset).r;
+            highp vec2 noiseTexOffset = vec2(1.0/64.0, 0.0); 
+            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/64.0+ noiseTexOffset).r;
+            caustics += texture(texture0, fract(cauLayerCoord_1)/64.0 + noiseTexOffset).r;
             
            /* highp float redCaustics = texture2D(texture0, fract(cauLayerCoord_0 + 0.001)/32.0+ noiseTexOffset).r;
             redCaustics += texture(texture0, fract(cauLayerCoord_1 + 0.001)/32.0 + noiseTexOffset).r;
@@ -141,28 +141,25 @@
 
     void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, highp vec2 uv0){
         ////////////////////////////Mapping section///////////////////////////////////
-
-        // By default (with default texture pack) result "megatexture" demensions is 1.0 x 0.5
-        // but wtih my texture pack I have 1.0 x ture2D1.0. with your custom texuture pack you should check result texture  dimensions
         
         // Top left texture - default diffuse
-        highp vec2 diffuseMapCoord = fract(uv0 * vec2(32.0)) * vec2(0.015625);// 1.0 / 64.0 = 0.015625
+        highp vec2 diffuseMapCoord = fract(uv0 * vec2(64.0, 32.0)) * vec2(0.0078125, 0.015625);// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
         diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
     
         #if defined(BLEND)
             if(isWater >  0.9){
 		        reliefMap = mapWaterNormals(texture0);
             }else{
-                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, 0.015625);
+                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
             }
         #else
-            highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, 0.015625);
+            highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
             reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
         #endif
         
         // Top right texture - specular map
-        highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.015625, 0.0);// 1.0/64.0 = 0.015625
+        highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.0078125, 0.0);// 1.0/128.0
         rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
     }
 		

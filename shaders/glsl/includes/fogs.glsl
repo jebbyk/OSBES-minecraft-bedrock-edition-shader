@@ -15,10 +15,15 @@ vec3 applyBlueFog(vec3 diffuse, vec4 blueFog, float isDay, float isRain, float i
     return diffuse;
 }
 
-vec3 applyVanillaFog(vec3 diffuse, float fogColorA, float isHell){
+vec3 applyVanillaFog(vec3 diffuse, float fogColorA, float isHell, float isUnderWater){
     if(isHell > 0.9){ 
         // Default fog in hell because it has no skyplane
-		return mix( diffuse.rgb, FOG_COLOR.rgb, fogColor.a);
+        if(isUnderWater > 0.9){
+            return mix( diffuse.rgb, FOG_COLOR.rgb, clamp(fogColor.a + 0.35, 0.0, 1.0));
+        }else{
+            return mix( diffuse.rgb, FOG_COLOR.rgb, fogColor.a);
+        }
+		
 	}
     return diffuse;
 }
