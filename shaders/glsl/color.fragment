@@ -8,6 +8,7 @@
 
 #include "includes/random.glsl"
 #include "includes/color_correction.glsl"
+#include "includes/env_detectors.glsl"
 
 varying float height;
 varying vec4 position;
@@ -15,12 +16,7 @@ varying float isUnderWater;
 
 void main()
 {
-    
-	float isRain = 1.0 - length(normalize(vec3(1.0)) - normalize(FOG_COLOR.rgb));// Calculate how complimentary fog color with gray color
-	isRain = pow(isRain, 16.0);
-	if(FOG_CONTROL.g > 0.95){
-		isRain = 0.0;
-	}
+	float isRain = detectRain();
 
 	vec3 clearSkyColor = pow(FOG_COLOR.rgb, vec3(0.6));
 	
