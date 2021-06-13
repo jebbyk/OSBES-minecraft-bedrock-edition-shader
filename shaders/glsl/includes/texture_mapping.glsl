@@ -72,7 +72,7 @@
 		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
 		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/vec2(65.0, 33.0) + waterNormalOffset).rgb * 2.0 - 1.0;
 		vec3 n2 = texture2D(texture0, fract(position.xz*0.3*wnScale * vec2(-1.0, 1.0) - t*wnScale)/vec2(65.0, 33.0) + waterNormalOffset).rgb * 2.0 - 1.0;
-        return normalize(vec3(n1.xy + n2.xy, n1.z * 2.0)) * 0.5 + 0.5;
+        return normalize(vec3(n1.xy + n2.xy, n1.z * 8.0)) * 0.5 + 0.5;
     }
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
