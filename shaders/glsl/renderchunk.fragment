@@ -178,7 +178,7 @@ void main()
 	//diffuse.rgb *= vec3(fract(uv0.x*32.0), fract(uv0.y*32.0), 1.0);
 
 	// Debug position
-	//diffuse.rgb = sin(position.xyz/2.545) * 0.5 + 0.5;
+	// diffuse.rgb = sin(position.xyz/2.545) * 0.5 + 0.5;
 
     // Debug tile texture
 	// diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 128.0), 0);
