@@ -143,7 +143,9 @@ void main()
 	resultLighting += vec3((isHell - isUnderWater )* 0.175);// Ambient highlighting in hell gonna be refflected 
 	resultLighting += pointLightsDiffused * 0.25;//imagine this is a reflection of 25% of an evironment hihglighted by point light
 	
-	vec4 skyLightReflected = clamp(buildRawSkyReflection(reflectedVector, resultLighting), 0.0, 1.0);
+
+	vec4 skyLightReflected = clamp(buildRawSkyReflection(reflectedVector, resultLighting, 0.0, 16.0), 0.0, 1.0);
+
 	
 	resultLighting += pointLightsDiffused * 0.75;// remaining point ligt isnt beign reflected
 	

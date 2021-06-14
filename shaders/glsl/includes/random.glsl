@@ -35,7 +35,7 @@ float rand_bilinear(highp vec2 coord){
 
 float cloudsPerlin(int octaves, vec2 position){
 
-	position = clamp(position, -1.0, 1.0);
+	position = clamp(position, -2.0, 2.0);
 	
 	highp float time = TIME;
 	float speed = 0.1;

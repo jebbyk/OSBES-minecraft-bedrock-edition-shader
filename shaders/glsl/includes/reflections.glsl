@@ -1,10 +1,10 @@
-#include "../uniformPerFrameConstants"
-#include "../uniformShaderConstants"
 #include "random.glsl"
 
-vec4 buildRawSkyReflection(vec3 reflectedVector, vec3 resultLighting)
+
+vec4 buildRawSkyReflection(vec3 reflectedVector, vec3 resultLighting, float horizonOffset, float horizonScale)
 {
-	float horizonLine =  1.0 - (abs(reflectedVector.y) / length(reflectedVector.xyz));
+	float horizonLine =  1.0 - (abs(reflectedVector.y + horizonOffset) / length(reflectedVector.xyz));
+	horizonLine = pow(horizonLine, 16.0 / horizonScale);
 	vec3 horizonColor = resultLighting;
 	vec3 zenithColor = vec3(0.25, 0.5, 1.0) * length(resultLighting);
 	return vec4(mix(zenithColor, horizonColor, horizonLine), horizonLine);

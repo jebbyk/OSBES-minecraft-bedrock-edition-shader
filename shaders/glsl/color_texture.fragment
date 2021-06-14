@@ -43,8 +43,8 @@ void main()
 		
 	// Terrain attlass mostly is bigger than items attlass
 	// Tricky thing that do really needs refactoring (!) but it works currently and I dont wona touch it
-	if(TEXTURE_DIMENSIONS.x == 2048.0){
-		vec2 uvhp = uv - fract(uv * vec2(64.0, 32.0)) / vec2(128.0, 64.0);
+	if(TEXTURE_DIMENSIONS.x == 1024.0){
+		vec2 uvhp = uv - fract(uv * vec2(32.0, 32.0)) / vec2(64.0, 64.0);
 		diffuse = texture2D( TEXTURE_0,  uvhp);
 		//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 	}else{
@@ -56,8 +56,8 @@ void main()
 		
 		// Terrain atlas mostly is bigger than items atlas
 		// This really needs refactoring (!), but it works currently and I dont wanna touch it
-		if(TEXTURE_DIMENSIONS.x == 2048.0){
-			vec2 uvhp = uv - fract(uv * vec2(64.0, 32.0)) / vec2(128.0, 64.0);
+		if(TEXTURE_DIMENSIONS.x == 1024.0){
+			vec2 uvhp = uv - fract(uv * vec2(32.0, 32.0)) / vec2(64.0, 64.0);
 			diffuse = texture2D( TEXTURE_0,  uvhp);
 			//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
 		}else{

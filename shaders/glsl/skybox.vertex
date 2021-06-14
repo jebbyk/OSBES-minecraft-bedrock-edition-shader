@@ -13,9 +13,10 @@ varying vec4 position;
 
 void main()
 {
-	gl_Position = WORLDVIEWPROJ * POSITION;
-    
 	position = POSITION;
+	gl_Position = WORLDVIEWPROJ * position;
+    
+
 
 
 

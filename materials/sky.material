@@ -61,7 +61,7 @@
     ],
 
     "blendSrc": "SourceAlpha",
-    "blendDst": "OneMinusSrcAlpha",
+    "blendDst": "One",
 
     "vertexShader": "shaders/skybox.vertex",
     "vrGeometryShader": "shaders/uv.geometry",
