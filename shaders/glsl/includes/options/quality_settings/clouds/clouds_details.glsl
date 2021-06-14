@@ -1,0 +1,1 @@
+#define CLOUDS_DETAILS  8 //recomended values [0, 1, 2, 4, 8]

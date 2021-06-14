@@ -12,6 +12,11 @@
 #include "includes/random.glsl"
 #include "includes/env_detectors.glsl"
 
+//settings
+#include "includes/options/quality_settings/clouds/clouds_enabled.glsl"
+#include "includes/options/quality_settings/clouds/clouds_details.glsl"
+#include "includes/options/quality_settings/clouds/advanced_clouds_shadow.glsl"
+
 varying vec4 position;
 
 void main()
@@ -36,39 +41,44 @@ void main()
 	// zenithColor = mix(zenithColor, horizonColor, is_rain);
 
 	vec3 skyColor = mix(zenithColor, horizonColor, horizon);
-	vec3 skyColorGrayscale = vec3((skyColor.r + skyColor.g + skyColor.b) / 3.0);
-
-
-
-
-	//clouds
-	highp vec2 cldCoord = vec2(-sphereNormal.x, sphereNormal.z);
-	cldCoord /= (abs(position.y + horizonOffset) / length(position.xyz));
 	
-	float clouds = cloudsPerlin(4, cldCoord / 16.0);
-	float cloudsShadow = cloudsPerlin(0, cldCoord * 0.85 / 16.0) * clouds;
-
-	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(16.0, 0.25, is_rain));
-	clouds = clamp(clouds, 0.0, 1.0);
-	cloudsShadow = pow(clamp(cloudsShadow * 2.0, 0.0, 1.0), 1.0);
-
-
-	vec3 cloudsColor = vec3(1.75) * pow(length(skyColor.gb), 2.0);
-
-
-	float shadowDesaturation = 0.25;
-	float additionalRainShadowDesaturation = 0.5;
-	float resultShadowDesaturation = shadowDesaturation + additionalRainShadowDesaturation * is_rain;
-
-	float shadowDarkening = 0.1;
-	float additionalRainShadowDarkening = 0.1;
-	float resultDarkening = 1.0 - shadowDarkening - (additionalRainShadowDarkening * is_rain);
 	
-	vec3 cloudsShadowColor = mix(skyColor.rgb, skyColorGrayscale, resultShadowDesaturation) * resultDarkening;
+	#ifdef CLOUDS_ENABLED
+		vec3 skyColorGrayscale = vec3((skyColor.r + skyColor.g + skyColor.b) / 3.0);
+		
+		highp vec2 cldCoord = vec2(-sphereNormal.x, sphereNormal.z);
+		cldCoord /= (abs(position.y + horizonOffset) / length(position.xyz));
+		
+		float clouds = cloudsPerlin(CLOUDS_DETAILS, cldCoord / 16.0);
 
-	cloudsColor = mix(cloudsColor, cloudsShadowColor, cloudsShadow);
+		#ifdef ADVANCED_CLOUDS_SHADOW
+			float cloudsShadow = cloudsPerlin(0, cldCoord * 0.85 / 16.0) * clouds;
+		#else
+			float cloudsShadow = clouds * 0.7;
+		#endif
 
-	skyColor.rgb = mix(skyColor.rgb, cloudsColor, clouds * zenith);
+		clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(16.0, 0.25, is_rain));
+		clouds = clamp(clouds, 0.0, 1.0);
+		cloudsShadow = pow(clamp(cloudsShadow * 2.0, 0.0, 1.0), 1.0);
+
+
+		vec3 cloudsColor = vec3(1.75) * pow(length(skyColor.gb), 2.0);
+
+
+		float shadowDesaturation = 0.25;
+		float additionalRainShadowDesaturation = 0.5;
+		float resultShadowDesaturation = shadowDesaturation + additionalRainShadowDesaturation * is_rain;
+
+		float shadowDarkening = 0.1;
+		float additionalRainShadowDarkening = 0.1;
+		float resultDarkening = 1.0 - shadowDarkening - (additionalRainShadowDarkening * is_rain);
+		
+		vec3 cloudsShadowColor = mix(skyColor.rgb, skyColorGrayscale, resultShadowDesaturation) * resultDarkening;
+
+		cloudsColor = mix(cloudsColor, cloudsShadowColor, cloudsShadow);
+
+		skyColor.rgb = mix(skyColor.rgb, cloudsColor, clouds * zenith);
+	#endif
 
 
 

@@ -45,6 +45,8 @@ varying vec4 relativePosition;// Calculates from vec4 position
 #include "includes/helpers.glsl"
 #include "includes/fogs.glsl"
 
+#include "includes/options/quality_settings/clouds/clouds_enabled.glsl"
+
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
@@ -154,8 +156,12 @@ void main()
 	resultLighting += resultLighting * mapCaustics(TEXTURE_0, position.xyz, isUnderWater);
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
+	#ifdef CLOUDS_ENABLED
+		vec3 reflection = buildSkyPlaneReflection(reflectedVector, skyLightReflected, isRain, roughness);
+	#else
+		vec3 reflection = skyLightReflected.rgb;
+	#endif
 	
-	vec3 reflection = buildSkyPlaneReflection(reflectedVector, skyLightReflected, isRain, roughness);
     reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadowMap * 1.0;
 	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 4.0;
 	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
