@@ -24,4 +24,4 @@
 - Improved reflections
 - Updated textures from Vanilla Normals Renewed
 -----------
-<sub>Changelog not recorded from v0.12.0 and before</sub>
+<sub>Changelogs not recorded prior to v0.12.1</sub>
