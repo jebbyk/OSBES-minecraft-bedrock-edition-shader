@@ -1,5 +1,17 @@
 # Changelog
-
+### v0.13.0
+- Added preset support! Create and share your own custom OSBES adjustments.
+- Fixed support for 1.17.10 (1.17.0 and earlier versions no longer work)
+- Code refactor
+- Adjusted clouds
+- Adjusted the sun and moon
+  - They now use more realistic textures and effects
+- New water map 
+  - This fixes visible texture borders previously visible on the water's surface
+- Shader now uses a skybox instead of a skyplane
+- Improved reflections
+- Reduced filesize via texture optimizations
+-------------
 ### v0.12.3
 - Rain fog fix
 - Updated 1.17 beta textures
