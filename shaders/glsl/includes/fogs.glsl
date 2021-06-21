@@ -2,9 +2,12 @@
 
 vec3 applyBasicFogs(vec3 diffuse, vec3 skyLightDiffused, float fogIntancity, vec4 milkyFog, float isDay, float isHell){
     diffuse = mix( diffuse, skyLightDiffused, fogIntancity);
-    vec3 milkyFogColor = mix(vec3(0.01), milkyFog.rgb, isDay);
-    return mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
-    //return diffuse;
+    #ifdef HORIZONTAL_FOG_ENABLED 
+        vec3 milkyFogColor = mix(vec3(0.01), milkyFog.rgb, isDay);
+        return mix(diffuse.rgb, milkyFogColor, milkyFog.a * (1.0 - isHell));
+    #else
+        return diffuse;
+    #endif
 }
 
 vec3 applyBlueFog(vec3 diffuse, vec4 blueFog, float isDay, float isRain, float isWater){

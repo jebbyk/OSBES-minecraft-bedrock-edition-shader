@@ -1,1 +1,1 @@
-//#define POINT_LIGHTS_REFLECTION // makes main light reflection a bit softer
+#define POINT_LIGHTS_REFLECTION // makes main light reflection a bit softer

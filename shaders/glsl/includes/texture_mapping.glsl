@@ -145,28 +145,28 @@
         // Top left texture - default diffuse
         highp vec2 diffuseMapCoord = fract(uv0 * vec2(32.0, 32.0)) * vec2(0.015625, 0.015625);// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
         diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
-    
-    #ifdef NORMAL_MAPPING_ENABLED
-        #if defined(BLEND)
-            if(isWater >  0.9){
-                #ifdef WATER_DETAILS_ENABLED
-		            reliefMap = mapWaterNormals(texture0);
-                #endif
-            }else{
+
+        #ifdef NORMAL_MAPPING_ENABLED
+            #if defined(BLEND)
+                if(isWater >  0.9){
+                    #ifdef WATER_DETAILS_ENABLED
+                        reliefMap = mapWaterNormals(texture0);
+                    #endif
+                }else{
+                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
+                    reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
+                }
+            #else
                 highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
-            }
-        #else
-            highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
-            reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
+            #endif
         #endif
-    #endif
         
-    #ifdef SPECULAR_MAPPING_ENABLED
-        // Top right texture - specular map
-        highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.015625, 0.0);// 1.0/128.0
-        rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
-    #endif 
+        #ifdef SPECULAR_MAPPING_ENABLED
+            // Top right texture - specular map
+            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.015625, 0.0);// 1.0/128.0
+            rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
+        #endif 
     }
 		
 
@@ -195,7 +195,12 @@
     void readLightMaps(out float srcPointLights, out float ambientOclusion, out float fakeShadow, vec2 uv1){
         srcPointLights = uv1.x;
         ambientOclusion = uv1.y;
-        fakeShadow = min(pow(ambientOclusion * 1.15, 128.0), 1.0);
+        
+        #ifdef  SHADOWS_ENABLED
+            fakeShadow = min(pow(ambientOclusion * 1.15, 128.0), 1.0);
+        #else
+            fakeShadow = 1.0;
+        #endif
     }
 
 

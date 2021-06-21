@@ -16,6 +16,7 @@
 #include "includes/options/quality_settings/clouds/clouds_enabled.glsl"
 #include "includes/options/quality_settings/clouds/clouds_details.glsl"
 #include "includes/options/quality_settings/clouds/advanced_clouds_shadow.glsl"
+#include "includes/options/quality_settings/other/tone_mapping_enabled.glsl"
 
 varying vec4 position;
 
@@ -83,7 +84,9 @@ void main()
 
 
 	//final stage
-	skyColor.rgb = colorCorrection(skyColor.rgb);
+	#ifdef TONE_MAPPING_ENABLED
+		skyColor.rgb = colorCorrection(skyColor.rgb);
+	#endif
 
 	gl_FragColor.rgb = skyColor.rgb;
 	gl_FragColor.a = 1.0;

@@ -14,8 +14,12 @@
 #include "includes/options/quality_settings/surface/normal_mapping_enabled.glsl"
 #include "includes/options/quality_settings/surface/specular_mapping_enabled.glsl"
 #include "includes/options/quality_settings/surface/puddles_enabled.glsl"
-#include "includes/options/quality_settings/surface/caustics_enabled.glsl"
 #include "includes/options/quality_settings/surface/water_details_enabled.glsl"
+#include "includes/options/quality_settings/lighting/caustics_enabled.glsl"
+#include "includes/options/quality_settings/lighting/shadows_enabled.glsl"
+#include "includes/options/quality_settings/other/tone_mapping_enabled.glsl"
+#include "includes/options/quality_settings/other/horizontal_fog_enabled.glsl"
+#include "includes/options/quality_settings/other/blue_fog_enabled.glsl"
 
 
 #if __VERSION__ >= 300
@@ -112,9 +116,11 @@ void main()
     }
 
 	float  wetness = 0.0;
-	#ifdef PUDDLES_ENABLED
+	
 		if(isRain > 0.1 && isWater < 0.1){
-			wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
+			#ifdef PUDDLES_ENABLED
+				wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
+			#endif
 			wetness = max(initialNormalVector.g * wetness, 0.5);
 			wetness *= fakeShadowMap;
 			//make normals to be flat on puddless
@@ -122,7 +128,7 @@ void main()
 			// make ground darker under puddless
 			diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
 		}
-	#endif
+
 
 	
 	float metalness; float roughness; float shininess;
@@ -216,11 +222,16 @@ void main()
 	#endif	
 	
 	if(isHell < 0.9){
-	    diffuse.rgb = applyBlueFog(diffuse.rgb, blueFog, isDay, isRain, isWater); 
+		#ifdef BLUE_FOG_ENABLED
+	    	diffuse.rgb = applyBlueFog(diffuse.rgb, blueFog, isDay, isRain, isWater);
+		#endif
+		
 		diffuse.rgb = applyBasicFogs(diffuse.rgb, skyLightDiffused.rgb * 2.0, fogColor.a, milkyFog, isDay, isHell);
 	}
-	
-	diffuse.rgb = colorCorrection(diffuse.rgb);
+
+	#ifdef TONE_MAPPING_ENABLED
+		diffuse.rgb = colorCorrection(diffuse.rgb);
+	#endif
 
 	diffuse.rgb = applyVanillaFog(diffuse.rgb, fogColor.a, isHell, isUnderWater);//hide difference between colorCorrected and vanilla fog in hell
 
