@@ -1,6 +1,5 @@
 #include "random.glsl"
 
-
 vec4 buildRawSkyReflection(vec3 reflectedVector, vec3 resultLighting, float horizonOffset, float horizonScale)
 {
 	float horizonLine =  1.0 - (abs(reflectedVector.y + horizonOffset) / length(reflectedVector.xyz));
@@ -15,7 +14,7 @@ vec3 buildSkyPlaneReflection(vec3 reflectedVector, vec4 skyLightReflected, float
 	highp vec2 cldCoord = -reflectedVector.xz;
 	cldCoord /= abs(reflectedVector.y);
 	
-	float clouds = cloudsPerlin(0, cldCoord / 16.0);
+	float clouds = cloudsPerlin(CLOUDS_REFLECTIONS_QUALITY, cldCoord / 16.0);
 
 	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(roughness * 32.0 * abs(reflectedVector.y), 2.0, isRain));
 	
@@ -34,12 +33,15 @@ vec4 calculateMainLightsReflection(vec3 normalVector, vec3 viewDir, vec4 mainLig
 	vec3 halfwayDir = normalize(fakeLightDir + viewDir); 
 	float spec = pow(max(dot(normalVector, halfwayDir), 0.0), shininess) * (1.0 - isRain) * 10.0;
 
+#ifdef BETTER_MAIN_LIGHT_REFLECTION
 	fakeLightDir = normalize(vec3(0.9, 0.9, 0.0));
 	halfwayDir = normalize(fakeLightDir + viewDir); 
-	spec += pow(max(dot(normalVector, halfwayDir), 0.0), shininess * 0.0625) * (1.0 - isRain) * 1.0;
+	spec += pow(max(dot(normalVector, halfwayDir), 0.0), shininess * 0.0625) * (1.0 - isRain) * 2.0;
+#endif
 
 	spec = clamp(spec, 0.0, 10.0);
 
+#ifdef HALO_REFLECTION_ENABLED
 	// Phong (fake halo effect)
 	float haloPhongIntecity = 2.0 * isSunrize;
 	vec3 reflectDir = reflect(-fakeLightDir, normalVector);
@@ -51,6 +53,7 @@ vec4 calculateMainLightsReflection(vec3 normalVector, vec3 viewDir, vec4 mainLig
 	float secondHaloPhong = pow(max(dot(viewDir, reflectDir), 0.0), 8.0) * haloPhongIntecity;
 
 	spec += haloPhong + secondHaloPhong;
+#endif
 
 	return vec4(mainLightDiffused.rgb, spec * (1.0 - isRain) * mainLightDiffused.a);
 }

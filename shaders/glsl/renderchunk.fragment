@@ -4,6 +4,15 @@
 
 #include "fragmentVersionCentroid.h"
 
+#include "includes/options/quality_settings/reflections/clouds_reflections_quality.glsl"
+#include "includes/options/quality_settings/clouds/clouds_enabled.glsl"
+#include "includes/options/quality_settings/reflections/clouds_reflection_enabled.glsl"
+#include "includes/options/quality_settings/reflections/better_main_light_reflection.glsl"
+#include "includes/options/quality_settings/reflections/main_light_reflection.glsl"
+#include "includes/options/quality_settings/reflections/point_lights_reflection.glsl"
+#include "includes/options/quality_settings/reflections/halo_reflection.glsl"
+
+
 #if __VERSION__ >= 300
 	#ifndef BYPASS_PIXEL_SHADER
 		#if defined(TEXEL_AA) && defined(TEXEL_AA_FEATURE)
@@ -45,7 +54,6 @@ varying vec4 relativePosition;// Calculates from vec4 position
 #include "includes/helpers.glsl"
 #include "includes/fogs.glsl"
 
-#include "includes/options/quality_settings/clouds/clouds_enabled.glsl"
 
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
@@ -133,8 +141,14 @@ void main()
 	vec3 viewDir = normalize(relativePosition.xyz);
 	vec3 reflectedVector = reflect(viewDir, normalVector);
 
+
+#ifdef MAIN_LIGHT_REFLECTION
 	vec4 mainLightReflected = calculateMainLightsReflection(normalVector, viewDir, mainLightDiffused, shininess, isRain, isSunrize);
+#endif
+
+#ifdef POINT_LIGHTS_REFLECTION
 	vec4 pointLightsReflected = calculatePointLightsReflected(normalVector, viewDir, shininess, pointLightsDiffused);
+#endif
 	
 	float fresnel = calculateFresnel(initialNormalVector, normalVector, viewDir, isWater, isRain, wetness);
 
@@ -156,22 +170,30 @@ void main()
 	resultLighting += resultLighting * mapCaustics(TEXTURE_0, position.xyz, isUnderWater);
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
-	#ifdef CLOUDS_ENABLED
+	#if defined(CLOUDS_ENABLED) && defined(CLOUDS_REFLECTION_ENABLED)
 		vec3 reflection = buildSkyPlaneReflection(reflectedVector, skyLightReflected, isRain, roughness);
 	#else
 		vec3 reflection = skyLightReflected.rgb;
 	#endif
-	
+
+#ifdef MAIN_LIGHT_REFLECTION
     reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadowMap * 1.0;
+#endif
+
+#ifdef POINT_LIGHTS_REFLECTION
 	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 4.0;
+#endif
+
 	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
 	vec3 insulatorsReflection = reflection * (1.0 - metalness);
 
     diffuse.rgb = mix(diffuse.rgb, metalnessReflection * 1.25, metalness);
     diffuse.rgb = mix(diffuse.rgb, insulatorsReflection * 2.0, (f0 * (1.0 - fresnel) + f1 * fresnel) * (1.0 - metalness) * roughness);
 	diffuse.a = max(diffuse.a, fresnel * 1.5);	
-	diffuse.a += isWater * mainLightReflected.a; 
 	
+#ifdef MAIN_LIGHT_REFLECTION
+	diffuse.a += isWater * mainLightReflected.a; 
+#endif	
 	
 	if(isHell < 0.9){
 	    diffuse.rgb = applyBlueFog(diffuse.rgb, blueFog, isDay, isRain, isWater); 
