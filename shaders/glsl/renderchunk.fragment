@@ -11,6 +11,11 @@
 #include "includes/options/quality_settings/reflections/main_light_reflection.glsl"
 #include "includes/options/quality_settings/reflections/point_lights_reflection.glsl"
 #include "includes/options/quality_settings/reflections/halo_reflection.glsl"
+#include "includes/options/quality_settings/surface/normal_mapping_enabled.glsl"
+#include "includes/options/quality_settings/surface/specular_mapping_enabled.glsl"
+#include "includes/options/quality_settings/surface/puddles_enabled.glsl"
+#include "includes/options/quality_settings/surface/caustics_enabled.glsl"
+#include "includes/options/quality_settings/surface/water_details_enabled.glsl"
 
 
 #if __VERSION__ >= 300
@@ -78,7 +83,12 @@ void main()
 	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0);
 
 	vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
+	
+#ifdef NORMAL_MAPPING_ENABLED
 	vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
+#else
+    vec3 normalVector = initialNormalVector;
+#endif
     
     vec4 diffuse = diffuseMap;
     #ifndef SEASONS
@@ -102,16 +112,19 @@ void main()
     }
 
 	float  wetness = 0.0;
-	if(isRain > 0.1 && isWater < 0.1){
-		wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
-		wetness = max(initialNormalVector.g * wetness, 0.5);
-		wetness *= fakeShadowMap;
-		//make normals to be flat on puddless
-		normalVector = mix(normalVector, initialNormalVector, (wetness - 0.5) * 2.0);
-		// make ground darker under puddless
-		diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
-	}
+	#ifdef PUDDLES_ENABLED
+		if(isRain > 0.1 && isWater < 0.1){
+			wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
+			wetness = max(initialNormalVector.g * wetness, 0.5);
+			wetness *= fakeShadowMap;
+			//make normals to be flat on puddless
+			normalVector = mix(normalVector, initialNormalVector, (wetness - 0.5) * 2.0);
+			// make ground darker under puddless
+			diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
+		}
+	#endif
 
+	
 	float metalness; float roughness; float shininess;
 	calculateMaterialProperties(metalness, roughness, shininess, rmeMap, wetness);
 	float f0 = (metalness * 0.5) + ((1.0 - metalness) * 0.1);
@@ -167,7 +180,10 @@ void main()
 	
 	resultLighting += mainLightDiffused.rgb * mainLightDiffused.a * fakeShadowMap * (1.0 - isRain + isUnderWater);
 	
-	resultLighting += resultLighting * mapCaustics(TEXTURE_0, position.xyz, isUnderWater);
+	#ifdef CAUSTICS_ENABLED
+		resultLighting += resultLighting * mapCaustics(TEXTURE_0, position.xyz, isUnderWater);
+	#endif
+
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	#if defined(CLOUDS_ENABLED) && defined(CLOUDS_REFLECTION_ENABLED)
@@ -176,24 +192,28 @@ void main()
 		vec3 reflection = skyLightReflected.rgb;
 	#endif
 
-#ifdef MAIN_LIGHT_REFLECTION
-    reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadowMap * 1.0;
-#endif
+	#ifdef MAIN_LIGHT_REFLECTION
+		reflection += mainLightReflected.rgb * mainLightReflected.a * fakeShadowMap * 1.0;
+	#endif
 
-#ifdef POINT_LIGHTS_REFLECTION
-	reflection += pointLightsReflected.rgb * pointLightsReflected.a * 4.0;
-#endif
+	#ifdef POINT_LIGHTS_REFLECTION
+		reflection += pointLightsReflected.rgb * pointLightsReflected.a * 4.0;
+	#endif
 
-	vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
+	#ifdef SPECULAR_MAPPING_ENABLED
+		vec3 metalnessReflection = diffuseMap.rgb * reflection * metalness;
+		diffuse.rgb = mix(diffuse.rgb, metalnessReflection * 1.25, metalness);
+	#endif
+
 	vec3 insulatorsReflection = reflection * (1.0 - metalness);
 
-    diffuse.rgb = mix(diffuse.rgb, metalnessReflection * 1.25, metalness);
+ 
     diffuse.rgb = mix(diffuse.rgb, insulatorsReflection * 2.0, (f0 * (1.0 - fresnel) + f1 * fresnel) * (1.0 - metalness) * roughness);
 	diffuse.a = max(diffuse.a, fresnel * 1.5);	
 	
-#ifdef MAIN_LIGHT_REFLECTION
-	diffuse.a += isWater * mainLightReflected.a; 
-#endif	
+	#ifdef MAIN_LIGHT_REFLECTION
+		diffuse.a += isWater * mainLightReflected.a; 
+	#endif	
 	
 	if(isHell < 0.9){
 	    diffuse.rgb = applyBlueFog(diffuse.rgb, blueFog, isDay, isRain, isWater); 

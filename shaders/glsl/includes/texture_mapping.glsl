@@ -146,9 +146,12 @@
         highp vec2 diffuseMapCoord = fract(uv0 * vec2(32.0, 32.0)) * vec2(0.015625, 0.015625);// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
         diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
     
+    #ifdef NORMAL_MAPPING_ENABLED
         #if defined(BLEND)
             if(isWater >  0.9){
-		        reliefMap = mapWaterNormals(texture0);
+                #ifdef WATER_DETAILS_ENABLED
+		            reliefMap = mapWaterNormals(texture0);
+                #endif
             }else{
                 highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
@@ -157,27 +160,34 @@
             highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
             reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
         #endif
+    #endif
         
+    #ifdef SPECULAR_MAPPING_ENABLED
         // Top right texture - specular map
         highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.015625, 0.0);// 1.0/128.0
         rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
+    #endif 
     }
 		
 
     void calculateMaterialProperties(out float metalness, out highp float roughness, out float shininess, highp vec4 rmeMap, float wetness){
         #if !defined(BLEND)
-            metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
-            roughness = mix(pow(rmeMap.r, 3.46), 1.0, wetness);
-            shininess = 512.0 * roughness;
+            #ifdef SPECULAR_MAPPING_ENABLED
+                metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
+                roughness = mix(pow(rmeMap.r, 3.46), 1.0, wetness);
+                shininess = 512.0 * roughness;
+            #endif
         #else
             if(isWater >  0.9){
                 metalness = 0.0;
                 roughness = 1.0;
                 shininess = 512.0;
             }else{
-                metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
-                roughness = mix(pow(rmeMap.r, 2.0), 1.0, wetness);
-                shininess = 512.0 * roughness;
+                #ifdef SPECULAR_MAPPING_ENABLED
+                    metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
+                    roughness = mix(pow(rmeMap.r, 2.0), 1.0, wetness);
+                    shininess = 512.0 * roughness;
+                #endif
             }
         #endif
     }
