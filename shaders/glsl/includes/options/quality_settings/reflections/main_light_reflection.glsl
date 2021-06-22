@@ -1,1 +1,1 @@
-#define MAIN_LIGHT_REFLECTION // makes main light reflection a bit softer
+#define MAIN_LIGHT_REFLECTION // comment this line to disable and uncomment to enable

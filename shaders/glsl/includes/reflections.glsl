@@ -14,9 +14,9 @@ vec3 buildSkyPlaneReflection(vec3 reflectedVector, vec4 skyLightReflected, float
 	highp vec2 cldCoord = -reflectedVector.xz;
 	cldCoord /= abs(reflectedVector.y);
 	
-	float clouds = cloudsPerlin(CLOUDS_REFLECTIONS_QUALITY, cldCoord / 16.0);
+	float clouds = cloudsPerlin(CLOUDS_REFLECTIONS_QUALITY, cldCoord / CLOUDS_SCALE);
 
-	clouds = pow(clamp(clouds * 1.75, 0.0, 1.0), mix(roughness * 32.0 * abs(reflectedVector.y), 2.0, isRain));
+	clouds = pow(clamp(clouds * CLOUDS_AMOUNT, 0.0, 1.0), mix(roughness * CLOUDS_SHARPNESS * 2.0 * abs(reflectedVector.y), 2.0, isRain));
 	
 	vec3 clearSkyCloudsColor = vec3(1.75) * pow(length(skyLightReflected.gb), 2.0);
 	vec3 rainSkyCloudsColor = skyLightReflected.rgb * 0.75;

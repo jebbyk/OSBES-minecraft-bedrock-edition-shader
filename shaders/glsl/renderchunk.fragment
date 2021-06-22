@@ -4,6 +4,7 @@
 
 #include "fragmentVersionCentroid.h"
 
+//quality settings
 #include "includes/options/quality_settings/reflections/clouds_reflections_quality.glsl"
 #include "includes/options/quality_settings/clouds/clouds_enabled.glsl"
 #include "includes/options/quality_settings/reflections/clouds_reflection_enabled.glsl"
@@ -21,6 +22,8 @@
 #include "includes/options/quality_settings/other/horizontal_fog_enabled.glsl"
 #include "includes/options/quality_settings/other/blue_fog_enabled.glsl"
 
+//presets
+#include "includes/options/preset/clouds.glsl"
 
 #if __VERSION__ >= 300
 	#ifndef BYPASS_PIXEL_SHADER
