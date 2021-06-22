@@ -5,7 +5,7 @@ vec4 buildRawSkyReflection(vec3 reflectedVector, vec3 resultLighting, float hori
 	float horizonLine =  1.0 - (abs(reflectedVector.y + horizonOffset) / length(reflectedVector.xyz));
 	horizonLine = pow(horizonLine, 16.0 / horizonScale);
 	vec3 horizonColor = resultLighting;
-	vec3 zenithColor = vec3(0.25, 0.5, 1.0) * length(resultLighting);
+	vec3 zenithColor = SKY_ZENITH_TINT * length(resultLighting);
 	return vec4(mix(zenithColor, horizonColor, horizonLine), horizonLine);
 }
 
@@ -29,12 +29,12 @@ vec3 buildSkyPlaneReflection(vec3 reflectedVector, vec4 skyLightReflected, float
 
 vec4 calculateMainLightsReflection(vec3 normalVector, vec3 viewDir, vec4 mainLightDiffused, float shininess, float isRain, float isSunrize){
 	// Blinn-phong
-	vec3 fakeLightDir = normalize(vec3(0.9, 0.5, 0.0));
+	vec3 fakeLightDir = normalize(MAIN_LIGHT_DIRRECTION);
 	vec3 halfwayDir = normalize(fakeLightDir + viewDir); 
 	float spec = pow(max(dot(normalVector, halfwayDir), 0.0), shininess) * (1.0 - isRain) * 10.0;
 
 #ifdef BETTER_MAIN_LIGHT_REFLECTION
-	fakeLightDir = normalize(vec3(0.9, 0.9, 0.0));
+	fakeLightDir = normalize(MAIN_LIGHT_DIRRECTION + vec3(0.0, 0.3, 0.0));
 	halfwayDir = normalize(fakeLightDir + viewDir); 
 	spec += pow(max(dot(normalVector, halfwayDir), 0.0), shininess * 0.0625) * (1.0 - isRain) * 2.0;
 #endif

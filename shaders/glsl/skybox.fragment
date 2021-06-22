@@ -20,6 +20,7 @@
 
 //preset
 #include "includes/options/preset/clouds.glsl"
+#include "includes/options/preset/lighting.glsl"
 
 varying vec4 position;
 
@@ -39,9 +40,9 @@ void main()
 	horizon = clamp(horizon, 0.0, 1.0);
 	float zenith = 1.0 - horizon;
 
-	vec3 horizonColor = pow(FOG_COLOR.rgb, vec3(0.6));
+	vec3 horizonColor = pow(FOG_COLOR.rgb, vec3(SKY_LIGHT_SATURATION));
 	
-	vec3 zenithColor = vec3(0.125, 0.25, 0.5) * length(horizonColor);
+	vec3 zenithColor = SKY_ZENITH_TINT * 0.5 * length(horizonColor);
 	// zenithColor = mix(zenithColor, horizonColor, is_rain);
 
 	vec3 skyColor = mix(zenithColor, horizonColor, horizon);

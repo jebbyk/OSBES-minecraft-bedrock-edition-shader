@@ -197,7 +197,7 @@
         ambientOclusion = uv1.y;
         
         #ifdef  SHADOWS_ENABLED
-            fakeShadow = min(pow(ambientOclusion * 1.15, 128.0), 1.0);
+            fakeShadow = min(pow(ambientOclusion * 1.15, SHADOW_SHARPNESS), 1.0);
         #else
             fakeShadow = 1.0;
         #endif
