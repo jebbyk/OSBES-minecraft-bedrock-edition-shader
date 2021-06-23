@@ -25,6 +25,7 @@
 //presets
 #include "includes/options/preset/clouds.glsl"
 #include "includes/options/preset/lighting.glsl"
+#include "includes/options/preset/fogs.glsl"
 
 #if __VERSION__ >= 300
 	#ifndef BYPASS_PIXEL_SHADER
