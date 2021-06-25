@@ -28,7 +28,7 @@ vec4 calculateMainLightDiffused(vec3 normalVector, float isDay){
 vec3 calculatePointLightsDiffused(float srcPointLights){
 	float nearPointLightsBrightness = pow(srcPointLights * 1.15, 32.0);
 	float overalPointLightsBrightness = pow(srcPointLights, 2.0) * 0.5 + nearPointLightsBrightness;
-	overalPointLightsBrightness *= POINT_LIGHTS_intensity;
+	overalPointLightsBrightness *= POINT_LIGHTS_INTENSITY;
 	overalPointLightsBrightness = clamp(overalPointLightsBrightness, 0.0, 2.0);
 	// vec3 pointLightsTint = vec3(1.0, 0.66, 0.33);
 	vec4 pointLights = vec4(1.0);
