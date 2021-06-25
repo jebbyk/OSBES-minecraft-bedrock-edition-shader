@@ -180,7 +180,7 @@ void main()
 	vec3 resultLighting = skyLightDiffused.rgb * skyLightDiffused.a * ambientOclusionMap;	
 
     //this two lines should be executed before building reflection
-	resultLighting += vec3((isHell - isUnderWater ) * NETHER_AMBIENT_LIGHT_INTENCITY);// Ambient highlighting in hell gonna be refflected 
+	resultLighting += vec3((isHell - isUnderWater ) * NETHER_AMBIENT_LIGHT_INTENSITY);// Ambient highlighting in hell gonna be refflected 
 	resultLighting += pointLightsDiffused * 0.25;//imagine this is a reflection of 25% of an evironment hihglighted by point light
 	
 

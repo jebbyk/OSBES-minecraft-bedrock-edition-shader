@@ -40,20 +40,20 @@ float cloudsPerlin(int octaves, vec2 position){
 	highp float time = TIME;
 	float speed = 0.1;
 	float scaleMultiplier = pow(2.0, float(octaves)); //  smaller scale - bigger noise
-	float intencityMultiplier = 1.0;
+	float intensityMultiplier = 1.0;
 	float resultDevider = 0.0;
 
 	float noise = 0.0;
 
 	while(scaleMultiplier > 1.5){
-		noise += rand_bilinear(position * scaleMultiplier) * intencityMultiplier;
-		resultDevider += intencityMultiplier;
+		noise += rand_bilinear(position * scaleMultiplier) * intensityMultiplier;
+		resultDevider += intensityMultiplier;
 		scaleMultiplier /= 2.0;
-		intencityMultiplier *= 2.0;
+		intensityMultiplier *= 2.0;
 	}
 
-	noise += rand_bilinear(position + vec2(time * speed)) * intencityMultiplier;
-	resultDevider += intencityMultiplier;
+	noise += rand_bilinear(position + vec2(time * speed)) * intensityMultiplier;
+	resultDevider += intensityMultiplier;
 
 	return noise / resultDevider;
 
