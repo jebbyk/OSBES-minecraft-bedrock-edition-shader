@@ -159,7 +159,7 @@
                     reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
                 }
             #else
-                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  1.0 / (TEXTURE_ATLAS_DIMENSION.x * 2.0));
+                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  1.0 / (TEXTURE_ATLAS_DIMENSION.y * 2.0));
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
             #endif
         #else
