@@ -7,7 +7,7 @@
         // TODO: Needs refactoring
         if(length(reliefMap) > 0.9){
             
-            float normalMapStrength = 1.0;
+            float normalMapStrength = NORMAL_MAP_STRENGTH;
 
             if(baseNormal.g > 0.9){
                 reliefMap.gb = reliefMap.bg;
@@ -72,19 +72,19 @@
 		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
 		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/vec2(33.0, 33.0) + waterNormalOffset).rgb * 2.0 - 1.0;
 		vec3 n2 = texture2D(texture0, fract(position.xz*0.3*wnScale * vec2(-1.0, 1.0) - t*wnScale)/vec2(33.0, 33.0) + waterNormalOffset).rgb * 2.0 - 1.0;
-        return normalize(vec3(n1.xy + n2.xy, n1.z * 8.0)) * 0.5 + 0.5;
+        return normalize(vec3(n1.xy + n2.xy, n1.z / WATER_NORMAL_MAP_STRENGTH)) * 0.5 + 0.5;
     }
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
 		float puddlesCovering = 1.5;
 		float puddlesScale = 16.0;
-		float minRainWettneess = 0.5;
+		// float minRainWettneess = 0.5;
         float edgePadding = 0.5; //prevent interpolation issues on texture edges
 
 		vec2 noiseTextureOffset = vec2(1.0/(32.0 - edgePadding), 0.0); 
 		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(32.0 + edgePadding) + noiseTextureOffset).r;
-		puddles = puddles * isRain * puddlesCovering;
-		puddles = clamp(puddles, minRainWettneess, 1.0);
+		puddles = puddles * isRain * PUDDLES_AMOUNT;
+		puddles = clamp(puddles, RAIN_MIN_WETNESS, 1.0);
 
 		return puddles * pow(uv1.y, 2.0);// No puddles in dark places like caves
     }
