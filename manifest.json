@@ -17,5 +17,37 @@
     "metadata": {
       "authors": ["Jebbyk", "OpenSauce", "LSumma", "BambooSapling"]
 
-    }
+    },
+    "subpacks": [
+        {
+            "folder_name": "lowest",
+			"name": "§a(LOWEST) : only basic functions\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": 1
+        },
+        {
+            "folder_name": "low",
+			"name": "§a(LOW) : balanced options for low end devices \n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": 1
+        },
+        {
+            "folder_name": "medium",
+			"name": "§a(MEDIUM) : balanced options for most of the devices\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": 1
+        },
+        {
+            "folder_name": "high",
+			"name": "§a(HIGH) : default recommended setting for powerfull GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": 1
+        },
+        {
+            "folder_name": "ultra",
+			"name": "§a(ULTRA) : even developer does not use this option, use if your phone is from 2023 or later\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": 1
+        },
+        {
+            "folder_name": "custom",
+			"name": "§a(CUSTOM) : use this if you know how to edit options files\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": 1
+        }
+    ]
 }

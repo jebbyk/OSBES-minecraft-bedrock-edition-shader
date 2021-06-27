@@ -1,0 +1,1 @@
+#define CLOUDS_REFLECTIONS_QUALITY 0 //recomended values [0, 1, 2]

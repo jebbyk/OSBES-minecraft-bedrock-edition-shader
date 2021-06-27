@@ -1,0 +1,1 @@
+#define NORMAL_MAPPING_ENABLED //comment this line to disable this feture, uncomment to enable
