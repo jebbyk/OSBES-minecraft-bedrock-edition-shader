@@ -4,14 +4,14 @@
         "description": "Open Source Bedrock Edition Shader",
         "name": "OSBES",
         "uuid": "67010235-00f4-0484-8b1d-80b110011997",
-        "version": [0, 12, 3]
+        "version": [0, 13, 1]
     },
     "modules": [
         {
             "description": "Open Source Bedrock Edition Shader",
             "type": "resources",
             "uuid": "53644fac-a276-42e5-843f-a3c6f169a9cd",
-            "version": [0, 12, 3]
+            "version": [0, 13, 1]
         }
     ],
     "metadata": {
