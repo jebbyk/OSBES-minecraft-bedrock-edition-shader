@@ -26,6 +26,8 @@
 #include "includes/options/preset/clouds.glsl"
 #include "includes/options/preset/lighting.glsl"
 #include "includes/options/preset/fogs.glsl"
+#include "includes/options/preset/surface.glsl"
+#include "includes/options/preset/other.glsl"
 
 #if __VERSION__ >= 300
 	#ifndef BYPASS_PIXEL_SHADER
@@ -93,10 +95,14 @@ void main()
 
 	vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
 	
-#ifdef NORMAL_MAPPING_ENABLED
+#if defined(NORMAL_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
 	vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
 #else
-    vec3 normalVector = initialNormalVector;
+	#ifdef WATER_DETAILS_ENABLED
+		vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
+	#else
+    	vec3 normalVector = initialNormalVector;
+	#endif
 #endif
     
     vec4 diffuse = diffuseMap;

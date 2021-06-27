@@ -78,9 +78,9 @@
 |Reflections               |0.12.1       | Metallicness pipeline and reflections|<span style="color:green">Ready</span>
 |Reflections               |0.12.2       | Bugfixes                           |<span style="color:green">Ready</span>
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Presets                   |0.13.0       | Shaders refactoring and comments   |<span style="color:purple">**In progress**</span>|
-|Presets                   |0.13.1       | Preset defines                     |<span style="color:orange">**Planned**</span>|
-|Presets                   |0.13.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Presets                   |0.13.0       | Shaders refactoring and comments   |<span style="color:green">Ready</span>
+|Presets                   |0.13.1       | Preset defines                     |<span style="color:green">Ready</span>
+|Presets                   |0.13.2       | Bugfixes                           |<span style="color:purple">**In progress**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Parallax mapping          |0.14.0       | Inner Core experimental defines    |<span style="color:orange">**Planned**</span>|
 |Parallax mapping          |0.14.1       | Simple parallax mapping            |<span style="color:orange">**Planned**</span>|

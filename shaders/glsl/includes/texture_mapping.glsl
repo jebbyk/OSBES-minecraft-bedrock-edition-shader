@@ -7,7 +7,7 @@
         // TODO: Needs refactoring
         if(length(reliefMap) > 0.9){
             
-            float normalMapStrength = 1.0;
+            float normalMapStrength = NORMAL_MAP_STRENGTH;
 
             if(baseNormal.g > 0.9){
                 reliefMap.gb = reliefMap.bg;
@@ -67,24 +67,22 @@
     vec3 mapWaterNormals(sampler2D texture0){
 		highp float t = TIME * 0.1;
 		float wnScale = 1.0;
-		vec2 waterNormalOffset = vec2(4.0/32.0, 0.0);
+		vec2 waterNormalOffset = vec2(4.0/TEXTURE_ATLAS_DIMENSION.x, 0.0);
 
 		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
-		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/vec2(33.0, 33.0) + waterNormalOffset).rgb * 2.0 - 1.0;
-		vec3 n2 = texture2D(texture0, fract(position.xz*0.3*wnScale * vec2(-1.0, 1.0) - t*wnScale)/vec2(33.0, 33.0) + waterNormalOffset).rgb * 2.0 - 1.0;
-        return normalize(vec3(n1.xy + n2.xy, n1.z * 8.0)) * 0.5 + 0.5;
+		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/(TEXTURE_ATLAS_DIMENSION + vec2(1.0, 1.0)) + waterNormalOffset).rgb * 2.0 - 1.0;
+		vec3 n2 = texture2D(texture0, fract(position.xz*0.3*wnScale * vec2(-1.0, 1.0) - t*wnScale)/(TEXTURE_ATLAS_DIMENSION + vec2(1.0, 1.0)) + waterNormalOffset).rgb * 2.0 - 1.0;
+        return normalize(vec3(n1.xy + n2.xy, n1.z / WATER_NORMAL_MAP_STRENGTH)) * 0.5 + 0.5;
     }
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
-		float puddlesCovering = 1.5;
 		float puddlesScale = 16.0;
-		float minRainWettneess = 0.5;
         float edgePadding = 0.5; //prevent interpolation issues on texture edges
 
-		vec2 noiseTextureOffset = vec2(1.0/(32.0 - edgePadding), 0.0); 
-		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(32.0 + edgePadding) + noiseTextureOffset).r;
-		puddles = puddles * isRain * puddlesCovering;
-		puddles = clamp(puddles, minRainWettneess, 1.0);
+		vec2 noiseTextureOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x - edgePadding), 0.0); 
+		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(TEXTURE_ATLAS_DIMENSION + edgePadding) + noiseTextureOffset).r;
+		puddles = puddles * isRain * PUDDLES_AMOUNT;
+		puddles = clamp(puddles, RAIN_MIN_WETNESS, 1.0);
 
 		return puddles * pow(uv1.y, 2.0);// No puddles in dark places like caves
     }
@@ -98,9 +96,9 @@
             highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 4.0)) * causticsScale + vec2(time * causticsSpeed);
             highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 4.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
-            highp vec2 noiseTexOffset = vec2(1.0/64.0, 0.0); 
-            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/64.0+ noiseTexOffset).r;
-            caustics += texture(texture0, fract(cauLayerCoord_1)/32.0 + noiseTexOffset).r;
+            highp vec2 noiseTexOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x * 2.0), 0.0); 
+            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/(TEXTURE_ATLAS_DIMENSION * 2.0) + noiseTexOffset).r;
+            caustics += texture(texture0, fract(cauLayerCoord_1)/TEXTURE_ATLAS_DIMENSION + noiseTexOffset).r;
             
            /* highp float redCaustics = texture2D(texture0, fract(cauLayerCoord_0 + 0.001)/32.0+ noiseTexOffset).r;
             redCaustics += texture(texture0, fract(cauLayerCoord_1 + 0.001)/32.0 + noiseTexOffset).r;
@@ -142,29 +140,39 @@
     void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, highp vec2 uv0){
         ////////////////////////////Mapping section///////////////////////////////////
         
-        // Top left texture - default diffuse
-        highp vec2 diffuseMapCoord = fract(uv0 * vec2(32.0, 32.0)) * vec2(0.015625, 0.015625);// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
-        diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
+        #ifdef PBR_FEATURE_ENABLED
+            // Top left texture - default diffuse
+            highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) / (TEXTURE_ATLAS_DIMENSION * 2.0);// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
+            diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
+        #else
+            diffuseMap = texelFetch(texture0, ivec2(uv0 * TEXTURE_DIMENSIONS.xy), 0);
+        #endif
 
-        #ifdef NORMAL_MAPPING_ENABLED
+        #if defined(NORMAL_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             #if defined(BLEND)
                 if(isWater >  0.9){
                     #ifdef WATER_DETAILS_ENABLED
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
+                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  1.0 / (TEXTURE_ATLAS_DIMENSION.x * 2.0));
                     reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
                 }
             #else
-                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  0.015625);
+                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  1.0 / (TEXTURE_ATLAS_DIMENSION.y * 2.0));
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
+            #endif
+        #else
+            #ifdef WATER_DETAILS_ENABLED
+                if(isWater >  0.9){
+                    reliefMap = mapWaterNormals(texture0);
+                }
             #endif
         #endif
         
-        #ifdef SPECULAR_MAPPING_ENABLED
+        #if defined(SPECULAR_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             // Top right texture - specular map
-            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(0.015625, 0.0);// 1.0/128.0
+            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(1.0 / (TEXTURE_ATLAS_DIMENSION.x * 2.0), 0.0);// 1.0/128.0
             rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
         #endif 
     }
