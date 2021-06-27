@@ -17,6 +17,6 @@ void main()
     color = vec4(0.0, 0.0, 0.0, 1.0);
    
     vec4 position = POSITION;
-    position.y -= length(position.xz) * 0.85;
+    position.y -= length(position.xz) * 0.65;
     gl_Position = WORLDVIEWPROJ * position;
 }

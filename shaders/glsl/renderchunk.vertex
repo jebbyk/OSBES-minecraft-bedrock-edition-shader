@@ -31,6 +31,10 @@
 #include "includes/env_detectors.glsl"
 
 
+#include "includes/options/preset/fogs.glsl"
+#include "includes/options/preset/animations.glsl"
+
+
 attribute POS4 POSITION;
 attribute vec4 COLOR;
 attribute vec2 TEXCOORD_0;
@@ -65,15 +69,7 @@ void main()
 
 	isWater = 0.0;
     
-    isUnderWater = 0.0;
-	
-	// Get the shade (not related to brightness) of fog_color
-	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
-	if(fogColorNormalized.r < 0.22 
-	&& fogColorNormalized.b < 0.90 && fogColorNormalized.b > 0.77
-	&& fogColorNormalized.g < 0.61 && fogColorNormalized.g > 0.44){
-		isUnderWater = 1.0;
-	}
+    isUnderWater = detectUnderwater();
 
 
 
@@ -136,19 +132,16 @@ void main()
 		// Wind waves
 		vec3 correctedRawPos = position.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
 		highp float t = TIME;
-		vec2 wavesScale = vec2(0.0125, 0.0125);
-		float wavesMovingSpeed = 16.0 * (1.0 + floor(isRain + 0.5) * 0.5);
-		float wavesFreq  = 4.0;
+		float wavesScale = WIND_WAVES_AMPLITUDE;
+		float wavesMovingSpeed = WIND_SPEED * (1.0 + floor(isRain + 0.5) * RAIN_WIND_SPEED_BOOST);
 
 		// Wind impulses
-		float impulsesMovingSpeed = 1.0;
-		float impulsesScaleDevider = 1.0;// Should be greater then 1.0
-		float impulseDuration = 4.0 / (1.0 + isRain * 2.0);// Bigger number = shorter impulse
-		float f = sin(correctedRawPos.x * impulsesScaleDevider + impulsesMovingSpeed * t) * 0.5 + 0.5;
+		float impulseDuration = WIND_IMPULSE_CUT / (1.0 + isRain * 2.0);// Bigger number = shorter impulse
+		float f = sin(correctedRawPos.x + WIND_IMPULSES_SPEED * t) * 0.5 + 0.5;
 		f = clamp(pow(f, impulseDuration), 0.1 + isRain * 0.3, 1.0);
-		wavesScale *= f * (1.0 + isRain * 2.0);
+		wavesScale *= f * (1.0 + isRain * RAIN_WIND_AMPLITUDE_BOOST);
 
-		position.xz += (1.0 + sin(t * wavesMovingSpeed + (correctedRawPos.x + correctedRawPos.z + correctedRawPos.y) * wavesFreq)) * wavesScale;  
+		position.xz += (1.0 + sin(t * wavesMovingSpeed + (correctedRawPos.x + correctedRawPos.z + correctedRawPos.y) / WIND_WAVES_LENGTH)) * wavesScale;  
 	}
 #endif
 
@@ -216,16 +209,16 @@ if(isUnderWater > 0.9){
 
 	
 
-	blueFog.rgb = vec3(0.25,0.35,1.0);
+	blueFog.rgb = BLUE_FOG_TINT;
 	float ownFogAlpha = length(relativePosition.xyz) / RENDER_DISTANCE;
-	blueFog.a = clamp(ownFogAlpha, 0.0, 0.75);
+	blueFog.a = clamp(pow(ownFogAlpha, BLUE_FOG_START), 0.0, 0.75);
 	
 	milkyFog.rgb = mix(vec3(2.0), vec3(0.5), isRain);
-	float milkyFogHeightShift = -RENDER_DISTANCE/8.0 + isRain * 8.0;
-	float milkyFogHeightAtenuation = (isRain + 1.0) / (RENDER_DISTANCE / 4.0);
+	float milkyFogHeightShift = -RENDER_DISTANCE/HORIZONTAL_FOG_HEIGHT + isRain * 8.0;
+	float milkyFogHeightAtenuation = (isRain + 1.0) / (RENDER_DISTANCE / HORIZONTAL_FOG_SHARPNESS);
 	milkyFog.a = (relativePosition.y + milkyFogHeightShift) * milkyFogHeightAtenuation;
 	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
-	milkyFog.a *= 0.3 + isRain*0.7;
+	milkyFog.a *= HORIZONTAL_FOG_MAX + isRain*(1.0 - HORIZONTAL_FOG_MAX);
 	milkyFog.a = clamp(milkyFog.a, 0.0, 1.0);
 
 
