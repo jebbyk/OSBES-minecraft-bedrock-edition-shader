@@ -1,1 +1,0 @@
-#define POINT_LIGHTS_REFLECTION // comment this line to disable and uncomment to enable
