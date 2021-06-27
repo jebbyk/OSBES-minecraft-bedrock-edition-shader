@@ -1,6 +1,7 @@
 # Changelog
 ### v0.13.1
 - Added preset support! Create and share your own custom OSBES adjustments.
+- Added an in-game shader quality slider
 -------------
 ### v0.13.0 (unreleased)
 - Fixed support for 1.17.10 (1.17.0 and earlier versions no longer work)
