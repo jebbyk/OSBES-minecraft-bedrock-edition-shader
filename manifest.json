@@ -21,27 +21,27 @@
     "subpacks": [
         {
             "folder_name": "lowest",
-			"name": "§a(LOWEST) : Only the bare-bones features required for the shader to run\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"name": "§a[LOWEST] : Only the bare-bones features required for the shader to run\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": 0
         },
         {
             "folder_name": "low",
-			"name": "§a(LOW) : Balanced options for most low end devices \n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"name": "§a[LOW] : Balanced options for most low end devices \n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": 1
         },
         {
             "folder_name": "medium",
-			"name": "§a(MEDIUM) : Balanced options for most midrange devices\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"name": "§a[MEDIUM] : Balanced options for most midrange devices\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": 2
         },
         {
             "folder_name": "high",
-			"name": "§a(HIGH (DEFAULT)) : Recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"name": "§a[HIGH (DEFAULT)] : Recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": 4
         },
         {
             "folder_name": "ultra",
-			"name": "§a(ULTRA) : Maximum quality settings, takes a very powerful device to run smoothly\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"name": "§a[ULTRA] : Maximum quality settings, takes a very powerful device to run smoothly\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": 3
         }
     ]
