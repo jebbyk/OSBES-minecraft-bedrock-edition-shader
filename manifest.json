@@ -36,7 +36,7 @@
         },
         {
             "folder_name": "high",
-			"name": "§a(HIGH) : Default & recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"name": "§a(HIGH (DEFAULT)) : Recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": 4
         },
         {
