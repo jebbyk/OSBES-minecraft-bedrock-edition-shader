@@ -9,6 +9,8 @@
 - New water map 
   - This fixes visible texture borders previously visible on the water's surface
 - Shader now uses a skybox instead of a skyplane
+  - There are now clouds below the ground as well as in the sky to give the illusion of further detail than the render distance allows
+  - Slight adjustments to the sky colour (most notably, the sunset)
 - Improved reflections
 - Reduced filesize via texture optimizations
 -------------
