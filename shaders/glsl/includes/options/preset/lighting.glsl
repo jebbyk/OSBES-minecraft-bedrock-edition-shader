@@ -6,4 +6,4 @@
 #define SKY_LIGHT_SATURATION 0.6 //horizon color and diffuse sky light
 #define SKY_ZENITH_TINT vec3(0.25, 0.5, 1.0)
 #define SHADOW_SHARPNESS 128.0
-#define NETHER_AMBIENT_LIGHT_INTENCITY  0.175
+#define NETHER_AMBIENT_LIGHT_INTENCITY  0.3
