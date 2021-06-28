@@ -36,18 +36,13 @@
         },
         {
             "folder_name": "high",
-			"name": "§a(HIGH) : Recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
-			"memory_tier": 3
+			"name": "§a(HIGH) : Default & recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": 4
         },
         {
             "folder_name": "ultra",
 			"name": "§a(ULTRA) : Maximum quality settings, takes a very powerful device to run smoothly\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
-			"memory_tier": 4
+			"memory_tier": 3
         },
-        {
-            "folder_name": "custom",
-			"name": "§a(CUSTOM) : Default setting; Use this to apply any custom configurations you have loaded (Applies \"High\" settings by default)\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
-			"memory_tier": 5
-        }
     ]
 }
