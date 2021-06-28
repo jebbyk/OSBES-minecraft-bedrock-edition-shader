@@ -35,14 +35,14 @@
 			"memory_tier": 2
         },
         {
-            "folder_name": "high",
-			"name": "§a[HIGH (DEFAULT)] : Recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
-			"memory_tier": 4
-        },
-        {
             "folder_name": "ultra",
 			"name": "§a[ULTRA] : Maximum quality settings, takes a very powerful device to run smoothly\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": 3
+        },
+		{
+            "folder_name": "high",
+			"name": "§a[HIGH (DEFAULT)] : Recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": 4
         }
     ]
 }
