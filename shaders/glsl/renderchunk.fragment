@@ -27,6 +27,7 @@
 #include "includes/options/preset/lighting.glsl"
 #include "includes/options/preset/fogs.glsl"
 #include "includes/options/preset/surface.glsl"
+#include "includes/options/preset/postprocessing.glsl"
 #include "includes/options/preset/other.glsl"
 
 #if __VERSION__ >= 300

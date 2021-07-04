@@ -8,10 +8,6 @@
 
 #include "uniformInterFrameConstants.h"
 
-#include "includes/color_correction.glsl"
-#include "includes/random.glsl"
-#include "includes/env_detectors.glsl"
-
 //settings
 #include "includes/options/quality_settings/clouds/clouds_enabled.glsl"
 #include "includes/options/quality_settings/clouds/clouds_details.glsl"
@@ -22,6 +18,11 @@
 #include "includes/options/preset/clouds.glsl"
 #include "includes/options/preset/lighting.glsl"
 #include "includes/options/preset/fogs.glsl"
+#include "includes/options/preset/postprocessing.glsl"
+
+#include "includes/color_correction.glsl"
+#include "includes/random.glsl"
+#include "includes/env_detectors.glsl"
 
 varying vec4 position;
 
