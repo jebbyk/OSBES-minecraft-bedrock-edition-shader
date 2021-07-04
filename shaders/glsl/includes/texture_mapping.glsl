@@ -67,7 +67,7 @@
     vec3 mapWaterNormals(sampler2D texture0){
 		highp float t = TIME * 0.1;
 		float wnScale = 1.0;
-		vec2 waterNormalOffset = vec2(4.0/TEXTURE_ATLAS_DIMENSION.x, 0.0);
+		vec2 waterNormalOffset = vec2(3.0/TEXTURE_ATLAS_DIMENSION.x, 0.0);
 
 		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
 		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/(TEXTURE_ATLAS_DIMENSION + vec2(1.0, 1.0)) + waterNormalOffset).rgb * 2.0 - 1.0;
