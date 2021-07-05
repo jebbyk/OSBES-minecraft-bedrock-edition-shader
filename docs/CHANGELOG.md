@@ -1,7 +1,15 @@
 # Changelog
+### v0.13.2
+- Updated loading messages to include the vanilla pool
+- Reverted change to water visuals from v0.13.1
+-------------
 ### v0.13.1
+- Moved all PBR textures into a seperate downloadable pack
+  - Because of this, regular texture packs will now work with OSBES
 - Added preset support! Create and share your own custom OSBES adjustments.
 - Added an in-game shader quality slider
+- Improved clouds
+- Improved reflections
 -------------
 ### v0.13.0 (unreleased)
 - Fixed support for 1.17.10 (1.17.0 and earlier versions no longer work)
