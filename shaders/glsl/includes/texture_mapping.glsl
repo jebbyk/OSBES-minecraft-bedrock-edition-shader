@@ -188,6 +188,10 @@
                 metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
                 roughness = mix(pow(rmeMap.r, 3.46), 1.0, wetness);
                 shininess = 512.0 * roughness;
+            #else
+                metalness = 0.0;
+                roughness = 0.0;
+                shininess = 0.0;
             #endif
         #else
             if(isWater >  0.9){
@@ -199,6 +203,10 @@
                     metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
                     roughness = mix(pow(rmeMap.r, 2.0), 1.0, wetness);
                     shininess = 512.0 * roughness;
+                #else
+                    metalness = 0.0;
+                    roughness = 0.0;
+                    shininess = 0.0;
                 #endif
             }
         #endif
