@@ -20,7 +20,7 @@
 #include "includes/options/quality_settings/lighting/shadows_enabled.glsl"
 #include "includes/options/quality_settings/other/tone_mapping_enabled.glsl"
 #include "includes/options/quality_settings/other/horizontal_fog_enabled.glsl"
-#include "includes/options/quality_settings/other/DISTANCE_FOG_enabled.glsl"
+#include "includes/options/quality_settings/other/distance_fog_enabled.glsl"
 
 //presets
 #include "includes/options/preset/clouds.glsl"
