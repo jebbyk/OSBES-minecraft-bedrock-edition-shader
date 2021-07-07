@@ -43,7 +43,7 @@ attribute vec2 TEXCOORD_1;
 varying float isWater;
 varying float isUnderWater;
 
-varying vec4 blueFog;
+varying vec4 distanceFog;
 varying vec4 milkyFog;
 varying vec4 position;
 varying vec4 relativePosition;
@@ -209,9 +209,9 @@ if(isUnderWater > 0.9){
 
 	
 
-	blueFog.rgb = BLUE_FOG_TINT;
+	distanceFog.rgb = DISTANCE_FOG_TINT;
 	float ownFogAlpha = length(relativePosition.xyz) / RENDER_DISTANCE;
-	blueFog.a = clamp(pow(ownFogAlpha, BLUE_FOG_START), 0.0, 0.75);
+	distanceFog.a = clamp(pow(ownFogAlpha, DISTANCE_FOG_START), 0.0, 0.75);
 	
 	milkyFog.rgb = mix(vec3(2.0), vec3(0.5), isRain);
 	float milkyFogHeightShift = -RENDER_DISTANCE/HORIZONTAL_FOG_HEIGHT + isRain * 8.0;

@@ -103,7 +103,7 @@
            /* highp float redCaustics = texture2D(texture0, fract(cauLayerCoord_0 + 0.001)/32.0+ noiseTexOffset).r;
             redCaustics += texture(texture0, fract(cauLayerCoord_1 + 0.001)/32.0 + noiseTexOffset).r;
             
-            highp float blueCaustics = texture2D(texture0, fract(cauLayerCoord_0 - 0.001)/32.0+ noiseTexOffset).r;
+            highp float distanceFogCaustics = texture2D(texture0, fract(cauLayerCoord_0 - 0.001)/32.0+ noiseTexOffset).r;
             blueCaustics += texture(texture0, fract(cauLayerCoord_1 - 0.001)/32.0 + noiseTexOffset).r;
             
             */
