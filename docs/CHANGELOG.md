@@ -4,7 +4,7 @@
 - Reverted change to water visuals from v0.13.1
 - Bugfixes
   - Fixed inventory icons
-  - Fixed texture map read issues
+  - Fixed texture map read issues causing black blocks and glitches on iOS and some other devices
 -------------
 ### v0.13.1
 - Moved all PBR textures into a seperate downloadable pack
