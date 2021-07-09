@@ -10,10 +10,10 @@ vec3 applyBasicFogs(vec3 diffuse, vec3 skyLightDiffused, float fogIntancity, vec
     #endif
 }
 
-vec3 applyBlueFog(vec3 diffuse, vec4 blueFog, float isDay, float isRain, float isWater){
+vec3 applyDistanceFog(vec3 diffuse, vec4 distanceFog, float isDay, float isRain, float isWater){
     if(isWater < 0.9 && isRain < 0.9){
-        //Add blue fog everywhere when weather is good except water and hell
-		return mix(diffuse.rgb, blueFog.rgb, blueFog.a * pow(isDay, 2.0));
+        //Add distance fog everywhere when weather is good except water and hell
+		return mix(diffuse.rgb, distanceFog.rgb, distanceFog.a * pow(isDay, 2.0));
 	}
     return diffuse;
 }
