@@ -5,6 +5,7 @@
 - Bugfixes
   - Fixed inventory icons
   - Fixed texture map read issues causing black blocks and glitches on iOS and some other devices
+  - Fixed size of the sun and moon if no PBR texture packs is loaded
 -------------
 ### v0.13.1
 - Moved all PBR textures into a seperate downloadable pack
