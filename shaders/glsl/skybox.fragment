@@ -26,6 +26,9 @@
 
 varying vec4 position;
 
+LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
+varying vec2 texcoord_0;
+
 void main()
 {
     float isUnderWater = detectUnderwater();
@@ -59,10 +62,10 @@ void main()
     		highp vec2 cldCoord = vec2(-sphereNormal.x, sphereNormal.z);
     		cldCoord /= (abs(position.y + horizonOffset) / length(position.xyz));
     		
-    		float clouds = cloudsPerlin(CLOUDS_DETAILS, cldCoord / CLOUDS_SCALE);
+    		float clouds = cloudsPerlinTex(TEXTURE_0, CLOUDS_DETAILS, cldCoord / CLOUDS_SCALE);
     
     		#ifdef ADVANCED_CLOUDS_SHADOW
-    			float cloudsShadow = cloudsPerlin(0, cldCoord * 0.85 / CLOUDS_SCALE) * clouds;
+    			float cloudsShadow = cloudsPerlinTex(TEXTURE_0, 0, cldCoord * 0.85 / CLOUDS_SCALE) * clouds;
     		#else
     			float cloudsShadow = clouds * 0.7;
     		#endif
