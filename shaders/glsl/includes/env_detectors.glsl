@@ -34,13 +34,9 @@ void detectEnvironment(out float isDay, out float isHell, out float isSunrize, s
 }
 
 float detectUnderwater(){
-	// Get the shade (not related to brightness) of fog_color
-	vec3 fogColorNormalized = normalize(FOG_COLOR.rgb);
-	if(fogColorNormalized.r < 0.22 
-	&& fogColorNormalized.b < 0.90 && fogColorNormalized.b > 0.77
-	&& fogColorNormalized.g < 0.61 && fogColorNormalized.g > 0.44){
+	if(FOG_CONTROL.r < 0.01)
+	{
 		return 1.0;
 	}
-	
 	return 0.0;
 }

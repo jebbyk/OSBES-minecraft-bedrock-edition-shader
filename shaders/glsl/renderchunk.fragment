@@ -262,6 +262,16 @@ void main()
 
 	//diffuse.rgb = texelFetch(TEXTURE_1, ivec2(position.xz * 4.0),0).rgb;
 	//diffuse.rgb = texture2D(TEXTURE_1, vec2(0.0, 1.0)).rgb;
+
+	// if(gl_FragCoord.x < 1920.0 * FOG_CONTROL.r && gl_FragCoord.y > 1000.0 && gl_FragCoord.y < 1050.0)
+	// {
+	// 	diffuse = vec4(0.0, 1.0, 0.0, 1.0);
+	// }
+
+	// if(gl_FragCoord.x < 1920.0 * FOG_CONTROL.g && gl_FragCoord.y > 900.0 && gl_FragCoord.y < 950.0)
+	// {
+	// 	diffuse = vec4(1.0, 1.0, 0.0, 1.0);
+	// }
 	
 	gl_FragColor = diffuse;
 #endif // !BYPASS_PIXEL_SHADER
