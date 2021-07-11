@@ -166,6 +166,8 @@
             #ifdef WATER_DETAILS_ENABLED
                 if(isWater >  0.9){
                     reliefMap = mapWaterNormals(texture0);
+                }else{
+                    reliefMap = vec3(0.0);
                 }
             #endif
         #endif
@@ -174,6 +176,8 @@
             // Top right texture - specular map
             highp vec2 rmeMapCoord = diffuseMapCoord - vec2(1.0 / (TEXTURE_ATLAS_DIMENSION.x * 2.0), 0.0);// 1.0/128.0
             rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
+        #else
+            rmeMap = vec4(0.0);
         #endif 
     }
 		
@@ -184,6 +188,10 @@
                 metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
                 roughness = mix(pow(rmeMap.r, 3.46), 1.0, wetness);
                 shininess = 512.0 * roughness;
+            #else
+                metalness = 0.0;
+                roughness = 0.0;
+                shininess = 0.0;
             #endif
         #else
             if(isWater >  0.9){
@@ -195,6 +203,10 @@
                     metalness = mix(pow(rmeMap.g, 2.0), 0.0, wetness);
                     roughness = mix(pow(rmeMap.r, 2.0), 1.0, wetness);
                     shininess = 512.0 * roughness;
+                #else
+                    metalness = 0.0;
+                    roughness = 0.0;
+                    shininess = 0.0;
                 #endif
             }
         #endif
