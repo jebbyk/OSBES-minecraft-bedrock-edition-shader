@@ -9,12 +9,12 @@ vec4 buildRawSkyReflection(vec3 reflectedVector, vec3 resultLighting, float hori
 	return vec4(mix(zenithColor, horizonColor, horizonLine), horizonLine);
 }
 
-vec3 buildSkyPlaneReflection(vec3 reflectedVector, vec4 skyLightReflected, float isRain, float roughness){
+vec3 buildSkyPlaneReflection(sampler2D texture0, vec3 reflectedVector, vec4 skyLightReflected, float isRain, float roughness){
 
 	highp vec2 cldCoord = -reflectedVector.xz;
 	cldCoord /= abs(reflectedVector.y);
 	
-	float clouds = cloudsPerlin(CLOUDS_REFLECTIONS_QUALITY, cldCoord / CLOUDS_SCALE);
+	float clouds = cloudsPerlinTex2(texture0, CLOUDS_REFLECTIONS_QUALITY, cldCoord / CLOUDS_SCALE);
 
 	clouds = pow(clamp(clouds * CLOUDS_AMOUNT, 0.0, 1.0), mix(roughness * CLOUDS_SHARPNESS * 2.0 * abs(reflectedVector.y), 2.0, isRain));
 	

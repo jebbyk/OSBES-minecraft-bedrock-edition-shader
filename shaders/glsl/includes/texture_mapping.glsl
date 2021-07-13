@@ -77,7 +77,7 @@
 
     float mapPuddles(sampler2D texture0, vec2 position, float isRain){
 		float puddlesScale = 16.0;
-        float edgePadding = 0.5; //prevent interpolation issues on texture edges
+        float edgePadding = 1.0; //prevent interpolation issues on texture edges
 
 		vec2 noiseTextureOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x - edgePadding), 0.0); 
 		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(TEXTURE_ATLAS_DIMENSION + edgePadding) + noiseTextureOffset).r;

@@ -86,3 +86,29 @@ float cloudsPerlinTex(sampler2D noiseTexture, int octaves, vec2 position){
 	return noise / resultDevider;
 
 }
+
+float cloudsPerlinTex2(sampler2D noiseTexture, int octaves, vec2 position){
+
+	position = clamp(position, -256.0, 256.0);
+	
+	highp float time = TIME;
+	float speed = 0.1;
+	float scaleMultiplier = pow(2.0, float(octaves)); //  smaller scale - bigger noise
+	float intensityMultiplier = 1.0;
+	float resultDevider = 0.0;
+
+	float noise = 0.0;
+
+	while(scaleMultiplier > 1.5){
+		noise += texture2D(noiseTexture, fract(position * scaleMultiplier * 0.03125) / vec2(64.0, 32.0)) * intensityMultiplier;
+		resultDevider += intensityMultiplier;
+		scaleMultiplier /= 2.0;
+		intensityMultiplier *= 2.0;
+	}
+
+	noise += texture2D(noiseTexture, fract((position + vec2(time * speed)) * 0.03125) / vec2(64.0, 32.0)) * intensityMultiplier;
+	resultDevider += intensityMultiplier;
+
+	return noise / resultDevider;
+
+}

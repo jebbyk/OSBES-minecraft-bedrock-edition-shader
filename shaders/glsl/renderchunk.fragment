@@ -205,7 +205,7 @@ void main()
 	diffuse.rgb *= resultLighting.rgb * 1.8 * (1.0 - metalness); 
 
 	#if defined(CLOUDS_ENABLED) && defined(CLOUDS_REFLECTION_ENABLED)
-		vec3 reflection = buildSkyPlaneReflection(reflectedVector, skyLightReflected, isRain, roughness);
+		vec3 reflection = buildSkyPlaneReflection(TEXTURE_0, reflectedVector, skyLightReflected, isRain, roughness);
 	#else
 		vec3 reflection = skyLightReflected.rgb;
 	#endif
