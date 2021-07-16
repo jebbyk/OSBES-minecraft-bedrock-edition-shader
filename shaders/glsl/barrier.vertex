@@ -24,7 +24,7 @@ attribute vec2 TEXCOORD_1;
 		varying vec2 uv1;
 	#endif
 #endif
-// Passing color so we can avoid having an extra shader and just use renderchunk.fragment
+// Passing varyings so we can avoid having an extra shader and just use renderchunk.fragment
 varying vec4 color;
 
 varying float isRain;
@@ -40,7 +40,6 @@ varying vec4 distanceFog;
 
 
 void main() {
-  position = POSITION;
 	vec3 inputPos = POSITION.xyz * CHUNK_ORIGIN_AND_SCALE.w + CHUNK_ORIGIN_AND_SCALE.xyz;
 	vec3 center = inputPos + vec3(0.5, 0.5, 0.5);
 
@@ -68,12 +67,14 @@ void main() {
 	uv0 = TEXCOORD_0;
 	uv1 = TEXCOORD_1;
 
+  //copied from renderchunk.vertex
+  position = POSITION;
   POS4 worldPos;
 
   #ifdef AS_ENTITY_RENDERER
-		POS4 worldViewPosScaled = WORLDVIEWPROJ * position;
-		worldPos = worldViewPosScaled;
-#else
+	POS4 worldViewPosScaled = WORLDVIEWPROJ * position;
+	worldPos = worldViewPosScaled;
+  #else
 	worldPos.xyz = (position.xyz * CHUNK_ORIGIN_AND_SCALE.w) + CHUNK_ORIGIN_AND_SCALE.xyz;
 	worldPos.w = 1.0;
 
@@ -82,19 +83,19 @@ void main() {
 	// World position here is calculated above and can get huge
 	POS4 worldViewPosScaled = WORLDVIEW * worldPos;
 	worldViewPosScaled = PROJ * worldViewPosScaled;
-#endif //AS_ENTITY_RENDERER
+  #endif //AS_ENTITY_RENDERER
 
   relativePosition.xyz = -worldPos.xyz;
   relativePosition.w = worldPos.w;
   
+  //deafult varyings renderchunk.fragment
   isRain = 0.0;
   isWater = 0.0;
   isUnderWater = 0.0;
   fogColor = vec4(0.0);
-  blueFog = vec4(0.0);
   milkyFog = vec4(0.0);
   distanceFog = vec4(0.0);
-	// color is hardcoded white
-	color = vec4(1.0, 1.0, 1.0, 1.0);
+  // color is hardcoded white
+  color = vec4(1.0, 1.0, 1.0, 1.0);
   
 }
