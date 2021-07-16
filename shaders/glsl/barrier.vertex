@@ -34,7 +34,6 @@ varying highp vec4 position;// Get pixel position in world space (used for calcu
 varying vec4 relativePosition;// Calculates from vec4 position
 //#ifdef FOG
 varying vec4 fogColor;
-varying vec4 blueFog;
 varying vec4 milkyFog;
 varying vec4 distanceFog;
 
