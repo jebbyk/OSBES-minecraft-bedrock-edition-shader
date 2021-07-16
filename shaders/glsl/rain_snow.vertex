@@ -1,5 +1,5 @@
 // __multiversion__
-// This signals the loading code to prepend either #version 100 or #version 300 ES as appropriate.
+// This signals the loading code to prepend either #version 100 or #version 300 es as apropriate.
 
 #include "vertexVersionSimple.h"
 
@@ -28,34 +28,34 @@ void main()
 
 	vec3 pos = POSITION.xyz;
 		
-	// Subtract the offset then fmod into (0.0f, PARTICLE_BOX)
+	// subtract the offset then fmod into (0.0f, PARTICLE_BOX)
 	pos.xyz += POSITION_OFFSET.xyz;
 	pos.xyz = mod(pos.xyz, PARTICLE_BOX.xyz);
 	
-	// Center box on origin
+	// centre box on origin
 	pos.xyz -= PARTICLE_BOX.xyz * 0.5;
 	
-	// Push along view vector so box is positioned more infront of camera
+	// push along view vector so box is positioned more infront of camera
 	pos.xyz += FORWARD.xyz;
 	
-	// Get world position
+	// get world position
 	vec4 worldPositionBottom = vec4(pos.xyz, 1.0);
 	vec4 worldPositionTop = vec4(worldPositionBottom.xyz + (VELOCITY.xyz * SIZE_SCALE.y), 1.0);
 
-	// Get projected positions of top and bottom of particle, and top of particle in previous frame
+	// get projected positions of top and bottom of particle, and top of particle in previous frame
 	vec4 bottom = WORLDVIEWPROJ * worldPositionBottom;
 	vec4 top = WORLDVIEWPROJ * worldPositionTop;
 	
-	// Get 2d vector in screenspace between top and bottom of particle
+	// get 2d vector in screenspace between top and bottom of particle
 	vec2 dir = normalize((top.xy/top.w) - (bottom.xy/bottom.w));
 	
-	// Get 2d vector perpendicular to velocity
+	// get 2d vector perpendicular to velocity
 	vec2 dirPerp = normalize(vec2(-dir.y, dir.x));
 
-	// Choose either the top or bottom projected position using uv.y
+	// choose either the top or bottom projected position using uv.y
 	gl_Position = mix(top, bottom, TEXCOORD_0.y);
 	 	
-	// Offset the position of each side of the particle using uv.x 
+	// offset the position of each side of the particle using uv.x 
 	gl_Position.xy += (0.5 - TEXCOORD_0.x) * dirPerp * SIZE_SCALE.x;
 	
 	color = ALPHA.rgba;
@@ -66,7 +66,7 @@ void main()
 	}
 #endif
 
-	// Fog
+	//fog
     fogColor.rgb = FOG_COLOR.rgb;
 	fogColor.a = clamp(((bottom.z / RENDER_DISTANCE) - FOG_CONTROL.x) / (FOG_CONTROL.y - FOG_CONTROL.x), 0.0, 1.0);
 
