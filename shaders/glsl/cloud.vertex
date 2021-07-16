@@ -9,8 +9,10 @@
 
 attribute mediump vec4 POSITION;
 attribute vec4 COLOR;
+varying vec4 color;
 
 void main()
 {
+   color = vec4(0.0);
  	gl_Position = vec4(0.0);
 }
