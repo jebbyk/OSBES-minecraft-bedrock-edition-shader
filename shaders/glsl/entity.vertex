@@ -10,6 +10,10 @@
 #include "uniformAnimationConstants.h"
 #endif
 
+#include "includes/options/preset/animations.glsl"
+#include "includes/env_detectors.glsl"
+#include "includes/env_effects.glsl"
+
 #line 13
 
 attribute mediump vec4 POSITION;
@@ -40,6 +44,7 @@ varying vec4 skyLightColor;
 	// Changing overlay color to high precision appears to fix the issue on devices tested
 	varying highp vec4 overlayColor;
 #endif
+
 
 #ifdef TINTED_ALPHA_TEST
 	varying float alphaTestMultiplier;
@@ -109,7 +114,19 @@ void main()
 	entitySpaceNormal = NORMAL * vec4(1, 1, 1, 0);
 #endif
 	POS4 pos = WORLDVIEWPROJ * entitySpacePosition;
+
+// othrogonal projection check
+// because some items and overlays in invetory and UI uses entity renderer only in othro
+// underwater check fails in GUI and in inventory underwater
+  bool othroChk = ((WORLDVIEWPROJ * vec4(vec3(0.0), 1.0)).w) == 1.0;
+  if (othroChk){
+   //projection is othro
 	gl_Position = pos;
+  }else{
+   //projection is perspective, apply underwater wobbles
+   gl_Position = transformEffects(pos);
+  }
+
 	float L = lightIntensity(entitySpacePosition, entitySpaceNormal);
 	normalsColor = normalize(WORLD *  entitySpaceNormal); // Get normals to calculate world realtive lightin
 	skyLightDirection = vec3(0.0, 1.0, 0.0);
