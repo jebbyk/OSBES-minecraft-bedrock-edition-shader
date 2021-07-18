@@ -111,7 +111,6 @@ void main()
 	entitySpacePosition = POSITION * vec4(1, 1, 1, 1);
 	entitySpaceNormal = NORMAL * vec4(1, 1, 1, 0);
 #endif
-   position = entitySpacePosition;
 	POS4 pos = WORLDVIEWPROJ * entitySpacePosition;
 	gl_Position = pos;
 
