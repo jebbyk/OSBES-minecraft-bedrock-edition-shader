@@ -97,13 +97,6 @@ void main()
     POS4 pos = WORLDVIEWPROJ * POSITION;
 #endif
     
-  // othrogonal projection check
-  // because some items and overlays in invetory and UI uses entity renderer only in othro
-  // underwater check fails in GUI and in inventory underwater
-  bool isOthro = WORLDVIEWPROJ[3][3] == 1.0;
-  bool isUnderWater = detectUnderwater() > 0.9;
-    //projection is not othro, apply underwater wobbles
-    gl_Position = transformEffects(pos, isUnderWater && !isOthro);
 
 #ifdef ENABLE_LIGHT
     float L = lightIntensity();
