@@ -113,16 +113,6 @@ void main()
 #endif
    position = entitySpacePosition;
 	POS4 pos = WORLDVIEWPROJ * entitySpacePosition;
-   relativePosition.xyz = -pos.xyz;
-   relativePosition.w = pos.w;
-
-// othrogonal projection check
-// because some items and overlays in invetory and UI uses entity renderer only in othro
-// underwater check fails in GUI and in inventory underwater
-  bool isUnderWater = detectUnderwater() > 0.9;
-  bool isOthro = WORLDVIEWPROJ[3][3] == 1.0;
-  //if projection is not othro, apply underwater wobbles
-  gl_Position = transformEffects(pos, isUnderWater && !isOthro);
 
 	float L = lightIntensity(entitySpacePosition, entitySpaceNormal);
 	normalsColor = normalize(WORLD *  entitySpaceNormal); // Get normals to calculate world realtive lightin
