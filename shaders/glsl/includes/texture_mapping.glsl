@@ -111,9 +111,7 @@
             
             
          //   caustics = clamp(caustics, 0.0, 2.0);
-            if(caustics > 1.0){
-                caustics = 2.0 - caustics;
-            }
+            caustics = -abs(caustics - 1.0)  + 1.0;
             
           /*  if(redCaustics > 1.0){
                 redCaustics = 2.0 - redCaustics;
