@@ -59,7 +59,8 @@ float isLeaves;
 float isPlantTop;
 void main()
 {
-  position = POSITION;
+
+	position = POSITION;
 	
 
 
@@ -166,7 +167,9 @@ POS4 worldPos;
 relativePosition.xyz = -worldPos.xyz;
 relativePosition.w = worldPos.w;
 
-gl_Position = transformEffects(worldViewPosScaled);
+bool isUWbool = (detectUnderwater() > 0.9);
+gl_Position = transformEffects(worldViewPosScaled, isUWbool);
+
 
 
 
