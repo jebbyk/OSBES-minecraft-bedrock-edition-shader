@@ -97,6 +97,7 @@ void main()
     POS4 pos = WORLDVIEWPROJ * POSITION;
 #endif
     
+    gl_Position = pos;
 
 #ifdef ENABLE_LIGHT
     float L = lightIntensity();
