@@ -11,9 +11,6 @@
 #include "uniformAnimationConstants.h"
 #endif
 
-#include "includes/options/preset/animations.glsl"
-#include "includes/env_detectors.glsl"
-#include "includes/env_effects.glsl"
 
 attribute mediump vec4 POSITION;
 attribute vec2 TEXCOORD_0;
