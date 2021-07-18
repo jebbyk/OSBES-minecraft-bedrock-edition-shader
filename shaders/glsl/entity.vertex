@@ -34,8 +34,6 @@ varying vec4 normalsColor;
 varying vec3 skyLightDirection;
 varying vec4 skyLightPerVertex;
 varying vec4 skyLightColor;
-varying vec4 position;
-varying vec4 relativePosition;
 
 #ifdef USE_OVERLAY
 	// When drawing horses on specific android devices, overlay color ends up being garbage data.
