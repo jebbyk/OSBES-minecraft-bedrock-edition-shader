@@ -113,6 +113,7 @@ void main()
 #endif
    position = entitySpacePosition;
 	POS4 pos = WORLDVIEWPROJ * entitySpacePosition;
+	gl_Position = pos;
 
 	float L = lightIntensity(entitySpacePosition, entitySpaceNormal);
 	normalsColor = normalize(WORLD *  entitySpaceNormal); // Get normals to calculate world realtive lightin
