@@ -2,7 +2,6 @@
 ### v0.13.2
 - Updated loading messages to include the vanilla pool
 - Reverted change to water visuals from v0.13.1
-- Added entities wobbles underwater as terrain
 - Bugfixes
   - Fixed inventory icons
   - Fixed texture map read issues causing black blocks and glitches on iOS and some other devices
