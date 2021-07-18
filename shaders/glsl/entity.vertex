@@ -10,10 +10,6 @@
 #include "uniformAnimationConstants.h"
 #endif
 
-#include "includes/options/preset/animations.glsl"
-#include "includes/env_detectors.glsl"
-#include "includes/env_effects.glsl"
-
 #line 13
 
 attribute mediump vec4 POSITION;
