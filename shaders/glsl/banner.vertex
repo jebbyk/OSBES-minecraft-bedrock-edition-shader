@@ -11,7 +11,6 @@
 #include "uniformAnimationConstants.h"
 #endif
 
-
 attribute mediump vec4 POSITION;
 attribute vec2 TEXCOORD_0;
 attribute vec4 NORMAL;
@@ -95,8 +94,7 @@ void main()
 #endif
 #else
     POS4 pos = WORLDVIEWPROJ * POSITION;
-#endif
-    
+#endif 
     gl_Position = pos;
 
 #ifdef ENABLE_LIGHT
