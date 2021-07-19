@@ -12,7 +12,7 @@
 
 #include "includes/options/preset/animations.glsl"
 #include "includes/env_detectors.glsl"
-#include "includes/env_effects.glsl"
+#include "includes/options/preset/env_effects.glsl"
 
 #line 13
 
