@@ -9,49 +9,39 @@
             
             float normalMapStrength = NORMAL_MAP_STRENGTH;
 
+            reliefMap = reliefMap * 2.0 - 1.0;
+
             if(baseNormal.g > 0.9){
                 reliefMap.gb = reliefMap.bg;
-                reliefMap = reliefMap * 2.0 - 1.0;
                 reliefMap.rb *= normalMapStrength;
                 baseNormal = normalize(reliefMap);
             }else{
                 if(baseNormal.g < -0.9){
-                    reliefMap.b = -reliefMap.b;
+                    reliefMap.b *= -1.0;
                     reliefMap.gb = reliefMap.bg;
-                    reliefMap = reliefMap * 2.0 - 1.0;
                     reliefMap.rb *= normalMapStrength;
                     baseNormal = normalize(reliefMap);
                 }else{
                     if (baseNormal.b > 0.9){
-                        reliefMap.g = 1.0 - reliefMap.g;// OpenGl needs G to be flipped
-                        reliefMap = reliefMap * 2.0 - 1.0;
+                        reliefMap.g *=  -1.0;
                         reliefMap.rg *= normalMapStrength;
                         baseNormal = normalize(reliefMap);
         
                     }else{
                         if(baseNormal.b < -0.9){
-                            reliefMap.b = -reliefMap.b;
-                            reliefMap.g = 1.0 - reliefMap.g;// OpenGl G flip
-                            reliefMap.r = 1.0 - reliefMap.r;
-                            reliefMap.rg = reliefMap.rg * 2.0 - 1.0;
-                            reliefMap.b = reliefMap.b * 2.0 + 1.0;
+                            reliefMap *= -1.0;
                             reliefMap.rg *= normalMapStrength;
                             baseNormal = normalize(reliefMap);
                         }else{
                             if(baseNormal.r > 0.9){
-                                reliefMap.g = 1.0 - reliefMap.g;// OpenGl G flip
-                                reliefMap.r = 1.0 - reliefMap.r;
+                                reliefMap.rg *= -1.0;
                                 reliefMap.rb = reliefMap.br;
-                                reliefMap = reliefMap * 2.0 - 1.0;
                                 reliefMap.gb *= normalMapStrength;
                                 baseNormal = normalize(reliefMap);
                             }else{
                                 if(baseNormal.r < -0.9){
-                                    reliefMap.b = -reliefMap.b;
-                                    reliefMap.g = 1.0 - reliefMap.g;//OpenGl G flip
+                                    reliefMap.gb *= -1.0;
                                     reliefMap.rb = reliefMap.br;
-                                    reliefMap.gb = reliefMap.gb * 2.0 - 1.0;
-                                    reliefMap.r = reliefMap.r * 2.0 + 1.0;
                                     reliefMap.gb *= normalMapStrength;
                                     baseNormal = normalize(reliefMap);
                                 }
