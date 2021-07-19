@@ -41,7 +41,6 @@ varying vec4 skyLightColor;
 	varying highp vec4 overlayColor;
 #endif
 
-
 #ifdef TINTED_ALPHA_TEST
 	varying float alphaTestMultiplier;
 #endif
@@ -111,7 +110,6 @@ void main()
 #endif
 	POS4 pos = WORLDVIEWPROJ * entitySpacePosition;
 	gl_Position = pos;
-
 	float L = lightIntensity(entitySpacePosition, entitySpaceNormal);
 	normalsColor = normalize(WORLD *  entitySpaceNormal); // Get normals to calculate world realtive lightin
 	skyLightDirection = vec3(0.0, 1.0, 0.0);
