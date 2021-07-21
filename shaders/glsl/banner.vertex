@@ -94,7 +94,7 @@ void main()
 #endif
 #else
     POS4 pos = WORLDVIEWPROJ * POSITION;
-#endif
+#endif 
     gl_Position = pos;
 
 #ifdef ENABLE_LIGHT

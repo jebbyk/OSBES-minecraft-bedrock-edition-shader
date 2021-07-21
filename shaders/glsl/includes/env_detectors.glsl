@@ -4,10 +4,7 @@ float detectHell(sampler2D texture1){
 // Top left pixel is darker in overworld and brighter in the Nether
     float hellDetectionPixel = texture(texture1, vec2(0.0)).r;
    
-	if (hellDetectionPixel > 0.15){
-		return 1.0;
-	}
-    return 0.0;
+	return float(hellDetectionPixel > 0.15);
 }
 
 float detectDay(sampler2D texture1){
@@ -34,9 +31,5 @@ void detectEnvironment(out float isDay, out float isHell, out float isSunrize, s
 }
 
 float detectUnderwater(){
-	if(FOG_CONTROL.r < 0.01)
-	{
-		return 1.0;
-	}
-	return 0.0;
+	return float(FOG_CONTROL.r < 0.01);
 }
