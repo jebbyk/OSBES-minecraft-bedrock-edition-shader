@@ -1,4 +1,8 @@
 # Changelog
+
+### v0.xx.xx
+  - Fixed barrier visibility
+
 ### v0.13.2
 - Updated loading messages to include the vanilla pool
 - Reverted change to water visuals from v0.13.1
@@ -8,7 +12,6 @@
   - Fixed size of the sun and moon if no PBR texture packs is loaded
   - Fixed underwater detection
   - Fixed rain occlusion
-  - Fixed barrier visibility
 -------------
 ### v0.13.1
 - Moved all PBR textures into a seperate downloadable pack
