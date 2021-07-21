@@ -29,7 +29,6 @@
 #include "uniformRenderChunkConstants.h"
 
 #include "includes/env_detectors.glsl"
-#include "includes/env_effects.glsl"
 
 
 #include "includes/options/preset/fogs.glsl"
