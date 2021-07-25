@@ -80,18 +80,48 @@
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Presets                   |0.13.0       | Shaders refactoring and comments   |<span style="color:green">Ready</span>
 |Presets                   |0.13.1       | Preset defines                     |<span style="color:green">Ready</span>
-|Presets                   |0.13.2       | Bugfixes                           |<span style="color:purple">**In progress**</span>|
+|Presets                   |0.13.2       | Bugfixes                           |<span style="color:green">Ready</span>
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Parallax mapping          |0.14.0       | Inner Core experimental defines    |<span style="color:purple">**In progress**</span>|
 |Parallax mapping          |0.14.1       | Simple parallax mapping            |<span style="color:orange">**Planned**</span>|
-|Parallax mapping          |0.14.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Parallax mapping          |0.14.2       | Light direction detection(GFPs idea)|<span style="color:orange">**Planned**</span>|
+|Parallax mapping          |0.14.3       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Improved reflections      |0.15.0       | Optimizations and code improvements|<span style="color:orange">**Planned**</span>|
+|Improved reflections      |0.15.0       | Texture compatibility improvements |<span style="color:orange">**Planned**</span>|
 |Improved reflections      |0.15.1       | Fake terrain reflections           |<span style="color:orange">**Planned**</span>|
 |Improved reflections      |0.15.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Advanced parallax mapping |0.16.x       |                                    |<span style="color:orange">**Planned**</span>|
+|Advanced parallax mapping |0.16.0       | Improved rain puddles              |<span style="color:orange">**Planned**</span>|
+|Advanced parallax mapping |0.16.1       | POM with self shadowing            |<span style="color:orange">**Planned**</span>|
+|Advanced parallax mapping |0.16.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Fully correct PBR         |0.17.x       |                                    |<span style="color:orange">**Planned**</span>|
+|Fully correct PBR         |0.17.0       | fully correct PBR                  |<span style="color:orange">**Planned**</span>|
+|Fully correct PBR         |0.17.1       | shaders for entityes               |<span style="color:orange">**Planned**</span>|
+|Fully correct PBR         |0.17.2       | Bugfixes (pre release)             |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Renderdragon support      |1.0.x        |                                    |<span style="color:orange">**Planned**</span>|
+|Release                   |1.0.0        | Release (final bugfixes)           |<span style="color:orange">**Planned**</span>|
+|Release                   |1.0.1        | after release bugfixes             |<span style="color:orange">**Planned**</span>|
+|━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
+|Fake GI                   |1.1.0        | Inner core xprmntl dnmc shadows    |<span style="color:orange">**Planned**</span>|
+|Fake GI                   |1.1.1        | Fake light bounce (GFPs idea)      |<span style="color:orange">**Planned**</span>|
+|Fake GI                   |1.1.2        | Better underwater detection (GFPs idea) |<span style="color:orange">**Planned**</span>|
+|Fake GI                   |1.1.3        | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
+|Reflections               |1.2.0        | Inner core xprmntl dnmc reflections|<span style="color:orange">**Planned**</span>|
+|Reflections               |1.2.1        | Fake player reflection+(inner core)|<span style="color:orange">**Planned**</span>|
+|Reflections               |1.2.2        | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
+|Atmosperics               |1.3.0        | Atmosphere scattering              |<span style="color:orange">**Planned**</span>|
+|Atmosperics               |1.3.1        | Volumetric clouds                  |<span style="color:orange">**Planned**</span>|
+|Atmosperics               |1.3.2        | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
+|Experimental              |1.4.0        | Experimental god rays (inner core) |<span style="color:orange">**Planned**</span>|
+|Experimental              |1.4.1        | Xprmntl player shadow (inner core) |<span style="color:orange">**Planned**</span>|
+|Experimental              |1.4.2        | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
+|Experimental point lights |1.5.0        | Point lights positions (inner core)|<span style="color:orange">**Planned**</span>|
+|Experimental point lights |1.5.1        | Point lights shadows (inner core)  |<span style="color:orange">**Planned**</span>|
+|Experimental point lights |1.5.2        | Colored lights (inner core)|<span style="color:orange">**Planned**</span>|
+|Experimental point lights |1.5.3        | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
+|Renderdragon support      |x.x.x        |                                    |<span style="color:orange">**Planned**</span>|

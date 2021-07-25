@@ -47,7 +47,6 @@ varying vec4 relativePosition;
 	varying highp vec4 overlayColor;
 #endif
 
-
 #ifdef TINTED_ALPHA_TEST
 	varying float alphaTestMultiplier;
 #endif
@@ -114,6 +113,7 @@ void main()
 #else
 	entitySpacePosition = POSITION * vec4(1, 1, 1, 1);
 	entitySpaceNormal = NORMAL * vec4(1, 1, 1, 0);
+
 #endif
    position = entitySpacePosition;
 	POS4 pos = WORLDVIEWPROJ * entitySpacePosition;
@@ -127,6 +127,7 @@ void main()
   bool isOthro = WORLDVIEWPROJ[3][3] == 1.0;
   //if projection is not othro, apply underwater wobbles
   gl_Position = transformEffects(pos, isUnderWater && !isOthro);
+
 
 	float L = lightIntensity(entitySpacePosition, entitySpaceNormal);
 	normalsColor = normalize(WORLD *  entitySpaceNormal); // Get normals to calculate world realtive lightin

@@ -109,6 +109,7 @@ void main()
     //projection is not othro, apply underwater wobbles
     gl_Position = transformEffects(pos, isUnderWater && !isOthro);
 
+
 #ifdef ENABLE_LIGHT
     float L = lightIntensity();
     light = vec4(vec3(L) * TILE_LIGHT_COLOR.xyz, 1.0);
