@@ -33,6 +33,7 @@
 
 #include "includes/options/preset/fogs.glsl"
 #include "includes/options/preset/animations.glsl"
+#include "includes/options/preset/effects.glsl"
 
 
 attribute POS4 POSITION;
@@ -69,8 +70,11 @@ void main()
 
 	isWater = 0.0;
     
-    isUnderWater = detectUnderwater();
-
+	#if defined(UNDERWATER_EFFECTS)
+    	isUnderWater = detectUnderwater();
+	#else
+		isUnderWater = 0.0;
+	#endif
 
 
 
