@@ -1,5 +1,19 @@
 # Changelog
+
+### v0.14.0
+
+* Tweaked loading messages
+
+* Removed unused `env_effects.glsl` file
+
+* Updated authors
+
+* Credits loading message replaced by a message that links to the website's credits page
+
+* 
+
 ### v0.13.2
+
 - Updated loading messages to include the vanilla pool
 - Reverted change to water visuals from v0.13.1
 - Bugfixes
@@ -8,16 +22,22 @@
   - Fixed size of the sun and moon if no PBR texture packs is loaded
   - Fixed underwater detection
   - Fixed rain occlusion
+
 -------------
+
 ### v0.13.1
+
 - Moved all PBR textures into a seperate downloadable pack
   - Because of this, regular texture packs will now work with OSBES
 - Added preset support! Create and share your own custom OSBES adjustments.
 - Added an in-game shader quality slider
 - Improved clouds
 - Improved reflections
+
 -------------
+
 ### v0.13.0 (unreleased)
+
 - Fixed support for 1.17.10 (1.17.0 and earlier versions no longer work)
 - Code refactor
 - Adjusted clouds
@@ -30,12 +50,18 @@
   - Slight adjustments to the sky colour (most notably, the sunset)
 - Improved reflections
 - Reduced filesize via texture optimizations
+
 -------------
+
 ### v0.12.3
+
 - Rain fog fix
 - Updated 1.17 beta textures
+
 -------------
+
 ### v0.12.2
+
 - Fixed caustics
 - Fixed normal mapping glitches on some iOS devices
 - Fixed gray crymson forest particles
@@ -48,11 +74,16 @@
 - Improved grass side texture
 - Improved horizontal fog when we go up high
 - Added experimental textures
+
 ------------
+
 ### v0.12.1
+
 - `renderchunk.fragment` refactored
 - Metallness pipeline
 - Improved reflections
 - Updated textures from Vanilla Normals Renewed
+
 -----------
+
 <sub>Changelogs not recorded prior to v0.12.1</sub>
