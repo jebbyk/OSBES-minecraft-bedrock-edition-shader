@@ -23,7 +23,7 @@
 #include "includes/options/quality_settings/other/distance_fog.glsl"
 
 //presets
-#include "includes/options/preset/clouds_enabled.glsl"
+#include "includes/options/preset/clouds.glsl"
 #include "includes/options/preset/lighting.glsl"
 #include "includes/options/preset/fogs.glsl"
 #include "includes/options/preset/surface.glsl"
