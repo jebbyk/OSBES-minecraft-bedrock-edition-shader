@@ -1,1 +1,1 @@
-#define UNDERWATER_EFFECTS //Comment this line to disable *all* underwater effects and detection
+#define UNDERWATER_DISTORTION //Comment this line to disable underwater distortion

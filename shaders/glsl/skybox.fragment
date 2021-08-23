@@ -28,9 +28,9 @@ varying vec4 position;
 
 void main()
 {
-    float isUnderWaterPersistent = detectUnderwater();
+    float isUnderWater = detectUnderwater();
     
-    if(isUnderWaterPersistent < 0.5){
+    if(isUnderWater < 0.5){
         float is_rain = detectRain();
     	is_rain = clamp(is_rain, 0.0, 1.0);// todo: have no idea why but clamp() doesnt work in detectRain() for this shader file
     
@@ -98,7 +98,7 @@ void main()
     	gl_FragColor.rgb = skyColor.rgb;
     	gl_FragColor.a = 1.0;
     }else{
-        //if not isUnderWaterPersistent
+        //if not isUnderWater
         gl_FragColor.rgb = FOG_COLOR.rgb;
         gl_FragColor.a = 1.0;
     }

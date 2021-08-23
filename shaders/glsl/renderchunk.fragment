@@ -51,7 +51,6 @@
 varying float isRain;
 
 varying float isWater;
-varying float isUnderWaterPersistent;
 varying float isUnderWater;
 varying vec4 color;
 varying highp vec4 position;// Get pixel position in world space (used for calculate fake normals)
@@ -246,7 +245,7 @@ void main()
 		diffuse.rgb = colorCorrection(diffuse.rgb);
 	#endif
 
-	diffuse.rgb = applyVanillaFog(diffuse.rgb, fogColor.a, isHell, isUnderWaterPersistent);//hide difference between colorCorrected and vanilla fog in hell
+	diffuse.rgb = applyVanillaFog(diffuse.rgb, fogColor.a, isHell, isUnderWater);//hide difference between colorCorrected and vanilla fog in hell
 
 	///////////////////////Debuging section//////////////////////
 	// Debug texture coordinates
