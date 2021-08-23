@@ -15,7 +15,7 @@
 #include "includes/options/quality_settings/other/tone_mapping_enabled.glsl"
 
 //preset
-#include "includes/options/preset/clouds.glsl"
+#include "includes/options/preset/clouds_enabled.glsl"
 #include "includes/options/preset/lighting.glsl"
 #include "includes/options/preset/fogs.glsl"
 #include "includes/options/preset/postprocessing.glsl"
