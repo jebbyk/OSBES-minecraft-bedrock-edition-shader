@@ -33,7 +33,7 @@
 
 #include "includes/options/preset/fogs.glsl"
 #include "includes/options/preset/animations.glsl"
-#include "includes/options/preset/effects.glsl"
+#include "includes/options/quality_settings/effects/underwater_distortion.glsl"
 
 
 attribute POS4 POSITION;
