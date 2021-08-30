@@ -43,7 +43,6 @@ attribute vec2 TEXCOORD_1;
 
 varying float isWater;
 varying float isUnderWater;
-varying float isUnderWaterDistort;
 
 varying vec4 distanceFog;
 varying vec4 milkyFog;
@@ -71,13 +70,6 @@ void main()
 
 	isWater = 0.0;
   isUnderWater = detectUnderwater();
-
-	#if defined(UNDERWATER_DISTORTION)
-    	isUnderWaterDistort = isUnderWater;
-	#else
-		isUnderWaterDistort = 0.0;
-	#endif
-
 
 
 // Water
@@ -174,15 +166,16 @@ relativePosition.w = worldPos.w;
 
 gl_Position = worldViewPosScaled;
 
-if(isUnderWaterDistort > 0.9){
-	highp float t = TIME;
-	float wScale = 0.0125 * length(worldPos.xyz);
-	float wMovingSpeed = 4.0;
-	float wFreq  = 32.0 / length(worldPos.xyz);
+#if defined(UNDERWATER_DISTORTION)
+  if(isUnderWater > 0.9){
+	  highp float t = TIME;
+	  float wScale = 0.0125 * length(worldPos.xyz);
+	  float wMovingSpeed = 4.0;
+	  float wFreq  = 32.0 / length(worldPos.xyz);
 
-	gl_Position.x += (1.0 + sin(t * wMovingSpeed + (worldPos.x + worldPos.z + worldPos.y) * wFreq)) * wScale;  
-}
-
+	  gl_Position.x += (1.0 + sin(t * wMovingSpeed + (worldPos.x + worldPos.z + worldPos.y) * wFreq)) * wScale;  
+  }
+#endif
 
 
 
