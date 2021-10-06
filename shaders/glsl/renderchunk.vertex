@@ -28,9 +28,10 @@
 #include "uniformShaderConstants.h"
 #include "uniformRenderChunkConstants.h"
 
+
 #include "includes/env_detectors.glsl"
 
-
+#include "includes/options/preset/env_effects.glsl"
 #include "includes/options/preset/fogs.glsl"
 #include "includes/options/preset/animations.glsl"
 
@@ -166,16 +167,8 @@ POS4 worldPos;
 relativePosition.xyz = -worldPos.xyz;
 relativePosition.w = worldPos.w;
 
-gl_Position = worldViewPosScaled;
-
-if(isUnderWater > 0.9){
-	highp float t = TIME;
-	float wScale = 0.0125 * length(worldPos.xyz);
-	float wMovingSpeed = 4.0;
-	float wFreq  = 32.0 / length(worldPos.xyz);
-
-	gl_Position.x += (1.0 + sin(t * wMovingSpeed + (worldPos.x + worldPos.z + worldPos.y) * wFreq)) * wScale;  
-}
+bool isUWbool = (detectUnderwater() > 0.9);
+gl_Position = transformEffects(worldViewPosScaled, isUWbool);
 
 
 

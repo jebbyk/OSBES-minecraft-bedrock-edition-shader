@@ -1,4 +1,8 @@
 # Changelog
+
+### v0.xx.xx
+  - Fixed barrier visibility
+
 ### v0.13.2
 - Updated loading messages to include the vanilla pool
 - Reverted change to water visuals from v0.13.1
