@@ -28,9 +28,10 @@
 #include "uniformShaderConstants.h"
 #include "uniformRenderChunkConstants.h"
 
+
 #include "includes/env_detectors.glsl"
 
-
+#include "includes/options/preset/env_effects.glsl"
 #include "includes/options/preset/fogs.glsl"
 #include "includes/options/preset/animations.glsl"
 #include "includes/options/quality_settings/effects/underwater_distortion.glsl"
@@ -66,10 +67,13 @@ void main()
 
 	fogColor = vec4(0.0);
 
-    isRain = detectRain();
+  isRain = detectRain();
 
 	isWater = 0.0;
+    
   isUnderWater = detectUnderwater();
+
+
 
 
 // Water
@@ -102,22 +106,23 @@ void main()
 		isWater = 1.0;
 	}
 	
-
-	if(isWater > 0.9){
-		highp float t = TIME;
-		highp vec3 rawPosCorrected = position.xyz / 2.5463;//2.5463 - chunk scale (detaching prevention)
+  #if defined(UNDERWATER_DISTORTION)
+	  if(isWater > 0.9){
+		  highp float t = TIME;
+		  highp vec3 rawPosCorrected = position.xyz / 2.5463;//2.5463 - chunk scale (detaching prevention)
 //		highp vec2 impulsesMovingSpeed = vec2(1.0);
 //		highp vec2 impulsesFreq = vec2(1.0);
 		
-		highp vec2 wavesMovingSpeed = vec2(3.0, 3.0);
-		highp vec2 wavesFreq = vec2(3.0, 3.0);
-		highp float wavesScale = 0.035;
+		  highp vec2 wavesMovingSpeed = vec2(3.0, 3.0);
+		  highp vec2 wavesFreq = vec2(3.0, 3.0);
+		  highp float wavesScale = 0.035;
 
 //		highp vec2 i = sin(t * impulsesMovingSpeed + rawPosCorrected.xz * impulsesFreq);
-		highp vec2 f = sin(t * wavesMovingSpeed + rawPosCorrected.xz * wavesFreq) * wavesScale;
+		  highp vec2 f = sin(t * wavesMovingSpeed + rawPosCorrected.xz * wavesFreq) * wavesScale;
 
-		position.y += (f.x + f.y)/* (f.x + f.y)*/;
-	}
+		  position.y += (f.x + f.y)/* (f.x + f.y)*/;
+	  }
+  #endif
 #endif
 
 
@@ -164,18 +169,9 @@ POS4 worldPos;
 relativePosition.xyz = -worldPos.xyz;
 relativePosition.w = worldPos.w;
 
-gl_Position = worldViewPosScaled;
+bool isUWbool = (detectUnderwater() > 0.9);
+gl_Position = transformEffects(worldViewPosScaled, isUWbool);
 
-#if defined(UNDERWATER_DISTORTION)
-  if(isUnderWater > 0.9){
-	  highp float t = TIME;
-	  float wScale = 0.0125 * length(worldPos.xyz);
-	  float wMovingSpeed = 4.0;
-	  float wFreq  = 32.0 / length(worldPos.xyz);
-
-	  gl_Position.x += (1.0 + sin(t * wMovingSpeed + (worldPos.x + worldPos.z + worldPos.y) * wFreq)) * wScale;  
-  }
-#endif
 
 
 
@@ -254,4 +250,3 @@ gl_Position = worldViewPosScaled;
 	#endif //FOG
 #endif //BYPASS_PIXEL_SHADER
 }
-
