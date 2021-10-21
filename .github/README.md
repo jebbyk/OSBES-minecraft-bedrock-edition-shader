@@ -6,7 +6,7 @@
 <br>
 
 Open Source Bedrock Edition Shader<br>
-<sub>Note: A tweaked version of the Vanilla Normals Renewed texturepack by [Poudingue](https://github.com/Poudingue) is being used to supply normal and specular maps (https://github.com/jebbyk/Vanilla-Normals-Renewed-Bedrock-Edition)</sub>
+<sub>Note: You can use a tweaked version of the Vanilla Normals Renewed texturepack by [Poudingue](https://github.com/Poudingue) to supply normal and specular maps (https://github.com/jebbyk/Vanilla-Normals-Renewed-Bedrock-Edition)</sub>
 
 - ### [Roadmap](https://github.com/jebbyk/OSBES-minecraft-bedrock-edition-shader/blob/develop/.github/docs/ROADMAP.md)
 - ### [Changelog](https://github.com/jebbyk/OSBES-minecraft-bedrock-edition-shader/blob/develop/.github/docs/CHANGELOG.md)
