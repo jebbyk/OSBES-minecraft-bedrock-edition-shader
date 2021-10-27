@@ -11,8 +11,11 @@
 #endif
 
 #include "includes/options/preset/animations.glsl"
+
+#include "includes/options/quality_settings/animations/underwater_distortion.glsl"
+
 #include "includes/env_detectors.glsl"
-#include "includes/options/preset/env_effects.glsl"
+#include "includes/animations.glsl"
 
 #line 13
 
@@ -126,7 +129,13 @@ void main()
   bool isUnderWater = detectUnderwater() > 0.9;
   bool isOthro = WORLDVIEWPROJ[3][3] == 1.0;
   //if projection is not othro, apply underwater wobbles
-  gl_Position = transformEffects(pos, isUnderWater && !isOthro);
+  gl_Position = pos;
+
+  #if defined(UNDERWATER_DISTORTION)
+      if(isUnderWater && !isOthro){
+	      gl_Position.xy += calculateUnderwaterAnimation(pos.xyz);
+      }
+  #endif
 
 
 	float L = lightIntensity(entitySpacePosition, entitySpaceNormal);
