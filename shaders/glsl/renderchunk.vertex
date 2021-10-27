@@ -30,11 +30,13 @@
 
 
 #include "includes/env_detectors.glsl"
+#include "includes/animations.glsl"
 
-#include "includes/options/preset/env_effects.glsl"
 #include "includes/options/preset/fogs.glsl"
 #include "includes/options/preset/animations.glsl"
-#include "includes/options/quality_settings/effects/underwater_distortion.glsl"
+#include "includes/options/quality_settings/animations/underwater_distortion.glsl"
+#include "includes/options/quality_settings/animations/vegetation_animation.glsl"
+#include "includes/options/quality_settings/animations/water_surface_animation.glsl"
 
 
 attribute POS4 POSITION;
@@ -106,23 +108,11 @@ void main()
 		isWater = 1.0;
 	}
 	
-  #if defined(UNDERWATER_DISTORTION)
+	#if defined(WATER_SURFACE_ANIMATION)
 	  if(isWater > 0.9){
-		  highp float t = TIME;
-		  highp vec3 rawPosCorrected = position.xyz / 2.5463;//2.5463 - chunk scale (detaching prevention)
-//		highp vec2 impulsesMovingSpeed = vec2(1.0);
-//		highp vec2 impulsesFreq = vec2(1.0);
-		
-		  highp vec2 wavesMovingSpeed = vec2(3.0, 3.0);
-		  highp vec2 wavesFreq = vec2(3.0, 3.0);
-		  highp float wavesScale = 0.035;
-
-//		highp vec2 i = sin(t * impulsesMovingSpeed + rawPosCorrected.xz * impulsesFreq);
-		  highp vec2 f = sin(t * wavesMovingSpeed + rawPosCorrected.xz * wavesFreq) * wavesScale;
-
-		  position.y += (f.x + f.y)/* (f.x + f.y)*/;
+		 position.y += calculateWaterSurfaceAnimation(position.xyz);
 	  }
-  #endif
+	#endif
 #endif
 
 
@@ -130,22 +120,11 @@ void main()
 // Leaves and grass
 #if defined ALPHA_TEST
 
-	//if((isWater < 0.1 && color.g > color.r) || spruce > 0.5 ){
-	if((isLeaves > 0.5 || isPlantTop > 0.5) && color.g > (color.r + color.b)/2.0 ){
-		// Wind waves
-		vec3 correctedRawPos = position.xyz / 2.5463;//2.55 - size of chunk (prevent leaves detaching)
-		highp float t = TIME;
-		float wavesScale = WIND_WAVES_AMPLITUDE;
-		float wavesMovingSpeed = WIND_SPEED * (1.0 + floor(isRain + 0.5) * RAIN_WIND_SPEED_BOOST);
-
-		// Wind impulses
-		float impulseDuration = WIND_IMPULSE_CUT / (1.0 + isRain * 2.0);// Bigger number = shorter impulse
-		float f = sin(correctedRawPos.x + WIND_IMPULSES_SPEED * t) * 0.5 + 0.5;
-		f = clamp(pow(f, impulseDuration), 0.1 + isRain * 0.3, 1.0);
-		wavesScale *= f * (1.0 + isRain * RAIN_WIND_AMPLITUDE_BOOST);
-
-		position.xz += (1.0 + sin(t * wavesMovingSpeed + (correctedRawPos.x + correctedRawPos.z + correctedRawPos.y) / WIND_WAVES_LENGTH)) * wavesScale;  
-	}
+	#if defined(VEGETATION_ANIMATION)
+		if((isLeaves > 0.5 || isPlantTop > 0.5) && color.g > (color.r + color.b)/2.0 ){
+			position.xz += calculateVegetationAnimation(position.xyz, isRain);
+		}
+	#endif
 #endif
 
 
@@ -169,9 +148,13 @@ POS4 worldPos;
 relativePosition.xyz = -worldPos.xyz;
 relativePosition.w = worldPos.w;
 
-bool isUWbool = (detectUnderwater() > 0.9);
-gl_Position = transformEffects(worldViewPosScaled, isUWbool);
+gl_Position = worldViewPosScaled;
 
+#if defined(UNDERWATER_DISTORTION)
+	if(isUnderWater > 0.9){
+		gl_Position.xy += calculateUnderwaterAnimation(worldViewPosScaled.xyz);
+	}
+#endif
 
 
 

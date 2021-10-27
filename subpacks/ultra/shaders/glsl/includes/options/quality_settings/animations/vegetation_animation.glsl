@@ -1,0 +1,1 @@
+#define VEGETATION_ANIMATION//Comment this line to disable vegetation animation
