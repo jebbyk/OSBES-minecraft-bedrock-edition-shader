@@ -9,49 +9,39 @@
             
             float normalMapStrength = NORMAL_MAP_STRENGTH;
 
+            reliefMap = reliefMap * 2.0 - 1.0;
+
             if(baseNormal.g > 0.9){
                 reliefMap.gb = reliefMap.bg;
-                reliefMap = reliefMap * 2.0 - 1.0;
                 reliefMap.rb *= normalMapStrength;
                 baseNormal = normalize(reliefMap);
             }else{
                 if(baseNormal.g < -0.9){
-                    reliefMap.b = -reliefMap.b;
+                    reliefMap.b *= -1.0;
                     reliefMap.gb = reliefMap.bg;
-                    reliefMap = reliefMap * 2.0 - 1.0;
                     reliefMap.rb *= normalMapStrength;
                     baseNormal = normalize(reliefMap);
                 }else{
                     if (baseNormal.b > 0.9){
-                        reliefMap.g = 1.0 - reliefMap.g;// OpenGl needs G to be flipped
-                        reliefMap = reliefMap * 2.0 - 1.0;
+                        reliefMap.g *=  -1.0;
                         reliefMap.rg *= normalMapStrength;
                         baseNormal = normalize(reliefMap);
         
                     }else{
                         if(baseNormal.b < -0.9){
-                            reliefMap.b = -reliefMap.b;
-                            reliefMap.g = 1.0 - reliefMap.g;// OpenGl G flip
-                            reliefMap.r = 1.0 - reliefMap.r;
-                            reliefMap.rg = reliefMap.rg * 2.0 - 1.0;
-                            reliefMap.b = reliefMap.b * 2.0 + 1.0;
+                            reliefMap *= -1.0;
                             reliefMap.rg *= normalMapStrength;
                             baseNormal = normalize(reliefMap);
                         }else{
                             if(baseNormal.r > 0.9){
-                                reliefMap.g = 1.0 - reliefMap.g;// OpenGl G flip
-                                reliefMap.r = 1.0 - reliefMap.r;
+                                reliefMap.rg *= -1.0;
                                 reliefMap.rb = reliefMap.br;
-                                reliefMap = reliefMap * 2.0 - 1.0;
                                 reliefMap.gb *= normalMapStrength;
                                 baseNormal = normalize(reliefMap);
                             }else{
                                 if(baseNormal.r < -0.9){
-                                    reliefMap.b = -reliefMap.b;
-                                    reliefMap.g = 1.0 - reliefMap.g;//OpenGl G flip
+                                    reliefMap.gb *= -1.0;
                                     reliefMap.rb = reliefMap.br;
-                                    reliefMap.gb = reliefMap.gb * 2.0 - 1.0;
-                                    reliefMap.r = reliefMap.r * 2.0 + 1.0;
                                     reliefMap.gb *= normalMapStrength;
                                     baseNormal = normalize(reliefMap);
                                 }
@@ -140,7 +130,9 @@
         
         #ifdef PBR_FEATURE_ENABLED
             // Top left texture - default diffuse
-            highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) / (TEXTURE_ATLAS_DIMENSION * 2.0);// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
+            highp vec2 invTexDimD = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
+            //highp vec2 invTexDimD = (invTexDim * 0.5);
+            highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invTexDimD;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
             diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
         #else
             diffuseMap = texelFetch(texture0, ivec2(uv0 * TEXTURE_DIMENSIONS.xy), 0);
@@ -153,11 +145,11 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  1.0 / (TEXTURE_ATLAS_DIMENSION.x * 2.0));
+                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y); //x coordinate had no sense, and after tex atlas in 1.17 were updated, x doubled relative to y, causing wrong texture reading and also there must be initially y because of vec2
                     reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
                 }
             #else
-                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0,  1.0 / (TEXTURE_ATLAS_DIMENSION.y * 2.0));
+                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y);
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
             #endif
         #else
@@ -172,7 +164,7 @@
         
         #if defined(SPECULAR_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             // Top right texture - specular map
-            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(1.0 / (TEXTURE_ATLAS_DIMENSION.x * 2.0), 0.0);// 1.0/128.0
+            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(invTexDimD.x, 0.0);// 1.0/128.0
             rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
         #else
             rmeMap = vec4(0.0);

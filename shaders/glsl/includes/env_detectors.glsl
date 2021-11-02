@@ -1,3 +1,4 @@
+#include "../uniformPerFrameConstants.h"
 #include "../uniformShaderConstants"
 
 float detectHell(sampler2D texture1){

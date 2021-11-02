@@ -268,10 +268,10 @@ void main()
 	// 	diffuse = vec4(0.0, 1.0, 0.0, 1.0);
 	// }
 
-	// if(gl_FragCoord.x < 1920.0 * FOG_CONTROL.g && gl_FragCoord.y > 900.0 && gl_FragCoord.y < 950.0)
-	// {
-	// 	diffuse = vec4(1.0, 1.0, 0.0, 1.0);
-	// }
+	 //if(gl_FragCoord.x < 1920.0 * FOG_CONTROL.g && gl_FragCoord.y > 900.0 && gl_FragCoord.y < 950.0)
+	 //{
+	 //	diffuse = vec4(1.0, 1.0, 0.0, 1.0);
+	 //}
 	
 	gl_FragColor = diffuse;
 #endif // !BYPASS_PIXEL_SHADER
