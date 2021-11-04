@@ -125,16 +125,71 @@
     }
 
 
-    void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, highp vec2 uv0){
+
+
+
+    // highp vec2 parallax(highp vec2 uv, highp vec3 viewDir){
+        
+    //     highp vec3 n = vec3(0.0, 1.0, 0.0);
+    //     highp vec3 t = vec3(0.0, 0.0, 1.0);
+    //     highp vec3 b = vec3(1.0, 0.0, 0.0);
+
+    //     highp mat3 tbn = transpose(mat3(t, b, n));
+
+    //     viewDir = tbn * viewDir;
+
+    //     highp float height_scale = 0.01;
+
+    //     //highp float height = texture2D(texture0, uv).b;
+    //     highp float height = 0.5 * sin(TIME * 0.1);
+    //     highp vec2 p = viewDir.xy / viewDir.z * (height * height_scale);
+
+    //     //return uv;
+    //     return uv - p;
+
+    //     // return uv;
+    // }
+
+    highp vec2 parallax(highp vec3 relativePosition, highp vec2 uv, float depth){
+
+        relativePosition.xyz = normalize(relativePosition.xyz);
+        highp vec2 nt = highp vec2( -relativePosition.x, relativePosition.y);  
+
+        depth = 1.0 - depth;
+
+        depth = pow(depth, 0.75);
+
+        depth *= (sin(TIME * 4.0) + 1.0) * 0.5;
+
+        uv = uv - nt * 0.002 * depth;
+        return uv;     
+
+    }
+
+    void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, highp vec2 uv0, highp vec3 viewDir){
         ////////////////////////////Mapping section///////////////////////////////////
         
         #ifdef PBR_FEATURE_ENABLED
             // Top left texture - default diffuse
             highp vec2 invTexDimD = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
             //highp vec2 invTexDimD = (invTexDim * 0.5);
+            
+            
+
             highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invTexDimD;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
-            diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
+            highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y);
+
+            float h = texture2D(texture0, uv0 - reliefMapCoord).a;
+
+            diffuseMapCoord = parallax(viewDir, diffuseMapCoord, h);
+            highp vec2 depthMapCooord = diffuseMapCoord - vec2(0.0, invTexDimD.y);
+
+            float depth = texture2D(texture0, uv0 - depthMapCooord).a;
+
+            diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0) * depth;
         #else
+            float h = texture2D(texture0, uv0).r;
+            uv0 = parallax(viewDir, uv0, h);
             diffuseMap = texelFetch(texture0, ivec2(uv0 * TEXTURE_DIMENSIONS.xy), 0);
         #endif
 
@@ -145,11 +200,11 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y); //x coordinate had no sense, and after tex atlas in 1.17 were updated, x doubled relative to y, causing wrong texture reading and also there must be initially y because of vec2
+                    reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y); //x coordinate had no sense, and after tex atlas in 1.17 were updated, x doubled relative to y, causing wrong texture reading and also there must be initially y because of vec2
                     reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
                 }
             #else
-                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y);
+                reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y);
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
             #endif
         #else
@@ -215,27 +270,6 @@
 
 
 
-/*
-    highp vec2 parallax(highp vec2 uv, highp vec3 viewDir){
-        
-        highp vec3 n = vec3(0.0, 1.0, 0.0);
-        highp vec3 t = vec3(0.0, 0.0, 1.0);
-        highp vec3 b = vec3(1.0, 0.0, 0.0);
-
-        highp mat3 tbn = transpose(mat3(t, b, n));
-
-        viewDir = tbn * viewDir;
-
-        highp float height_scale = 0.01;
-
-        //highp float height = texture2D(texture0, uv).b;
-        highp float height = 0.5;
-        highp vec2 p = viewDir.xy / viewDir.z * (height * height_scale);
-
-        //return uv;
-        return uv - p;
-    }
-*/
 
 	
 	/////////////////////////////////////////////some experiments with TBN calculation ///////////////////////////////////////////////

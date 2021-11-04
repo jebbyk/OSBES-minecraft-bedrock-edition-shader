@@ -90,9 +90,12 @@ void main()
 
 	float isDay; float isHell; float isSunrize;
 	detectEnvironment(isDay, isHell, isSunrize, TEXTURE_1);
+
+	vec3 viewDir = normalize(relativePosition.xyz);
+	// vec3 kek = normalize(position.xyz);
 	
 	vec4 diffuseMap; vec3 reliefMap; vec4 rmeMap;
-	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0);
+	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0, viewDir);
 
 	vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
 	
@@ -169,7 +172,7 @@ void main()
 	vec3 pointLightsDiffused = calculatePointLightsDiffused(pointLightsMap);
 
 
-	vec3 viewDir = normalize(relativePosition.xyz);
+
 	vec3 reflectedVector = reflect(viewDir, normalVector);
 
 
