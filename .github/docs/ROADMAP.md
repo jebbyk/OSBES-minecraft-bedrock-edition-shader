@@ -83,7 +83,7 @@
 |Presets                   |0.13.2       | Bugfixes                           |<span style="color:green">Ready</span>
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Parallax mapping          |0.14.0       | Inner Core experimental defines    |<span style="color:red">cnaceled</span>|
-|Parallax mapping          |0.14.1       | Simple parallax mapping            |<span style="color:orange">**Planned**</span>|
+|Parallax mapping          |0.14.1       | Simple parallax mapping            |<span style="color:green">**In progress**</span>|
 |Parallax mapping          |0.14.2       | Light direction detection(GFPs idea)|<span style="color:orange">**Planned**</span>|
 |Parallax mapping          |0.14.3       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
