@@ -10,7 +10,11 @@
 
 * Credits loading message replaced by a message that links to the website's credits page
 
-* 
+* Corrected underwater distortion effect not affecting entities
+
+* Added a new preset toggle to control whether or not the underwater distortion effect is enabled
+  
+  * This toggle is disabled on the `Lowest` quality setting
 
 ### v0.13.2
 
