@@ -10,17 +10,21 @@
 
 * Credits loading message replaced by a message that links to the website's credits page
 
-* Corrected underwater distortion effect not affecting entities
-
 * Added a new preset toggle to control whether or not the underwater distortion effect is enabled
   
   * This toggle is disabled on the `Lowest` quality setting
+
+* Bugfixes:
+  
+  * Fixed incorrect texture mapping on transparent blocks
+  
+  * Corrected underwater distortion effect not affecting entities
 
 ### v0.13.2
 
 - Updated loading messages to include the vanilla pool
 - Reverted change to water visuals from v0.13.1
-- Bugfixes
+- Bugfixes:
   - Fixed inventory icons
   - Fixed texture map read issues causing black blocks and glitches on iOS and some other devices
   - Fixed size of the sun and moon if no PBR texture packs is loaded
