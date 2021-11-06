@@ -141,7 +141,6 @@
     //     highp float height_scale = 0.01;
 
     //     //highp float height = texture2D(texture0, uv).b;
-    //     highp float height = 0.5 * sin(TIME * 0.1);
     //     highp vec2 p = viewDir.xy / viewDir.z * (height * height_scale);
 
     //     //return uv;
@@ -150,19 +149,41 @@
     //     // return uv;
     // }
 
-    highp vec2 parallax(highp vec3 relativePosition, highp vec2 uv, float depth){
+    highp vec2 parallax(
+        highp vec3 relativePosition, 
+        sampler2D texture0, 
+        highp vec2 uv0, 
+        highp vec2 reliefMapCoordLinear, 
+        highp vec2 diffuseMapCoordLinear,
+        highp vec2 invercedTextureDimension
+    ){
 
-        relativePosition.xyz = normalize(relativePosition.xyz);
-        highp vec2 nt = highp vec2( -relativePosition.x, relativePosition.y);  
+        highp float depthMap = 1.0 - texture2D(texture0, uv0 - reliefMapCoordLinear).a;
 
-        depth = 1.0 - depth;
+        highp vec2 p = (relativePosition.xy / relativePosition.z) * 0.001 * depthMap;   
 
-        depth = pow(depth, 0.75);
+        // p *= (sin(TIME * 4.0) + 1.0) * 0.5;
+        
+        highp vec2 diffuseMapCoord = diffuseMapCoordLinear + p;      
 
-        depth *= (sin(TIME * 4.0) + 1.0) * 0.5;
+        if( fract((uv0.x - diffuseMapCoord.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
+            if(diffuseMapCoord.x > diffuseMapCoordLinear.x){
+                diffuseMapCoord.x -= invercedTextureDimension.x;
+            } else {
+                diffuseMapCoord.x += invercedTextureDimension.x;
+            }
+            
+        }
+        if( fract((uv0.y - diffuseMapCoord.y) * TEXTURE_ATLAS_DIMENSION.y) > 0.5){
+            if(diffuseMapCoord.y > diffuseMapCoordLinear.y){
+                diffuseMapCoord.y -= invercedTextureDimension.y;
+            } else {
+                diffuseMapCoord.y += invercedTextureDimension.y;
+            }
+            
+        }  
 
-        uv = uv - nt * 0.002 * depth;
-        return uv;     
+        return diffuseMapCoord;
 
     }
 
@@ -171,22 +192,18 @@
         
         #ifdef PBR_FEATURE_ENABLED
             // Top left texture - default diffuse
-            highp vec2 invTexDimD = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
-            //highp vec2 invTexDimD = (invTexDim * 0.5);
-            
-            
+            highp vec2 invercedTextureDimension = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
 
-            highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invTexDimD;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
-            highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y);
+            highp vec2 diffuseMapCoordLinear = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
+            highp vec2 reliefMapCoordLinear = diffuseMapCoordLinear - vec2(0.0, invercedTextureDimension.y);
 
-            float h = texture2D(texture0, uv0 - reliefMapCoord).a;
+            highp vec2 diffuseMapCoord = parallax(viewDir, texture0, uv0, reliefMapCoordLinear, diffuseMapCoordLinear, invercedTextureDimension);    
+           
 
-            diffuseMapCoord = parallax(viewDir, diffuseMapCoord, h);
-            highp vec2 depthMapCooord = diffuseMapCoord - vec2(0.0, invTexDimD.y);
+            highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
 
-            float depth = texture2D(texture0, uv0 - depthMapCooord).a;
+            diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
 
-            diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0) * depth;
         #else
             float h = texture2D(texture0, uv0).r;
             uv0 = parallax(viewDir, uv0, h);
@@ -200,11 +217,11 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y); //x coordinate had no sense, and after tex atlas in 1.17 were updated, x doubled relative to y, causing wrong texture reading and also there must be initially y because of vec2
+                    reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y); //x coordinate had no sense, and after tex atlas in 1.17 were updated, x doubled relative to y, causing wrong texture reading and also there must be initially y because of vec2
                     reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
                 }
             #else
-                reliefMapCoord = diffuseMapCoord - vec2(0.0, invTexDimD.y);
+                reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
             #endif
         #else
@@ -219,7 +236,7 @@
         
         #if defined(SPECULAR_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             // Top right texture - specular map
-            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(invTexDimD.x, 0.0);// 1.0/128.0
+            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(invercedTextureDimension.x, 0.0);// 1.0/128.0
             rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
         #else
             rmeMap = vec4(0.0);
