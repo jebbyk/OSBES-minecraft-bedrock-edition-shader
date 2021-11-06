@@ -153,10 +153,10 @@
         highp vec3 relativePosition, 
         sampler2D texture0, 
         highp vec2 uv0, 
-        highp vec2 reliefMapCoordLinear, 
-        highp vec2 diffuseMapCoordLinear,
+        highp vec2 diffuseMapCoord,
         highp vec2 invercedTextureDimension
     ){
+        highp vec2 reliefMapCoordLinear = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
 
         highp float depthMap = 1.0 - texture2D(texture0, uv0 - reliefMapCoordLinear).a;
 
@@ -164,26 +164,26 @@
 
         // p *= (sin(TIME * 4.0) + 1.0) * 0.5;
         
-        highp vec2 diffuseMapCoord = diffuseMapCoordLinear + p;      
+        highp vec2 diffuseMapCoordDisplaced = diffuseMapCoord + p;      
 
-        if( fract((uv0.x - diffuseMapCoord.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
-            if(diffuseMapCoord.x > diffuseMapCoordLinear.x){
-                diffuseMapCoord.x -= invercedTextureDimension.x;
+        if( fract((uv0.x - diffuseMapCoordDisplaced.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
+            if(diffuseMapCoordDisplaced.x > diffuseMapCoord.x){
+                diffuseMapCoordDisplaced.x -= invercedTextureDimension.x;
             } else {
-                diffuseMapCoord.x += invercedTextureDimension.x;
+                diffuseMapCoordDisplaced.x += invercedTextureDimension.x;
             }
             
         }
-        if( fract((uv0.y - diffuseMapCoord.y) * TEXTURE_ATLAS_DIMENSION.y) > 0.5){
-            if(diffuseMapCoord.y > diffuseMapCoordLinear.y){
-                diffuseMapCoord.y -= invercedTextureDimension.y;
+        if( fract((uv0.y - diffuseMapCoordDisplaced.y) * TEXTURE_ATLAS_DIMENSION.y) > 0.5){
+            if(diffuseMapCoordDisplaced.y > diffuseMapCoord.y){
+                diffuseMapCoordDisplaced.y -= invercedTextureDimension.y;
             } else {
-                diffuseMapCoord.y += invercedTextureDimension.y;
+                diffuseMapCoordDisplaced.y += invercedTextureDimension.y;
             }
             
         }  
 
-        return diffuseMapCoord;
+        return diffuseMapCoordDisplaced;
 
     }
 
@@ -194,13 +194,11 @@
             // Top left texture - default diffuse
             highp vec2 invercedTextureDimension = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
 
-            highp vec2 diffuseMapCoordLinear = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
-            highp vec2 reliefMapCoordLinear = diffuseMapCoordLinear - vec2(0.0, invercedTextureDimension.y);
-
-            highp vec2 diffuseMapCoord = parallax(viewDir, texture0, uv0, reliefMapCoordLinear, diffuseMapCoordLinear, invercedTextureDimension);    
+            highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
            
-
-            highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
+            #ifdef PARALLAX_MAPPING_ENABLED
+                diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension);  
+            #endif  
 
             diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
 
@@ -217,11 +215,11 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y); //x coordinate had no sense, and after tex atlas in 1.17 were updated, x doubled relative to y, causing wrong texture reading and also there must be initially y because of vec2
+                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
                     reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
                 }
             #else
-                reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
+                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
                 reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
             #endif
         #else

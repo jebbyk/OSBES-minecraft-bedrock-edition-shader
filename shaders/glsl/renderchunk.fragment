@@ -13,6 +13,7 @@
 #include "includes/options/quality_settings/reflections/point_lights_reflection.glsl"
 #include "includes/options/quality_settings/reflections/halo_reflection.glsl"
 #include "includes/options/quality_settings/surface/normal_mapping_enabled.glsl"
+#include "includes/options/quality_settings/surface/parallax_mapping_enabled.glsl"
 #include "includes/options/quality_settings/surface/specular_mapping_enabled.glsl"
 #include "includes/options/quality_settings/surface/puddles_enabled.glsl"
 #include "includes/options/quality_settings/surface/water_details_enabled.glsl"
@@ -21,6 +22,7 @@
 #include "includes/options/quality_settings/other/tone_mapping_enabled.glsl"
 #include "includes/options/quality_settings/other/horizontal_fog_enabled.glsl"
 #include "includes/options/quality_settings/other/distance_fog_enabled.glsl"
+
 
 //presets
 #include "includes/options/preset/clouds.glsl"
