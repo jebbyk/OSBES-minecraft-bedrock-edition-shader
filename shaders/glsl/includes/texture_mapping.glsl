@@ -86,9 +86,11 @@
             highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 4.0)) * causticsScale + vec2(time * causticsSpeed);
             highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 4.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
-            highp vec2 noiseTexOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x * 2.0), 0.0); 
-            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/(TEXTURE_ATLAS_DIMENSION * 2.0) + noiseTexOffset).r;
-            caustics += texture(texture0, fract(cauLayerCoord_1)/TEXTURE_ATLAS_DIMENSION + noiseTexOffset).r;
+            float edgePadding = 0.5; //prevent interpolation issues on texture edges
+		    vec2 noiseTextureOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x - edgePadding), 0.0); 
+
+            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/(TEXTURE_ATLAS_DIMENSION * 2.0) + noiseTextureOffset).r;
+            caustics += texture(texture0, fract(cauLayerCoord_1)/TEXTURE_ATLAS_DIMENSION + noiseTextureOffset).r;
             
            /* highp float redCaustics = texture2D(texture0, fract(cauLayerCoord_0 + 0.001)/32.0+ noiseTexOffset).r;
             redCaustics += texture(texture0, fract(cauLayerCoord_1 + 0.001)/32.0 + noiseTexOffset).r;
@@ -162,8 +164,11 @@
         highp float depthMap = 1.0 - texture2D(texture0, uv0 - reliefMapCoordLinear).a;//smooth paralax
         // highp float depthMap = 1.0 - texelFetch(texture0, ivec2((uv0 - reliefMapCoordLinear) * TEXTURE_DIMENSIONS.xy), 0).a;//sharp paralax
 
-        highp vec3 kernelVector = relativePosition;
-        if (normal.b > 0.9) {
+        //rotate base vectory depending on block face dirrection
+        highp vec3 kernelVector = vec3(0.0);
+        if(normal.b < -0.9){
+            kernelVector = relativePosition;
+        } else if (normal.b > 0.9) {
             kernelVector = vec3(-relativePosition.x, relativePosition.y, -relativePosition.z);
         } 
         
@@ -177,6 +182,8 @@
             kernelVector = vec3(-relativePosition.z, -relativePosition.y, relativePosition.x);
         } else if (normal.r < -0.9) {
             kernelVector = vec3(-relativePosition.z, relativePosition.y, relativePosition.x);
+        } else {
+            return diffuseMapCoord;
         }
 
         highp vec2 p = (kernelVector.xy / kernelVector.z) * 0.001 * depthMap;   
@@ -185,6 +192,7 @@
         
         highp vec2 diffuseMapCoordDisplaced = diffuseMapCoord + p;      
 
+        //reconstruction of "offtexture" samples
         if( fract((uv0.x - diffuseMapCoordDisplaced.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
             if(diffuseMapCoordDisplaced.x > diffuseMapCoord.x){
                 diffuseMapCoordDisplaced.x -= invercedTextureDimension.x;
@@ -214,18 +222,16 @@
         highp vec2 uv0, 
         highp vec3 viewDir, 
         vec3 initialNormalVector 
-    ){
-        ////////////////////////////Mapping section///////////////////////////////////
-        
+    ){        
         #ifdef PBR_FEATURE_ENABLED
-            // Top left texture - default diffuse
             highp vec2 invercedTextureDimension = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
-
+            
+            // Top left texture - default diffuse
             highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
            
             #ifdef PARALLAX_MAPPING_ENABLED
                 diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension, initialNormalVector);  
-            #endif  
+            #endif
 
             diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
 

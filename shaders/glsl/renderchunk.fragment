@@ -280,6 +280,10 @@ void main()
 	 //{
 	 //	diffuse = vec4(1.0, 1.0, 0.0, 1.0);
 	 //}
+
+	// #ifdef ALPHA_TO_COVERAGE
+	//  	diffuse.r += (sin(TIME * 4.0) + 1.0) * 0.25;
+	// #endif
 	
 	gl_FragColor = diffuse;
 #endif // !BYPASS_PIXEL_SHADER
