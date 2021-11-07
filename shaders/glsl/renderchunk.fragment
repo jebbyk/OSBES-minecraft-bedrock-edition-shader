@@ -94,12 +94,13 @@ void main()
 	detectEnvironment(isDay, isHell, isSunrize, TEXTURE_1);
 
 	vec3 viewDir = normalize(relativePosition.xyz);
-	// vec3 kek = normalize(position.xyz);
 	
-	vec4 diffuseMap; vec3 reliefMap; vec4 rmeMap;
-	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0, viewDir);
-
 	vec3 initialNormalVector = calculateRawNormalVector(position.xyz);
+
+	vec4 diffuseMap; vec3 reliefMap; vec4 rmeMap;
+	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0, viewDir, initialNormalVector);
+
+
 	
 #if defined(NORMAL_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
 	vec3 normalVector = rotateNormals(initialNormalVector, reliefMap);
@@ -264,6 +265,8 @@ void main()
 
 	//vec3 sphereNormal = (normalize(position.xyz) + 1.0) / 2.0;
 	//diffuse.rgb = sphereNormal;
+
+	// diffuse.rgb += initialNormalVector;
 
 	//diffuse.rgb = texelFetch(TEXTURE_1, ivec2(position.xz * 4.0),0).rgb;
 	//diffuse.rgb = texture2D(TEXTURE_1, vec2(0.0, 1.0)).rgb;

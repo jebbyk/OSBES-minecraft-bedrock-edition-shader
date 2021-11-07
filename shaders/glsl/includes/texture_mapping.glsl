@@ -154,13 +154,32 @@
         sampler2D texture0, 
         highp vec2 uv0, 
         highp vec2 diffuseMapCoord,
-        highp vec2 invercedTextureDimension
+        highp vec2 invercedTextureDimension,
+        vec3 normal
     ){
         highp vec2 reliefMapCoordLinear = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
 
-        highp float depthMap = 1.0 - texture2D(texture0, uv0 - reliefMapCoordLinear).a;
+        highp float depthMap = 1.0 - texture2D(texture0, uv0 - reliefMapCoordLinear).a;//smooth paralax
+        // highp float depthMap = 1.0 - texelFetch(texture0, ivec2((uv0 - reliefMapCoordLinear) * TEXTURE_DIMENSIONS.xy), 0).a;//sharp paralax
 
-        highp vec2 p = (relativePosition.xy / relativePosition.z) * 0.001 * depthMap;   
+        highp vec3 kernelVector = relativePosition;
+        if (normal.b > 0.9) {
+            kernelVector = vec3(-relativePosition.x, relativePosition.y, -relativePosition.z);
+        } 
+        
+        else if (normal.g > 0.9) {
+            kernelVector = vec3(relativePosition.x, relativePosition.z, relativePosition.y);
+        } else if (normal.g < -0.9) {
+            kernelVector = vec3(-relativePosition.x, relativePosition.z, relativePosition.y);
+        } 
+        
+        else if (normal.r > 0.9) {
+            kernelVector = vec3(-relativePosition.z, -relativePosition.y, relativePosition.x);
+        } else if (normal.r < -0.9) {
+            kernelVector = vec3(-relativePosition.z, relativePosition.y, relativePosition.x);
+        }
+
+        highp vec2 p = (kernelVector.xy / kernelVector.z) * 0.001 * depthMap;   
 
         // p *= (sin(TIME * 4.0) + 1.0) * 0.5;
         
@@ -187,7 +206,15 @@
 
     }
 
-    void readTextures(out vec4 diffuseMap, out vec3 reliefMap, out vec4 rmeMap, sampler2D texture0, highp vec2 uv0, highp vec3 viewDir){
+    void readTextures(
+        out vec4 diffuseMap, 
+        out vec3 reliefMap, 
+        out vec4 rmeMap, 
+        sampler2D texture0, 
+        highp vec2 uv0, 
+        highp vec3 viewDir, 
+        vec3 initialNormalVector 
+    ){
         ////////////////////////////Mapping section///////////////////////////////////
         
         #ifdef PBR_FEATURE_ENABLED
@@ -197,7 +224,7 @@
             highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
            
             #ifdef PARALLAX_MAPPING_ENABLED
-                diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension);  
+                diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension, initialNormalVector);  
             #endif  
 
             diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
