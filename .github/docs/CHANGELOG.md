@@ -11,8 +11,6 @@
 * Credits loading message replaced by a message that links to the website's credits page
 
 * Added a new preset toggle to control whether or not the underwater distortion effect is enabled
-  
-  * This toggle is disabled on the `Lowest` quality setting
 
 * Bugfixes:
   
