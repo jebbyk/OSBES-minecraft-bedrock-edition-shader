@@ -239,7 +239,6 @@
 
         #else
             float h = texture2D(texture0, uv0).r;
-            uv0 = parallax(viewDir, uv0, h);
             diffuseMap = texelFetch(texture0, ivec2(uv0 * TEXTURE_DIMENSIONS.xy), 0);
         #endif
 
