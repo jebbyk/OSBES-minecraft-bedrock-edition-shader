@@ -10,7 +10,8 @@
 #include "util.h"
 
 
-#include "includes/options/preset/other.glsl"
+#include "includes/options/preset/atlas.glsl"
+#include "includes/options/preset/pbr.glsl"
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;

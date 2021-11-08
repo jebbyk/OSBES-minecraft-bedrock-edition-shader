@@ -29,7 +29,8 @@ varying vec4 fogColor;
 #endif
 
 
-#include "includes/options/preset/other.glsl"
+#include "includes/options/preset/atlas.glsl"
+#include "includes/options/preset/pbr.glsl"
 
 
 /////////////////////Ingame UI fragment shader////////////////////////////
