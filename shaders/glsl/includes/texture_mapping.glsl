@@ -4,7 +4,7 @@
     vec3 rotateNormals(vec3 baseNormal, vec3 reliefMap){
         // Fake TBN transformations for normalmapps
         // TODO: Weird thing and takes alot of performance because of branching
-        // TODO: Needs refactoring
+        // TODO: Needs refactoring (if true TBN is more performant than this)
         if(length(reliefMap) > 0.9){
             
             float normalMapStrength = NORMAL_MAP_STRENGTH;
@@ -83,46 +83,29 @@
             highp float causticsSpeed = 0.05;
             highp float causticsScale = 0.1;
             
+            //use two texture coordinates moving in opposite directions
             highp vec2 cauLayerCoord_0 = (position.xz + vec2(position.y / 4.0)) * causticsScale + vec2(time * causticsSpeed);
             highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 4.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
-            float edgePadding = 0.5; //prevent interpolation issues on texture edges
+            float edgePadding = 0.5; //trying to prevent interpolation issues on texture edges
 		    vec2 noiseTextureOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x - edgePadding), 0.0); 
 
+            //mix them toogether
             highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/(TEXTURE_ATLAS_DIMENSION * 2.0) + noiseTextureOffset).r;
             caustics += texture(texture0, fract(cauLayerCoord_1)/TEXTURE_ATLAS_DIMENSION + noiseTextureOffset).r;
+            //now noise can be a number from 0.0 to 2.0
             
-           /* highp float redCaustics = texture2D(texture0, fract(cauLayerCoord_0 + 0.001)/32.0+ noiseTexOffset).r;
-            redCaustics += texture(texture0, fract(cauLayerCoord_1 + 0.001)/32.0 + noiseTexOffset).r;
-            
-            highp float blueCaustics = texture2D(texture0, fract(cauLayerCoord_0 - 0.001)/32.0+ noiseTexOffset).r;
-            blueCaustics += texture(texture0, fract(cauLayerCoord_1 - 0.001)/32.0 + noiseTexOffset).r;
-            
-            */
-            
-            
-            
-         //   caustics = clamp(caustics, 0.0, 2.0);
+            //make caustics brightness dependin on how close it to 1.0 
+            //(bright pixels are in a middle of a transition from <1.0 to >1.0 which results in lines surronunding bright areas of resulted noise texture)
             caustics = -abs(caustics - 1.0)  + 1.0;
             
-          /*  if(redCaustics > 1.0){
-                redCaustics = 2.0 - redCaustics;
-            }
-            
-            if(blueCaustics > 1.0){
-                blueCaustics = 2.0 - blueCaustics;
-            }*/
-            
-            
-            highp float cauHardness = 8.0;
-            highp float cauStrength = 1.5;
-            
-           // highp float blueCaustics = ;
-            caustics = pow(caustics, cauHardness);
-          /*  redCaustics = pow(redCaustics, cauHardness);
-            blueCaustics = pow(blueCaustics, cauHardness);*/
 
-            return vec3(caustics) * cauStrength;
+            highp float causticsSharpness = 8.0;//higher number - sharper caustics lines
+            highp float causticsStrength = 1.5;
+            caustics = pow(caustics, causticsSharpness);
+         
+
+            return vec3(caustics) * causticsStrength;
         }else return vec3(0.0);
     }
 
@@ -156,15 +139,22 @@
         sampler2D texture0, 
         highp vec2 uv0, 
         highp vec2 diffuseMapCoord,
-        highp vec2 invercedTextureDimension,
+        highp vec2 offset,
         vec3 normal
     ){
-        highp vec2 reliefMapCoordLinear = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
+        highp vec2 reliefMapCoordLinear = diffuseMapCoord - vec2(0.0, offset.y);
 
-        highp float depthMap = 1.0 - texture2D(texture0, uv0 - reliefMapCoordLinear).a;//smooth paralax
-        // highp float depthMap = 1.0 - texelFetch(texture0, ivec2((uv0 - reliefMapCoordLinear) * TEXTURE_DIMENSIONS.xy), 0).a;//sharp paralax
+        highp vec4 reliefMapLinear = texture2D(texture0, uv0 - reliefMapCoordLinear);//smooth paralax
+        // highp float reliefMapLinear = texelFetch(texture0, ivec2((uv0 - reliefMapCoordLinear) * TEXTURE_DIMENSIONS.xy), 0);//sharp paralax
 
-        //rotate base vectory depending on block face dirrection
+        if(length(reliefMapLinear.rgb) < 0.5){
+            return diffuseMapCoord;// do not transform texture coordintates if there is no relief map
+        }
+
+        highp float depthMap = 1.0 - reliefMapLinear.a;
+       
+        //rotate base vector depending on block face dirrection 
+        //TODO take textures roatation in to account and use TBN maybe (if it's not less performant)
         highp vec3 kernelVector = vec3(0.0);
         if(normal.b < -0.9){
             kernelVector = relativePosition;
@@ -186,26 +176,26 @@
             return diffuseMapCoord;
         }
 
-        highp vec2 p = (kernelVector.xy / kernelVector.z) * 0.001 * depthMap;   
+        highp vec2 displacement = (kernelVector.xy / kernelVector.z) * 0.001 * depthMap;   
 
-        // p *= (sin(TIME * 4.0) + 1.0) * 0.5;
+        // displacement *= (sin(TIME * 4.0) + 1.0) * 0.5;
         
-        highp vec2 diffuseMapCoordDisplaced = diffuseMapCoord + p;      
+        highp vec2 diffuseMapCoordDisplaced = diffuseMapCoord + displacement;      
 
-        //reconstruction of "offtexture" samples
+        //reconstruction of "offtexture" samples near block edges
         if( fract((uv0.x - diffuseMapCoordDisplaced.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
             if(diffuseMapCoordDisplaced.x > diffuseMapCoord.x){
-                diffuseMapCoordDisplaced.x -= invercedTextureDimension.x;
+                diffuseMapCoordDisplaced.x -= offset.x;
             } else {
-                diffuseMapCoordDisplaced.x += invercedTextureDimension.x;
+                diffuseMapCoordDisplaced.x += offset.x;
             }
             
         }
         if( fract((uv0.y - diffuseMapCoordDisplaced.y) * TEXTURE_ATLAS_DIMENSION.y) > 0.5){
             if(diffuseMapCoordDisplaced.y > diffuseMapCoord.y){
-                diffuseMapCoordDisplaced.y -= invercedTextureDimension.y;
+                diffuseMapCoordDisplaced.y -= offset.y;
             } else {
-                diffuseMapCoordDisplaced.y += invercedTextureDimension.y;
+                diffuseMapCoordDisplaced.y += offset.y;
             }
             
         }  
@@ -234,11 +224,10 @@
                     diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension, initialNormalVector);  
                 #endif
             #endif
-
+            //texelFetch gets non interpolated samples (sharp texture)
             diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
 
         #else
-            float h = texture2D(texture0, uv0).r;
             diffuseMap = texelFetch(texture0, ivec2(uv0 * TEXTURE_DIMENSIONS.xy), 0);
         #endif
 
