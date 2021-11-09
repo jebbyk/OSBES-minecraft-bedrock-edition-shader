@@ -10,6 +10,12 @@
 
 * Credits loading message replaced by a message that links to the website's credits page
 
+* Moved the PBR toggle to utilize `pbr.glsl` instead of `other.glsl`
+
+  * This will cause any PBR packs using `other.glsl` to need to be updated
+
+* The texture atlas size has also now been moved into `atlas.glsl`
+
 * Added a new preset toggle to control whether or not the underwater distortion effect is enabled
 
 * Bugfixes:
