@@ -150,6 +150,7 @@
         highp vec2 diffuseMapCoord,
         highp vec2 offset,
         vec3 normal
+        // highp mat3 TBN
     ){
         highp vec2 reliefMapCoordLinear = diffuseMapCoord - vec2(0.0, offset.y);
 
@@ -163,7 +164,7 @@
         highp float depthMap = 1.0 - reliefMapLinear.a;
        
         //rotate base vector depending on block face dirrection (normal.xyz) 
-        //TODO take textures roatation in to account and use TBN maybe (if it's not less performant)
+        //TODO use TBN
         highp vec3 kernelVector = vec3(0.0);
         if(normal.b < -0.9){
             kernelVector = relativePosition;
@@ -185,7 +186,10 @@
             return diffuseMapCoord;
         }
 
-        highp vec2 displacement = (kernelVector.xy / kernelVector.z) * 0.001 * depthMap;   
+        //true TBN transformation is disabled for now because of performance reasons
+        // highp vec3 kernelVector = TBN * normalize(relativePosition);
+
+        highp vec2 displacement = (kernelVector.xy / kernelVector.z) * PARALLAX_DEPTH * depthMap;   
 
         // displacement *= (sin(TIME * 4.0) + 1.0) * 0.5;
         
@@ -222,7 +226,8 @@
         sampler2D texture0, 
         highp vec2 uv0, 
         highp vec3 viewDir, 
-        vec3 initialNormalVector 
+        vec3 initialNormalVector
+        // highp mat3 TBN
     ){        
         #ifdef PBR_FEATURE_ENABLED
             //if PBR feature is enabled we have to calculate offsets to get correct coordinates of other texture maps

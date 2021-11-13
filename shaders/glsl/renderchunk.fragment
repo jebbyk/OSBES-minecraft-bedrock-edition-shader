@@ -101,27 +101,29 @@ void main()
 
 	vec3 geometryNormal = calculateGeometryNormals(posDerivativesX, posDerivativesY);
 
+	///true TBN transformation is disabled for now because of performance. Will see if anyone even notice bugged parallax :)
+	// highp mat3 TBN = buildTBN(posDerivativesX, posDerivativesY, uv0, geometryNormal);
+
 	vec4 diffuseMap; vec3 reliefMap; vec4 rmeMap;
 	readTextures(diffuseMap, reliefMap, rmeMap, TEXTURE_0, uv0, viewDir, geometryNormal);
-
-
 	
 #if defined(NORMAL_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
-	// vec3 normalVector = rotateNormals(geometryNormal, reliefMap);
-	vec3 normalVector;
-	if(length(reliefMap.rgb) > 0.4){
-		highp mat3 TBN = buildTBN(posDerivativesX, posDerivativesY, uv0, geometryNormal);
-		normalVector = rotateNormals(TBN, reliefMap);
-	} else {
-		normalVector = geometryNormal;
-	}
+	vec3 normalVector = rotateNormals(geometryNormal, reliefMap);
+	
+	///true TBN transformation is disabled for now because of performance
+	// vec3 normalVector;
+	// if(length(reliefMap.rgb) > 0.4){
+	// 	normalVector = rotateNormals(TBN, reliefMap);
+	// } else {
+	// 	normalVector = geometryNormal;
+	// }
 	
 #else
 	#if defined(WATER_DETAILS_ENABLED) & defined(BLEND)
 		if(isWater > 0.9){
-			// vec3 normalVector = rotateNormals(geometryNormal, reliefMap);
-			highp mat3 TBN = buildTBN(posDerivativesX, posDerivativesY, uv0, geometryNormal);
-			vec3 normalVector = rotateNormals(TBN, reliefMap);
+			vec3 normalVector = rotateNormals(geometryNormal, reliefMap);
+			///true TBN transformation is disabled for now because of performance
+			// vec3 normalVector = rotateNormals(TBN, reliefMap);
 		} else {
 			vec3 normalVector = geometryNormal;
 		}
@@ -153,17 +155,17 @@ void main()
 
 	float  wetness = 0.0;
 	
-		if(isRain > 0.1 && isWater < 0.1){
-			#ifdef PUDDLES_ENABLED
-				wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
-			#endif
-			wetness = max(geometryNormal.g * wetness, 0.5);
-			wetness *= fakeShadowMap;
-			//make normals to be flat on puddless
-			normalVector = mix(normalVector, geometryNormal, (wetness - 0.5) * 2.0);
-			// make ground darker under puddless
-			diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
-		}
+	if(isRain > 0.1 && isWater < 0.1){
+		#ifdef PUDDLES_ENABLED
+			wetness = mapPuddles(TEXTURE_0, position.xz, isRain);	
+		#endif
+		wetness = max(geometryNormal.g * wetness, 0.5);
+		wetness *= fakeShadowMap;
+		//make normals to be flat on puddless
+		normalVector = mix(normalVector, geometryNormal, (wetness - 0.5) * 2.0);
+		// make ground darker under puddless
+		diffuse.rgb = mix(diffuse.rgb, vec3(0.25,0.25,0.25), wetness * isRain);		
+	}
 
 
 	
@@ -186,16 +188,12 @@ void main()
 	if(diffuse.a < ALPHA_THRESHOLD)
 		discard;// Cutout leaves and grass
 #endif //USE_ALPHA_TEST
-	
 
 	vec4 skyLightDiffused = calculateSkyLightDiffused(normalVector, isRain, isDay, isHell);
 	vec4 mainLightDiffused = calculateMainLightDiffused(normalVector, isDay);
 	vec3 pointLightsDiffused = calculatePointLightsDiffused(pointLightsMap);
 
-
-
 	vec3 reflectedVector = reflect(viewDir, normalVector);
-
 
 #ifdef MAIN_LIGHT_REFLECTION
 	vec4 mainLightReflected = calculateMainLightsReflection(normalVector, viewDir, mainLightDiffused, shininess, isRain, isSunrize);

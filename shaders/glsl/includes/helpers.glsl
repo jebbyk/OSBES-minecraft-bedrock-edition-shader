@@ -15,17 +15,6 @@ highp vec3 calculateGeometryNormals(in highp vec3 posDerivativesX, in highp vec3
 	return normalize(cross(posDerivativesX, posDerivativesY));
 }
 
-// mat3 buildTBN(highp vec3 posDerivativesX, highp vec3 posDerivativesY, highp vec2 uv, highp vec3 geometryNormal){
-// 	highp vec2 uvDerivativesX = dFdx(uv);
-// 	highp vec2 uvDerivativesY = dFdy(uv);
-
-// 	highp vec3 T = normalize(posDerivativesX * uvDerivativesY.y - posDerivativesY * uvDerivativesX.y);
-// 	highp vec3 B = normalize(-posDerivativesX * uvDerivativesY.x + posDerivativesY * uvDerivativesX.x);
-
-// 	return highp mat3(T,B,geometryNormal);
-// }
-
-
 highp mat3 buildTBN(highp vec3 posDerivativesX, highp vec3 posDerivativesY, highp vec2 uv, highp vec3 geometryNormal){
 	highp vec2 uvDerivativesX = normalize(dFdx(uv));
 	highp vec2 uvDerivativesY = normalize(dFdy(uv));
@@ -38,7 +27,7 @@ highp mat3 buildTBN(highp vec3 posDerivativesX, highp vec3 posDerivativesY, high
 
 	highp float invmax = inversesqrt(max(dot(T,T), dot(B,B)));
 
-	return highp mat3(T *  invmax, B * invmax, geometryNormal);
+	return mat3(T *  invmax, B * invmax, geometryNormal);
 }
 
 // highp mat3 buildTBN(highp vec3 posDerivativesX, highp vec3 posDerivativesY, highp vec2 uv, highp vec3 geometryNormal){
@@ -53,6 +42,16 @@ highp mat3 buildTBN(highp vec3 posDerivativesX, highp vec3 posDerivativesY, high
 // 	highp mat3 TBN = transpose(mat3(B, T, geometryNormal));
 
 // 	return TBN;
+// }
+
+// mat3 buildTBN(highp vec3 posDerivativesX, highp vec3 posDerivativesY, highp vec2 uv, highp vec3 geometryNormal){
+// 	highp vec2 uvDerivativesX = dFdx(uv);
+// 	highp vec2 uvDerivativesY = dFdy(uv);
+
+// 	highp vec3 T = normalize(posDerivativesX * uvDerivativesY.y - posDerivativesY * uvDerivativesX.y);
+// 	highp vec3 B = normalize(-posDerivativesX * uvDerivativesY.x + posDerivativesY * uvDerivativesX.x);
+
+// 	return highp mat3(T,B,geometryNormal);
 // }
 
 float calculateFresnel(vec3 geometryNormal, vec3 normalVector, vec3 viewDir, float isWater, float isRain, float wetness){
