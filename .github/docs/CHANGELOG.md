@@ -1,20 +1,13 @@
 # Changelog
 
 ### v0.14.0
-
-* Tweaked loading messages
-
-* Removed unused `env_effects.glsl` file
-
-* Updated authors
-
-* Credits loading message replaced by a message that links to the website's credits page
+* Added simple parallax mapping with paralax_depth preset option
 
 * Moved the PBR toggle to utilize `pbr.glsl` instead of `other.glsl`
 
   * This will cause any PBR packs using `other.glsl` to need to be updated
 
-* The texture atlas size has also now been moved into `atlas.glsl`
+* The texture atlas size option has also now been moved into `atlas.glsl`
 
 * Added a new preset toggle to control whether or not the underwater distortion effect is enabled
 
@@ -23,6 +16,22 @@
   * Fixed incorrect texture mapping on transparent blocks
   
   * Corrected underwater distortion effect not affecting entities
+
+  * Pratially fixed black hole issue in specular highlights in some situations 
+
+  * Fixed underwater caustics issue (probably)
+
+* Updated ROADMAP
+
+* Updated authors
+
+* Tweaked loading messages
+
+* Credits loading message replaced by a message that links to the website's credits page
+
+* Added some documentational comments in code files
+
+
 
 ### v0.13.2
 
