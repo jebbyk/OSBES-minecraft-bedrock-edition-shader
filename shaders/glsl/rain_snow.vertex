@@ -3,6 +3,14 @@
 
 #include "vertexVersionSimple.h"
 
+
+#include "includes/env_detectors.glsl"
+#include "includes/animations.glsl"
+
+
+#include "includes/options/quality_settings/animations/underwater_distortion.glsl"
+
+
 precision highp float;
 
 #include "uniformWorldConstants.h"
@@ -57,6 +65,14 @@ void main()
 	 	
 	// offset the position of each side of the particle using uv.x 
 	gl_Position.xy += (0.5 - TEXCOORD_0.x) * dirPerp * SIZE_SCALE.x;
+
+	bool isUnderWater = detectUnderwater()  > 0.9;
+
+    #if defined(UNDERWATER_DISTORTION)
+	    if(isUnderWater) {
+		    gl_Position.xy += calculateUnderwaterAnimation(gl_Position.xyz);
+    	}
+    #endif
 	
 	color = ALPHA.rgba;
 

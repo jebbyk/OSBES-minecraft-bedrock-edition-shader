@@ -20,6 +20,8 @@
   * Fixed "black hole" issue in specular highlights in most cases
 
   * Fixed underwater caustics issue
+  
+  * Fixed barrier visibility
 
 * Updated ROADMAP
 
@@ -30,7 +32,6 @@
 * Credits loading message replaced by a message that links to the website's credits page
 
 * Added some documentational comments in code files
-
 
 
 ### v0.13.2
