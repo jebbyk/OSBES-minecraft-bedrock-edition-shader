@@ -82,8 +82,8 @@
 |Presets                   |0.13.1       | Preset defines                     |<span style="color:green">Ready</span>
 |Presets                   |0.13.2       | Bugfixes                           |<span style="color:green">Ready</span>
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Parallax mapping          |0.14.0       | Simple parallax mapping            |<span style="color:green">**In progress**</span>|
-|Parallax mapping          |0.14.1       | Light direction detection(GFPs idea)|<span style="color:orange">**Planned**</span>|
+|Parallax mapping          |0.14.0       | Simple parallax mapping            |<span style="color:green">Ready</span>
+|Parallax mapping          |0.14.1       | Light direction detection(GFPs idea)|<span style="color:green">**In progress**</span>|
 |Parallax mapping          |0.14.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Improved reflections      |0.15.0       | Texture compatibility improvements |<span style="color:orange">**Planned**</span>|
