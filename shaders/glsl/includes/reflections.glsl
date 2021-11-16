@@ -61,6 +61,6 @@ vec4 calculateMainLightsReflection(vec3 normalVector, vec3 viewDir, vec4 mainLig
 
 vec4 calculatePointLightsReflected(vec3 normalVector, vec3 viewDir, float shininess, vec3 pointLightsDiffused)
 {
-	float spec = pow(max(dot(normalVector, viewDir), 0.0), shininess * 0.25);
+	float spec = min(pow(max(dot(normalVector, viewDir), 0.0), shininess * 0.25), 20.0);
 	return vec4(pow(min(pointLightsDiffused.rgb * 3.0, 1.0), vec3(2.0)), spec * pointLightsDiffused.r);
 }
