@@ -1,7 +1,7 @@
 # Changelog
 
 ### v0.14.0
-* Added simple parallax mapping with paralax_depth preset option
+* Added simple parallax mapping with parallax_depth preset option
 
 * Moved the PBR toggle to utilize `pbr.glsl` instead of `other.glsl`
 
@@ -17,9 +17,9 @@
   
   * Corrected underwater distortion effect not affecting entities
 
-  * Pratially fixed black hole issue in specular highlights in some situations 
+  * Fixed "black hole" issue in specular highlights in most cases
 
-  * Fixed underwater caustics issue (probably)
+  * Fixed underwater caustics issue
 
 * Updated ROADMAP
 
