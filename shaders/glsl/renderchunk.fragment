@@ -120,12 +120,13 @@ void main()
 	
 #else
 	#if defined(WATER_DETAILS_ENABLED) & defined(BLEND)
+		vec3 normalVector;
 		if(isWater > 0.9){
-			vec3 normalVector = rotateNormals(geometryNormal, reliefMap);
+			normalVector = rotateNormals(geometryNormal, reliefMap);
 			///true TBN transformation is disabled for now because of performance
 			// vec3 normalVector = rotateNormals(TBN, reliefMap);
 		} else {
-			vec3 normalVector = geometryNormal;
+			normalVector = geometryNormal;
 		}
 	#else
     	vec3 normalVector = geometryNormal;
