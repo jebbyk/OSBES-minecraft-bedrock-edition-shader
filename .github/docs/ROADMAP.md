@@ -90,12 +90,12 @@
 |                          |0.15.1       | peresets system improvements       |<span style="color:orange">**Planned**</span>|
 |                          |0.15.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Improved puddles          |0.16.0       | Waterdrops                         |<span style="color:orange">**Planned**</span>|
-|                          |0.16.1       | Vertical water fluids              |<span style="color:orange">**Planned**</span>|
+|Improved reflections      |0.16.0       | Fake terrain reflections           |<span style="color:orange">**Planned**</span>|
+|                          |0.16.1       | Detecting environment reflections  |<span style="color:orange">**Planned**</span>|
 |                          |0.16.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Improved reflections      |0.17.0       | Fake terrain reflections           |<span style="color:orange">**Planned**</span>|
-|                          |0.17.1       | Detecting environment reflections  |<span style="color:orange">**Planned**</span>|
+|Improved puddles          |0.17.0       | Waterdrops                         |<span style="color:orange">**Planned**</span>|
+|                          |0.17.1       | Vertical water fluids              |<span style="color:orange">**Planned**</span>|
 |                          |0.17.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Advanced parallax mapping |0.18.0       | Parallax occlusion mapping         |<span style="color:orange">**Planned**</span>|
