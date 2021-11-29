@@ -75,42 +75,47 @@
 |                          |0.11.2       | Improvements                       |<span style="color:green">Ready</span>
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Reflections               |0.12.0       | Renderchunk refactoring            |<span style="color:green">Ready</span>
-|Reflections               |0.12.1       | Metallicness pipeline and reflections|<span style="color:green">Ready</span>
-|Reflections               |0.12.2       | Bugfixes                           |<span style="color:green">Ready</span>
+|                          |0.12.1       | Metallicness pipeline and reflections|<span style="color:green">Ready</span>
+|                          |0.12.2       | Bugfixes                           |<span style="color:green">Ready</span>
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Presets                   |0.13.0       | Shaders refactoring and comments   |<span style="color:green">Ready</span>
-|Presets                   |0.13.1       | Preset defines                     |<span style="color:green">Ready</span>
-|Presets                   |0.13.2       | Bugfixes                           |<span style="color:green">Ready</span>
+|                          |0.13.1       | Preset defines                     |<span style="color:green">Ready</span>
+|                          |0.13.2       | Bugfixes                           |<span style="color:green">Ready</span>
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Parallax mapping          |0.14.0       | Simple parallax mapping            |<span style="color:green">Ready</span>
-|Parallax mapping          |0.14.1       | Light direction detection(GFPs idea)|<span style="color:green">**In progress**</span>|
-|Parallax mapping          |0.14.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|                          |0.14.1       | Point light direction detection    |<span style="color:green">**In progress**</span>|
+|                          |0.14.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Improved reflections      |0.15.0       | Texture compatibility improvements |<span style="color:orange">**Planned**</span>|
-|Improved reflections      |0.15.1       | Fake terrain reflections           |<span style="color:orange">**Planned**</span>|
-|Improved reflections      |0.15.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Compatibility improvement |0.15.0       | compatibility improvements         |<span style="color:orange">**Planned**</span>|
+|                          |0.15.1       | peresets system improvements       |<span style="color:orange">**Planned**</span>|
+|                          |0.15.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Advanced parallax mapping |0.16.0       | Improved rain puddles              |<span style="color:orange">**Planned**</span>|
-|Advanced parallax mapping |0.16.1       | POM with self shadowing            |<span style="color:orange">**Planned**</span>|
-|Advanced parallax mapping |0.16.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Improved puddles          |0.16.0       | Waterdrops                         |<span style="color:orange">**Planned**</span>|
+|                          |0.16.1       | Vertical water fluids              |<span style="color:orange">**Planned**</span>|
+|                          |0.16.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Fully correct PBR         |0.17.0       | fully correct PBR                  |<span style="color:orange">**Planned**</span>|
-|Fully correct PBR         |0.17.1       | shaders for entityes               |<span style="color:orange">**Planned**</span>|
-|Fully correct PBR         |0.17.2       | Bugfixes (pre release)             |<span style="color:orange">**Planned**</span>|
+|Improved reflections      |0.17.0       | Fake terrain reflections           |<span style="color:orange">**Planned**</span>|
+|                          |0.17.1       | Detecting environment reflections  |<span style="color:orange">**Planned**</span>|
+|                          |0.17.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Release                   |1.0.0        | Release (final bugfixes)           |<span style="color:orange">**Planned**</span>|
-|Release                   |1.0.1        | after release bugfixes             |<span style="color:orange">**Planned**</span>|
+|Advanced parallax mapping |0.18.0       | Parallax occlusion mapping         |<span style="color:orange">**Planned**</span>|
+|                          |0.18.1       | POM self shadowing                 |<span style="color:orange">**Planned**</span>|
+|                          |0.18.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Fake GI                   |1.1.1        | Fake light bounce (GFPs idea)      |<span style="color:orange">**Planned**</span>|
-|Fake GI                   |1.1.2        | Better underwater detection (GFPs idea) |<span style="color:orange">**Planned**</span>|
-|Fake GI                   |1.1.3        | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Fully correct PBR         |0.19.0       | lightmaps                          |<span style="color:orange">**Planned**</span>|
+|                          |0.19.1       | fully correct PBR                  |<span style="color:orange">**Planned**</span>|
+|                          |0.19.2       | shaders for entityes               |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Atmosperics               |1.2.0        | Atmosphere scattering              |<span style="color:orange">**Planned**</span>|
-|Atmosperics               |1.2.1        | Volumetric clouds                  |<span style="color:orange">**Planned**</span>|
-|Atmosperics               |1.2.2        | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|Lighting improvement      |0.20.0       | Fake light bounce (GFPs idea)      |<span style="color:orange">**Planned**</span>|
+|                          |0.20.1       | Better underwater detection (GFPs idea) |<span style="color:orange">**Planned**</span>|
+|                          |0.20.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Windows x86               |1.3.x        |                                    |<span style="color:orange">**Planned**</span>|
+|Atmospherics              |0.21.0       | Atmosphere scattering              |<span style="color:orange">**Planned**</span>|
+|                          |0.21.1       | Volumetric clouds                  |<span style="color:orange">**Planned**</span>|
+|                          |0.21.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Inner core integration    |1.4.x        |                                    |<span style="color:orange">**Planned**</span>|
+|Windows x86               |0.22.x       |                                    |<span style="color:orange">**Planned**</span>|
+|━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
+|Inner core integration    |1.xx.x       |                                    |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Renderdragon support      |x.x.x        |                                    |<span style="color:orange">**Planned**</span>|
