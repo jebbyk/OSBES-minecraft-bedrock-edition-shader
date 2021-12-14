@@ -45,7 +45,7 @@
 			"memory_tier": 4
         },
 		{
-            "folder_name": "high",
+            "folder_name": "experimental",
 			"name": "§c[EXPERIMENAL] §a: Has the same quality as High, except the experimental Parallax Mapping feature is enabled\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": -1
         }
