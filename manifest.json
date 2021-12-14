@@ -43,6 +43,11 @@
             "folder_name": "high",
 			"name": "§a[HIGH (DEFAULT)] : Recommended settings for a relatively powerful GPU\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
 			"memory_tier": 4
+        },
+		{
+            "folder_name": "high",
+			"name": "§c[EXPERIMENAL] §a: Has the same quality as High, except the experimental Parallax Mapping feature is enabled\n\n§eAttention : RESTART MINECRAFT TO APPLY SETTINGS!!!",
+			"memory_tier": -1
         }
     ]
 }
