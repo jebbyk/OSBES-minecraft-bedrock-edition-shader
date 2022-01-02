@@ -229,23 +229,36 @@
         vec3 initialNormalVector
         // highp mat3 TBN
     ){        
+
+        bool isPBR = false;
+        float textureSize = 16.0;
         #ifdef PBR_FEATURE_ENABLED
             //if PBR feature is enabled we have to calculate offsets to get correct coordinates of other texture maps
             //TODO add abbility to take texture paddings into account
-            highp vec2 invercedTextureDimension = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
+            // highp vec2 invercedTextureDimension = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
             
             // Top left texture - default diffuse
-            highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
+            // highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
+
+            ivec2 diffuseMapCoord = ivec2(uv0 * TEXTURE_ATLAS_DIMENSION.xy * vec2(16.0));
            
             #ifndef BLEND
                 #ifdef PARALLAX_MAPPING_ENABLED
                     //if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
-                    diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension, initialNormalVector);  
+                    // diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension, initialNormalVector);  
                 #endif
             #endif
             //texelFetch gets non interpolated samples (sharp texture)
-            diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
+            diffuseMap = texelFetch(texture0, diffuseMapCoord, 0);
+            isPBR = diffuseMap.a > 0.0 && diffuseMap.a < 12.0 / 256.0; //256 is fully opaque, 0 - no PBR, 1 - 4x4, 2 - 8x8, 3 16x16, 4 - 32x32, 5 - 64x64 etc.
+            if(isPBR){
+                textureSize = diffuseMap.a * 256.0;
+                textureSize = pow(2.0, textureSize + 1.0);
 
+                if(textureSize > 16.5) {
+                    isPBR = false;
+                }
+            }
         #else
             //if no PBR feature enabled than read default texture dirrectly without offsetting UV coordinates
             diffuseMap = texelFetch(texture0, ivec2(uv0 * TEXTURE_DIMENSIONS.xy), 0);
@@ -259,13 +272,14 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
-                    reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
+                    ivec2 reliefMapCoord = diffuseMapCoord + ivec2(textureSize + 2.0, 0.0);
+                    reliefMap = texelFetch(texture0, reliefMapCoord, 0).rgb;
                 }
             #else
-                // Bottom left texture - default diffuse
-                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
-                reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
+            if(isPBR){
+                ivec2 reliefMapCoord = diffuseMapCoord + ivec2(textureSize + 2.0, 0.0);
+                reliefMap = texelFetch(texture0, reliefMapCoord, 0).rgb;
+            }
             #endif
         #else
             #ifdef WATER_DETAILS_ENABLED
@@ -279,8 +293,10 @@
         
         #if defined(SPECULAR_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             // Top right texture - specular map
-            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(invercedTextureDimension.x, 0.0);// 1.0/128.0
-            rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
+            if(isPBR){
+                ivec2 rmeMapCoord =  diffuseMapCoord + ivec2(textureSize*2.0 + 4.0, 0.0);
+                rmeMap = clamp(texelFetch(texture0, rmeMapCoord, 0),0.01, 1.0);
+            }
         #else
             rmeMap = vec4(0.0);
         #endif 

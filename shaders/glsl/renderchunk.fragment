@@ -182,9 +182,9 @@ void main()
 
 #if USE_ALPHA_TEST
 	#ifdef ALPHA_TO_COVERAGE
-	#define ALPHA_THRESHOLD 0.05
+	#define ALPHA_THRESHOLD 0.001
 	#else
-	#define ALPHA_THRESHOLD 0.5
+	#define ALPHA_THRESHOLD 0.001
 	#endif //APLPHA_TO_COVERAGE
 	if(diffuse.a < ALPHA_THRESHOLD)
 		discard;// Cutout leaves and grass
