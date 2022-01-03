@@ -278,7 +278,7 @@ void main()
 	// diffuse.rgb = sin(position.xyz/2.545) * 0.5 + 0.5;
 
     // Debug tile texture
-	// diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 128.0), 0);
+	//  diffuse = texelFetch(TEXTURE_0, ivec2(position.xz * 128.0), 0);
 
 	//vec3 sphereNormal = (normalize(position.xyz) + 1.0) / 2.0;
 	//diffuse.rgb = sphereNormal;

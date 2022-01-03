@@ -232,13 +232,7 @@
 
         bool isPBR = false;
         float textureSize = 16.0;
-        #ifdef PBR_FEATURE_ENABLED
-            //if PBR feature is enabled we have to calculate offsets to get correct coordinates of other texture maps
-            //TODO add abbility to take texture paddings into account
-            // highp vec2 invercedTextureDimension = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
-            
-            // Top left texture - default diffuse
-            // highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
+        #ifdef PBR_FEATURE_ENABLED   
 
             ivec2 diffuseMapCoord = ivec2(uv0 * TEXTURE_ATLAS_DIMENSION.xy * vec2(16.0));
            
@@ -273,11 +267,17 @@
                     #endif
                 }else{
                     ivec2 reliefMapCoord = diffuseMapCoord + ivec2(textureSize + 2.0, 0.0);
+                    if (reliefMapCoord.x > int(TEXTURE_DIMENSIONS.x)){
+                        reliefMapCoord -= ivec2(TEXTURE_DIMENSIONS.x, -textureSize);
+                    }
                     reliefMap = texelFetch(texture0, reliefMapCoord, 0).rgb;
                 }
             #else
             if(isPBR){
                 ivec2 reliefMapCoord = diffuseMapCoord + ivec2(textureSize + 2.0, 0.0);
+                if (reliefMapCoord.x > int(TEXTURE_DIMENSIONS.x)){
+                    reliefMapCoord -= ivec2(TEXTURE_DIMENSIONS.x, -textureSize);
+                }
                 reliefMap = texelFetch(texture0, reliefMapCoord, 0).rgb;
             }
             #endif
@@ -295,6 +295,10 @@
             // Top right texture - specular map
             if(isPBR){
                 ivec2 rmeMapCoord =  diffuseMapCoord + ivec2(textureSize*2.0 + 4.0, 0.0);
+
+                if (rmeMapCoord.x > int(TEXTURE_DIMENSIONS.x)){
+                    rmeMapCoord -= ivec2(TEXTURE_DIMENSIONS.x, -textureSize);
+                }
                 rmeMap = clamp(texelFetch(texture0, rmeMapCoord, 0),0.01, 1.0);
             }
         #else

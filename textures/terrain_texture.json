@@ -4,20 +4,14 @@
   "padding": 0,
   "num_mip_levels": 2,
   "texture_data": {
-    "a_water_normal0": {
-      "textures": "textures/special/water_normal0"
-    },
-    "a_water_fluid_normal0":{
-      "textures": "textures/special/water_fluid_normal0"
-    },
-    "a_water_drops0": {
-      "textures": "textures/special/water_drops0"
-    },
-    "a_blue_noise0": {
-      "textures": "textures/special/blue_noise0"
-    },
-    "a_blue_noise1": {
-      "textures": "textures/special/blue_noise1"
+    "00000000": {
+      "textures": [
+        "textures/special/water_normal0",
+        "textures/special/water_fluid_normal0",
+        "textures/special/water_drops0",
+        "textures/special/blue_noise0",
+        "textures/special/blue_noise1"
+      ]
     }
   }
 }
