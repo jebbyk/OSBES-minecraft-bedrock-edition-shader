@@ -6,11 +6,8 @@
   "texture_data": {
     "00000000": {
       "textures": [
-        "textures/special/water_normal0",
-        "textures/special/water_fluid_normal0",
-        "textures/special/water_drops0",
-        "textures/special/blue_noise0",
-        "textures/special/blue_noise1"
+        "textures/special/water_normal_1",
+        "textures/special/blue_noise_0"
       ]
     }
   }
