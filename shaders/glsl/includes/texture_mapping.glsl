@@ -148,18 +148,19 @@
         sampler2D texture0, 
         highp vec2 uv0, 
         highp vec2 diffuseMapCoord,
-        highp vec2 offset,
-        vec3 normal
+        highp float offset,
+        vec3 normal,
+        out float depth
         // highp mat3 TBN
     ){
-        highp vec2 reliefMapCoordLinear = diffuseMapCoord - vec2(0.0, offset.y);
+        highp vec2 reliefMapCoordLinear = vec2((offset + 2.0) / TEXTURE_DIMENSIONS.x, 0.0);
 
-        highp vec4 reliefMapLinear = texture2D(texture0, uv0 - reliefMapCoordLinear);//smooth paralax
+        highp vec4 reliefMapLinear = texture2D(texture0, uv0 + reliefMapCoordLinear);//smooth paralax
         // highp float reliefMapLinear = texelFetch(texture0, ivec2((uv0 - reliefMapCoordLinear) * TEXTURE_DIMENSIONS.xy), 0);//sharp paralax
 
-        if(length(reliefMapLinear.rgb) < 0.5){
-            return diffuseMapCoord;// do not transform texture coordintates if there is no relief map
-        }
+        // if(length(reliefMapLinear.rgb) < 0.5){
+        //     return diffuseMapCoord;// do not transform texture coordintates if there is no relief map
+        // }
 
         highp float depthMap = 1.0 - reliefMapLinear.a;
        
@@ -191,29 +192,31 @@
 
         highp vec2 displacement = (kernelVector.xy / kernelVector.z) * PARALLAX_DEPTH * depthMap;   
 
+        depth = depthMap;
+
         // displacement *= (sin(TIME * 4.0) + 1.0) * 0.5;
         
-        highp vec2 diffuseMapCoordDisplaced = diffuseMapCoord + displacement;      
+        vec2 diffuseMapCoordDisplaced = diffuseMapCoord - displacement;      
 
         //reconstruction of "offtexture" samples near block edges caused by texture offsetting
-        if( fract((uv0.x - diffuseMapCoordDisplaced.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
-            //move it backwards depending on a dirrection of previous offsetting
-            if(diffuseMapCoordDisplaced.x > diffuseMapCoord.x){
-                diffuseMapCoordDisplaced.x -= offset.x;
-            } else {
-                diffuseMapCoordDisplaced.x += offset.x;
-            }
+        // if( fract((uv0.x - diffuseMapCoordDisplaced.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
+        //     //move it backwards depending on a dirrection of previous offsetting
+        //     if(diffuseMapCoordDisplaced.x > diffuseMapCoord.x){
+        //         diffuseMapCoordDisplaced.x -= offset.x;
+        //     } else {
+        //         diffuseMapCoordDisplaced.x += offset.x;
+        //     }
             
-        }
+        // }
         //the same for y coordinates
-        if( fract((uv0.y - diffuseMapCoordDisplaced.y) * TEXTURE_ATLAS_DIMENSION.y) > 0.5){
-            if(diffuseMapCoordDisplaced.y > diffuseMapCoord.y){
-                diffuseMapCoordDisplaced.y -= offset.y;
-            } else {
-                diffuseMapCoordDisplaced.y += offset.y;
-            }
+        // if( fract((uv0.y - diffuseMapCoordDisplaced.y) * TEXTURE_ATLAS_DIMENSION.y) > 0.5){
+        //     if(diffuseMapCoordDisplaced.y > diffuseMapCoord.y){
+        //         diffuseMapCoordDisplaced.y -= offset.y;
+        //     } else {
+        //         diffuseMapCoordDisplaced.y += offset.y;
+        //     }
             
-        }  
+        // }  
 
         return diffuseMapCoordDisplaced;
 
@@ -232,23 +235,29 @@
 
         bool isPBR = false;
         float textureSize = 0.0;
+        float depthmap = 1.0;
         #ifdef PBR_FEATURE_ENABLED   
 
-            ivec2 diffuseMapCoord = ivec2(uv0 * TEXTURE_ATLAS_DIMENSION.xy * vec2(16.0));
-           
-            #ifndef BLEND
-                #ifdef PARALLAX_MAPPING_ENABLED
-                    //if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
-                    // diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension, initialNormalVector);  
-                #endif
-            #endif
-            //texelFetch gets non interpolated samples (sharp texture)
-            diffuseMap = texelFetch(texture0, diffuseMapCoord, 0);
+            highp vec2 diffuseMapCoord = uv0 * TEXTURE_DIMENSIONS.xy;
+
+            diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
+            
             isPBR = diffuseMap.a > 0.0 && diffuseMap.a < 12.0 / 256.0; //256 is fully opaque, 0 - no PBR, 1 - 4x4, 2 - 8x8, 3 16x16, 4 - 32x32, 5 - 64x64 etc.
             if(isPBR){
                 textureSize = diffuseMap.a * 256.0;
                 textureSize = pow(2.0, textureSize + 1.0);
             }
+           
+            #ifndef BLEND
+                #ifdef PARALLAX_MAPPING_ENABLED
+                    //if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
+                    diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, textureSize, initialNormalVector, depthmap);
+                    diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
+
+                    diffuseMap.rgb *= 1.0 - depthmap;
+                #endif
+            #endif
+           
         #else
             //if no PBR feature enabled than read default texture dirrectly without offsetting UV coordinates
             diffuseMap = texelFetch(texture0, ivec2(uv0 * TEXTURE_DIMENSIONS.xy), 0);
@@ -262,19 +271,19 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    ivec2 reliefMapCoord = diffuseMapCoord + ivec2(textureSize + 2.0, 0.0);
-                    if (reliefMapCoord.x > int(TEXTURE_DIMENSIONS.x)){
-                        reliefMapCoord -= ivec2(TEXTURE_DIMENSIONS.x, -textureSize);
+                    highp vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize + 2.0, 0.0);
+                    if (reliefMapCoord.x > TEXTURE_DIMENSIONS.x){
+                        reliefMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);
                     }
-                    reliefMap = texelFetch(texture0, reliefMapCoord, 0).rgb;
+                    reliefMap = texelFetch(texture0, ivec2(reliefMapCoord), 0).rgb;
                 }
             #else
             if(isPBR){
-                ivec2 reliefMapCoord = diffuseMapCoord + ivec2(textureSize + 2.0, 0.0);
-                if (reliefMapCoord.x > int(TEXTURE_DIMENSIONS.x)){
-                    reliefMapCoord -= ivec2(TEXTURE_DIMENSIONS.x, -textureSize);
+                highp vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize + 2.0, 0.0);
+                if (reliefMapCoord.x > TEXTURE_DIMENSIONS.x){
+                    reliefMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);
                 }
-                reliefMap = texelFetch(texture0, reliefMapCoord, 0).rgb;
+                reliefMap = texelFetch(texture0, ivec2(reliefMapCoord), 0).rgb;
             }
             #endif
         #else
@@ -290,12 +299,13 @@
         #if defined(SPECULAR_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             // Top right texture - specular map
             if(isPBR){
-                ivec2 rmeMapCoord =  diffuseMapCoord + ivec2(textureSize*2.0 + 4.0, 0.0);
+                highp vec2 rmeMapCoord =  diffuseMapCoord + vec2(textureSize*2.0 + 4.0, 0.0);
 
-                if (rmeMapCoord.x > int(TEXTURE_DIMENSIONS.x)){
-                    rmeMapCoord -= ivec2(TEXTURE_DIMENSIONS.x, -textureSize);
+                if (rmeMapCoord.x > TEXTURE_DIMENSIONS.x){
+                    rmeMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);
                 }
-                rmeMap = clamp(texelFetch(texture0, rmeMapCoord, 0),0.01, 1.0);
+                rmeMap = texelFetch(texture0, ivec2(rmeMapCoord), 0);
+                rmeMap = max(rmeMap, 0.01);
             }
         #else
             rmeMap = vec4(0.0);
