@@ -252,10 +252,12 @@
             #ifndef BLEND
                 #ifdef PARALLAX_MAPPING_ENABLED
                     // if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
-                    diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, textureSize, initialNormalVector, depthmap);
-                    diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
+                    if(isPBR){
+                        diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, textureSize, initialNormalVector, depthmap);
+                        diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
 
-                    diffuseMap.rgb *= 1.0 - depthmap;
+                        diffuseMap.rgb *= 1.0 - depthmap;
+                    }
                 #endif
             #endif
            
