@@ -153,7 +153,7 @@
         out float depth
         // highp mat3 TBN
     ){
-        highp vec2 reliefMapCoordLinear = vec2((offset + 2.0) / TEXTURE_DIMENSIONS.x, 0.0);
+        highp vec2 reliefMapCoordLinear = vec2(offset / TEXTURE_DIMENSIONS.x, 0.0);
 
         highp vec4 reliefMapLinear = texture2D(texture0, uv0 + reliefMapCoordLinear);//smooth paralax
         // highp float reliefMapLinear = texelFetch(texture0, ivec2((uv0 - reliefMapCoordLinear) * TEXTURE_DIMENSIONS.xy), 0);//sharp paralax
@@ -234,7 +234,7 @@
     ){        
 
         bool isPBR = false;
-        float textureSize = 0.0;
+        highp float textureSize = 0.0;
         float depthmap = 1.0;
         #ifdef PBR_FEATURE_ENABLED   
 
@@ -244,13 +244,14 @@
             
             isPBR = diffuseMap.a > 0.0 && diffuseMap.a < 12.0 / 256.0; //256 is fully opaque, 0 - no PBR, 1 - 4x4, 2 - 8x8, 3 16x16, 4 - 32x32, 5 - 64x64 etc.
             if(isPBR){
-                textureSize = diffuseMap.a * 256.0;
+                textureSize = highp float(diffuseMap.a) * 256.0;
                 textureSize = pow(2.0, textureSize + 1.0);
+                textureSize = ceil(textureSize + 1.0); // fix precision issues 
             }
            
             #ifndef BLEND
                 #ifdef PARALLAX_MAPPING_ENABLED
-                    //if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
+                    // if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
                     diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, textureSize, initialNormalVector, depthmap);
                     diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
 
@@ -271,7 +272,7 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    highp vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize + 2.0, 0.0);
+                    highp vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize, 0.0);
                     if (reliefMapCoord.x > TEXTURE_DIMENSIONS.x){
                         reliefMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);
                     }
@@ -279,7 +280,7 @@
                 }
             #else
             if(isPBR){
-                highp vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize + 2.0, 0.0);
+                highp vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize, 0.0);
                 if (reliefMapCoord.x > TEXTURE_DIMENSIONS.x){
                     reliefMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);
                 }
@@ -299,7 +300,7 @@
         #if defined(SPECULAR_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             // Top right texture - specular map
             if(isPBR){
-                highp vec2 rmeMapCoord =  diffuseMapCoord + vec2(textureSize*2.0 + 4.0, 0.0);
+                highp vec2 rmeMapCoord =  diffuseMapCoord + vec2(textureSize*2.0, 0.0);
 
                 if (rmeMapCoord.x > TEXTURE_DIMENSIONS.x){
                     rmeMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);

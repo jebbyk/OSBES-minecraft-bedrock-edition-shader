@@ -43,7 +43,7 @@ void main()
 
 
 
-#ifdef EFFECTS_OFFSET
+// #ifdef EFFECTS_OFFSET
 //     vec4 diffuse = vec4(0.0);
 		
 	// Terrain attlass mostly is bigger than items attlass
@@ -57,11 +57,11 @@ void main()
 			// diffuse = texture2D(TEXTURE_0, uv);
 		// }
 	// #else
-		vec4 diffuse = texture2D(TEXTURE_0, uv);
+		// vec4 diffuse = texture2D(TEXTURE_0, uv);
 	// #endif
 
-#else
-	#ifdef ALPHA_TEST // Inventory items (exclude UI buttons)
+// #else
+	// #ifdef ALPHA_TEST // Inventory items (exclude UI buttons)
 		// vec4 diffuse = vec4(0.0);
 		
 		// #ifdef PBR_FEATURE_ENABLED
@@ -78,10 +78,10 @@ void main()
 			vec4 diffuse = texture2D(TEXTURE_0, uv);
 		// #endif
 		//vec4 diffuse = vec4(1.0, 0.0, 0.0, 1.0);
-	#else // Only UI buttons
-		vec4 diffuse = texture2D(TEXTURE_0, uv);
-	#endif
-#endif
+	// #else // Only UI buttons
+	// 	vec4 diffuse = texture2D(TEXTURE_0, uv);
+	// #endif
+// #endif
 
 
 
