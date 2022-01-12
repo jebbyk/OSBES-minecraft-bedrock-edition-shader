@@ -153,19 +153,15 @@
         out float depth
         // highp mat3 TBN
     ){
-        highp vec2 reliefMapCoordLinear = vec2(offset / TEXTURE_DIMENSIONS.x, 0.0);
+ 
+        highp vec2 reliefMapCoordLinear = uv0 + vec2(offset / TEXTURE_DIMENSIONS.x, 0.0);
 
-        highp vec4 reliefMapLinear = texture2D(texture0, uv0 + reliefMapCoordLinear);//smooth paralax
-        // highp float reliefMapLinear = texelFetch(texture0, ivec2((uv0 - reliefMapCoordLinear) * TEXTURE_DIMENSIONS.xy), 0);//sharp paralax
 
-        // if(length(reliefMapLinear.rgb) < 0.5){
-        //     return diffuseMapCoord;// do not transform texture coordintates if there is no relief map
-        // }
+        highp vec4 reliefMapLinear = texture2D(texture0, reliefMapCoordLinear);
 
         highp float depthMap = 1.0 - reliefMapLinear.a;
        
         //rotate base vector depending on block face dirrection (normal.xyz) 
-        //TODO use TBN
         highp vec3 kernelVector = vec3(0.0);
         if(normal.b < -0.9){
             kernelVector = relativePosition;
@@ -233,7 +229,7 @@
         // highp mat3 TBN
     ){        
 
-        bool isPBR = false;
+        bool curTexIsPBR = false;
         highp float textureSize = 0.0;
         float depthmap = 1.0;
         #ifdef PBR_FEATURE_ENABLED   
@@ -242,17 +238,17 @@
 
             diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
             
-            isPBR = diffuseMap.a > 0.0 && diffuseMap.a < 12.0 / 256.0; //256 is fully opaque, 0 - no PBR, 1 - 4x4, 2 - 8x8, 3 16x16, 4 - 32x32, 5 - 64x64 etc.
-            if(isPBR){
-                textureSize = highp float(diffuseMap.a) * 256.0;
+            curTexIsPBR = diffuseMap.a > 0.0 && diffuseMap.a < 12.0 / 256.0; //256 is fully opaque, 0 - no PBR, 1 - 4x4, 2 - 8x8, 3 16x16, 4 - 32x32, 5 - 64x64 etc.
+            if(curTexIsPBR){
+                textureSize = float(diffuseMap.a) * 256.0;
                 textureSize = pow(2.0, textureSize + 1.0);
-                textureSize = ceil(textureSize + 1.0); // fix precision issues 
+                textureSize = floor(textureSize + TEXTURE_PADDING*2.0); // fix precision issues 
             }
            
             #ifndef BLEND
                 #ifdef PARALLAX_MAPPING_ENABLED
                     // if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
-                    if(isPBR){
+                    if(curTexIsPBR){
                         diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, textureSize, initialNormalVector, depthmap);
                         diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
 
@@ -274,18 +270,12 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    highp vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize, 0.0);
-                    if (reliefMapCoord.x > TEXTURE_DIMENSIONS.x){
-                        reliefMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);
-                    }
+                    vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize, 0.0);
                     reliefMap = texelFetch(texture0, ivec2(reliefMapCoord), 0).rgb;
                 }
             #else
-            if(isPBR){
-                highp vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize, 0.0);
-                if (reliefMapCoord.x > TEXTURE_DIMENSIONS.x){
-                    reliefMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);
-                }
+            if(curTexIsPBR){
+                vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize, 0.0);
                 reliefMap = texelFetch(texture0, ivec2(reliefMapCoord), 0).rgb;
             }
             #endif
@@ -301,12 +291,8 @@
         
         #if defined(SPECULAR_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             // Top right texture - specular map
-            if(isPBR){
-                highp vec2 rmeMapCoord =  diffuseMapCoord + vec2(textureSize*2.0, 0.0);
-
-                if (rmeMapCoord.x > TEXTURE_DIMENSIONS.x){
-                    rmeMapCoord -= vec2(TEXTURE_DIMENSIONS.x, -textureSize);
-                }
+            if(curTexIsPBR){
+                vec2 rmeMapCoord =  diffuseMapCoord + vec2(textureSize*2.0, 0.0);
                 rmeMap = texelFetch(texture0, ivec2(rmeMapCoord), 0);
                 rmeMap = max(rmeMap, 0.01);
             }
