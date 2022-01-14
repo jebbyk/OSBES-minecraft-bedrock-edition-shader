@@ -65,10 +65,15 @@
 
         //read two water noise normals texture moving reading coordinates in different directions
         vec2 invercedPixelSize = vec2(1.0) / TEXTURE_DIMENSIONS.xy;
-        vec2 inversedTextureSize = vec2(1.0) / TEXTURE_ATLAS_DIMENSION.xy;
+        
+        #ifdef WATER_NORMAL_MAP_RESOLUTION
+            vec2 waterNormalMapSize = vec2(WATER_NORMAL_MAP_RESOLUTION) / TEXTURE_DIMENSIONS.xy;
+        #else
+            vec2 waterNormalMapSize = vec2(16.0) / TEXTURE_DIMENSIONS.xy;
+        #endif
 
-        vec3 n1 = texture2D(texture0, invercedPixelSize + fract(position.xz * wnScale - t*wnScale) * inversedTextureSize).rgb * 2.0 - 1.0;
-        vec3 n2 = texture2D(texture0, invercedPixelSize + fract(position.xz * wnScale * vec2(-0.33, 0.33) - t*wnScale) * inversedTextureSize).rgb * 2.0 - 1.0;
+        vec3 n1 = texture2D(texture0, invercedPixelSize + fract(position.xz * wnScale - t*wnScale) * waterNormalMapSize).rgb * 2.0 - 1.0;
+        vec3 n2 = texture2D(texture0, invercedPixelSize + fract(position.xz * wnScale * vec2(-0.33, 0.33) - t*wnScale) * waterNormalMapSize).rgb * 2.0 - 1.0;
 
         //mix them together in some special way (google unreal engine mix normalmaps)
         return normalize(vec3(n1.xy + n2.xy, n1.z / WATER_NORMAL_MAP_STRENGTH)) * 0.5 + 0.5;
