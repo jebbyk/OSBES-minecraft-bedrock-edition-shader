@@ -191,28 +191,10 @@
         depth = depthMap;
 
         // displacement *= (sin(TIME * 4.0) + 1.0) * 0.5;
+
+        displacement.xy = clamp(displacement.xy, vec2(-TEXTURE_PADDING), vec2(TEXTURE_PADDING));
         
         vec2 diffuseMapCoordDisplaced = diffuseMapCoord - displacement;      
-
-        //reconstruction of "offtexture" samples near block edges caused by texture offsetting
-        // if( fract((uv0.x - diffuseMapCoordDisplaced.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
-        //     //move it backwards depending on a dirrection of previous offsetting
-        //     if(diffuseMapCoordDisplaced.x > diffuseMapCoord.x){
-        //         diffuseMapCoordDisplaced.x -= offset.x;
-        //     } else {
-        //         diffuseMapCoordDisplaced.x += offset.x;
-        //     }
-            
-        // }
-        //the same for y coordinates
-        // if( fract((uv0.y - diffuseMapCoordDisplaced.y) * TEXTURE_ATLAS_DIMENSION.y) > 0.5){
-        //     if(diffuseMapCoordDisplaced.y > diffuseMapCoord.y){
-        //         diffuseMapCoordDisplaced.y -= offset.y;
-        //     } else {
-        //         diffuseMapCoordDisplaced.y += offset.y;
-        //     }
-            
-        // }  
 
         return diffuseMapCoordDisplaced;
 
@@ -251,7 +233,6 @@
                     if(curTexIsPBR){
                         diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, textureSize, initialNormalVector, depthmap);
                         diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
-
                         diffuseMap.rgb *= 1.0 - depthmap;
                     }
                 #endif
