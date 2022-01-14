@@ -83,8 +83,20 @@
 		float puddlesScale = 16.0;
         float edgePadding = 0.5; //trying to prevent interpolation issues on texture edges
 
-		vec2 noiseTextureOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x - edgePadding), 0.0); 
-		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(TEXTURE_ATLAS_DIMENSION + edgePadding) + noiseTextureOffset).r;
+         #ifdef NOISE_MAP_OFFSET
+            vec2 noiseTextureOffset = NOISE_MAP_OFFSET / TEXTURE_DIMENSIONS.xy; 
+        #else
+            vec2 noiseTextureOffset = vec2(16.0, 0.0) / TEXTURE_DIMENSIONS.xy;
+        #endif
+
+
+        #ifdef NOISE_MAP_RESOLUTION
+            vec2 noiseMapSize = vec2(NOISE_MAP_RESOLUTION) / TEXTURE_DIMENSIONS.xy;
+        #else
+            vec2 noiseMapSize = vec2(16.0) / TEXTURE_DIMENSIONS.xy;
+        #endif
+
+		float puddles = texture2D(texture0, fract(position  / puddlesScale) * noiseMapSize + noiseTextureOffset).r;
 		puddles = puddles * isRain * PUDDLES_AMOUNT;
 		puddles = clamp(puddles, RAIN_MIN_WETNESS, 1.0);
 
@@ -102,11 +114,23 @@
             highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 4.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
             float edgePadding = 0.5; //trying to prevent interpolation issues on texture edges
-		    vec2 noiseTextureOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x - edgePadding), 0.0); 
+            
+            #ifdef NOISE_MAP_OFFSET
+		        vec2 noiseTextureOffset = NOISE_MAP_OFFSET / TEXTURE_DIMENSIONS.xy; 
+            #else
+                vec2 noiseTextureOffset = vec2(16.0, 0.0) / TEXTURE_DIMENSIONS.xy;
+            #endif
+
+
+            #ifdef NOISE_MAP_RESOLUTION
+                vec2 noiseMapSize = vec2(NOISE_MAP_RESOLUTION) / TEXTURE_DIMENSIONS.xy;
+            #else
+                vec2 noiseMapSize = vec2(16.0) / TEXTURE_DIMENSIONS.xy;
+            #endif
 
             //mix them toogether
-            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/(TEXTURE_ATLAS_DIMENSION * 2.0) + noiseTextureOffset).r;
-            caustics += texture(texture0, fract(cauLayerCoord_1)/TEXTURE_ATLAS_DIMENSION + noiseTextureOffset).r;
+            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0) * noiseMapSize + noiseTextureOffset).r;
+            caustics += texture(texture0, fract(cauLayerCoord_1) * noiseMapSize + noiseTextureOffset).r;
             //now noise can be a number from 0.0 to 2.0
             
             //make caustics brightness dependin on how close it to 1.0 
