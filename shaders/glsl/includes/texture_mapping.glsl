@@ -230,9 +230,9 @@
     }
 
     void readTextures(
-        out vec4 diffuseMap, 
-        out vec3 reliefMap, 
-        out vec4 rmeMap, 
+        inout vec4 diffuseMap, 
+        inout vec3 reliefMap, 
+        inout vec4 rmeMap, 
         sampler2D texture0, 
         highp vec2 uv0, 
         highp vec3 viewDir, 
@@ -293,8 +293,6 @@
             #ifdef WATER_DETAILS_ENABLED
                 if(isWater >  0.9){
                     reliefMap = mapWaterNormals(texture0);
-                }else{
-                    reliefMap = vec3(0.0);
                 }
             #endif
         #endif
@@ -306,8 +304,6 @@
                 rmeMap = texelFetch(texture0, ivec2(rmeMapCoord), 0);
                 rmeMap = max(rmeMap, 0.01);
             }
-        #else
-            rmeMap = vec4(0.0);
         #endif 
     }
 		
