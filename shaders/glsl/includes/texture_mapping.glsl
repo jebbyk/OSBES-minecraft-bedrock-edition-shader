@@ -62,14 +62,19 @@
     vec3 mapWaterNormals(sampler2D texture0){
 		highp float t = TIME * 0.1;
 		float wnScale = 1.0;
-		vec2 waterNormalOffset = vec2(3.0/TEXTURE_ATLAS_DIMENSION.x, 0.0);
-
-		// TODO resolve interpolation issues on edges using a more correct way (currently it is wierd)
 
         //read two water noise normals texture moving reading coordinates in different directions
-		vec3 n1 = texture2D(texture0, fract(position.xz*wnScale - t*wnScale * 4.0)/(TEXTURE_ATLAS_DIMENSION + vec2(1.0, 1.0)) + waterNormalOffset).rgb * 2.0 - 1.0;
-		vec3 n2 = texture2D(texture0, fract(position.xz*0.3*wnScale * vec2(-1.0, 1.0) - t*wnScale)/(TEXTURE_ATLAS_DIMENSION + vec2(1.0, 1.0)) + waterNormalOffset).rgb * 2.0 - 1.0;
+        vec2 invercedPixelSize = vec2(1.0) / TEXTURE_DIMENSIONS.xy;
         
+        #ifdef WATER_NORMAL_MAP_RESOLUTION
+            vec2 waterNormalMapSize = vec2(WATER_NORMAL_MAP_RESOLUTION) / TEXTURE_DIMENSIONS.xy;
+        #else
+            vec2 waterNormalMapSize = vec2(16.0) / TEXTURE_DIMENSIONS.xy;
+        #endif
+
+        vec3 n1 = texture2D(texture0, invercedPixelSize + fract(position.xz * wnScale - t*wnScale) * waterNormalMapSize).rgb * 2.0 - 1.0;
+        vec3 n2 = texture2D(texture0, invercedPixelSize + fract(position.xz * wnScale * vec2(-0.33, 0.33) - t*wnScale) * waterNormalMapSize).rgb * 2.0 - 1.0;
+
         //mix them together in some special way (google unreal engine mix normalmaps)
         return normalize(vec3(n1.xy + n2.xy, n1.z / WATER_NORMAL_MAP_STRENGTH)) * 0.5 + 0.5;
     }
@@ -78,8 +83,20 @@
 		float puddlesScale = 16.0;
         float edgePadding = 0.5; //trying to prevent interpolation issues on texture edges
 
-		vec2 noiseTextureOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x - edgePadding), 0.0); 
-		float puddles = texture2D(texture0, fract(position  / puddlesScale)/(TEXTURE_ATLAS_DIMENSION + edgePadding) + noiseTextureOffset).r;
+         #ifdef NOISE_MAP_OFFSET
+            vec2 noiseTextureOffset = NOISE_MAP_OFFSET / TEXTURE_DIMENSIONS.xy; 
+        #else
+            vec2 noiseTextureOffset = vec2(16.0, 0.0) / TEXTURE_DIMENSIONS.xy;
+        #endif
+
+
+        #ifdef NOISE_MAP_RESOLUTION
+            vec2 noiseMapSize = vec2(NOISE_MAP_RESOLUTION) / TEXTURE_DIMENSIONS.xy;
+        #else
+            vec2 noiseMapSize = vec2(16.0) / TEXTURE_DIMENSIONS.xy;
+        #endif
+
+		float puddles = texture2D(texture0, fract(position  / puddlesScale) * noiseMapSize + noiseTextureOffset).r;
 		puddles = puddles * isRain * PUDDLES_AMOUNT;
 		puddles = clamp(puddles, RAIN_MIN_WETNESS, 1.0);
 
@@ -97,11 +114,23 @@
             highp vec2 cauLayerCoord_1 = (-position.xz - vec2(position.y / 4.0)) * causticsScale*0.876 + vec2(time * causticsSpeed);
 
             float edgePadding = 0.5; //trying to prevent interpolation issues on texture edges
-		    vec2 noiseTextureOffset = vec2(1.0/(TEXTURE_ATLAS_DIMENSION.x - edgePadding), 0.0); 
+            
+            #ifdef NOISE_MAP_OFFSET
+		        vec2 noiseTextureOffset = NOISE_MAP_OFFSET / TEXTURE_DIMENSIONS.xy; 
+            #else
+                vec2 noiseTextureOffset = vec2(16.0, 0.0) / TEXTURE_DIMENSIONS.xy;
+            #endif
+
+
+            #ifdef NOISE_MAP_RESOLUTION
+                vec2 noiseMapSize = vec2(NOISE_MAP_RESOLUTION) / TEXTURE_DIMENSIONS.xy;
+            #else
+                vec2 noiseMapSize = vec2(16.0) / TEXTURE_DIMENSIONS.xy;
+            #endif
 
             //mix them toogether
-            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0)/(TEXTURE_ATLAS_DIMENSION * 2.0) + noiseTextureOffset).r;
-            caustics += texture(texture0, fract(cauLayerCoord_1)/TEXTURE_ATLAS_DIMENSION + noiseTextureOffset).r;
+            highp float caustics = texture2D(texture0, fract(cauLayerCoord_0) * noiseMapSize + noiseTextureOffset).r;
+            caustics += texture(texture0, fract(cauLayerCoord_1) * noiseMapSize + noiseTextureOffset).r;
             //now noise can be a number from 0.0 to 2.0
             
             //make caustics brightness dependin on how close it to 1.0 
@@ -148,23 +177,20 @@
         sampler2D texture0, 
         highp vec2 uv0, 
         highp vec2 diffuseMapCoord,
-        highp vec2 offset,
-        vec3 normal
+        highp float offset,
+        vec3 normal,
+        out float depth
         // highp mat3 TBN
     ){
-        highp vec2 reliefMapCoordLinear = diffuseMapCoord - vec2(0.0, offset.y);
+ 
+        highp vec2 reliefMapCoordLinear = uv0 + vec2(offset / TEXTURE_DIMENSIONS.x, 0.0);
 
-        highp vec4 reliefMapLinear = texture2D(texture0, uv0 - reliefMapCoordLinear);//smooth paralax
-        // highp float reliefMapLinear = texelFetch(texture0, ivec2((uv0 - reliefMapCoordLinear) * TEXTURE_DIMENSIONS.xy), 0);//sharp paralax
 
-        if(length(reliefMapLinear.rgb) < 0.5){
-            return diffuseMapCoord;// do not transform texture coordintates if there is no relief map
-        }
+        highp vec4 reliefMapLinear = texture2D(texture0, reliefMapCoordLinear);
 
         highp float depthMap = 1.0 - reliefMapLinear.a;
        
         //rotate base vector depending on block face dirrection (normal.xyz) 
-        //TODO use TBN
         highp vec3 kernelVector = vec3(0.0);
         if(normal.b < -0.9){
             kernelVector = relativePosition;
@@ -191,61 +217,56 @@
 
         highp vec2 displacement = (kernelVector.xy / kernelVector.z) * PARALLAX_DEPTH * depthMap;   
 
-        // displacement *= (sin(TIME * 4.0) + 1.0) * 0.5;
-        
-        highp vec2 diffuseMapCoordDisplaced = diffuseMapCoord + displacement;      
+        depth = depthMap;
 
-        //reconstruction of "offtexture" samples near block edges caused by texture offsetting
-        if( fract((uv0.x - diffuseMapCoordDisplaced.x) * TEXTURE_ATLAS_DIMENSION.x) > 0.5){
-            //move it backwards depending on a dirrection of previous offsetting
-            if(diffuseMapCoordDisplaced.x > diffuseMapCoord.x){
-                diffuseMapCoordDisplaced.x -= offset.x;
-            } else {
-                diffuseMapCoordDisplaced.x += offset.x;
-            }
-            
-        }
-        //the same for y coordinates
-        if( fract((uv0.y - diffuseMapCoordDisplaced.y) * TEXTURE_ATLAS_DIMENSION.y) > 0.5){
-            if(diffuseMapCoordDisplaced.y > diffuseMapCoord.y){
-                diffuseMapCoordDisplaced.y -= offset.y;
-            } else {
-                diffuseMapCoordDisplaced.y += offset.y;
-            }
-            
-        }  
+        // displacement *= (sin(TIME * 4.0) + 1.0) * 0.5;
+
+        displacement.xy = clamp(displacement.xy, vec2(-TEXTURE_PADDING), vec2(TEXTURE_PADDING));
+        
+        vec2 diffuseMapCoordDisplaced = diffuseMapCoord - displacement;      
 
         return diffuseMapCoordDisplaced;
 
     }
 
     void readTextures(
-        out vec4 diffuseMap, 
-        out vec3 reliefMap, 
-        out vec4 rmeMap, 
+        inout vec4 diffuseMap, 
+        inout vec3 reliefMap, 
+        inout vec4 rmeMap, 
         sampler2D texture0, 
         highp vec2 uv0, 
         highp vec3 viewDir, 
         vec3 initialNormalVector
         // highp mat3 TBN
     ){        
-        #ifdef PBR_FEATURE_ENABLED
-            //if PBR feature is enabled we have to calculate offsets to get correct coordinates of other texture maps
-            //TODO add abbility to take texture paddings into account
-            highp vec2 invercedTextureDimension = (1.0 / TEXTURE_ATLAS_DIMENSION) * 0.5; //cache common calculations
+
+        bool curTexIsPBR = false;
+        highp float textureSize = 0.0;
+        float depthmap = 1.0;
+        #ifdef PBR_FEATURE_ENABLED   
+
+            highp vec2 diffuseMapCoord = uv0 * TEXTURE_DIMENSIONS.xy;
+
+            diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
             
-            // Top left texture - default diffuse
-            highp vec2 diffuseMapCoord = fract(uv0 * TEXTURE_ATLAS_DIMENSION) * invercedTextureDimension;// 1.0 / 128.0 = 0.0078125; 1.0 / 64.0 = 0.015625
+            curTexIsPBR = diffuseMap.a > 0.0 && diffuseMap.a < 12.0 / 256.0; //256 is fully opaque, 0 - no PBR, 1 - 4x4, 2 - 8x8, 3 16x16, 4 - 32x32, 5 - 64x64 etc.
+            if(curTexIsPBR){
+                textureSize = float(diffuseMap.a) * 256.0;
+                textureSize = pow(2.0, textureSize + 1.0);
+                textureSize = floor(textureSize + TEXTURE_PADDING*2.0); // fix precision issues 
+            }
            
             #ifndef BLEND
                 #ifdef PARALLAX_MAPPING_ENABLED
-                    //if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
-                    diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, invercedTextureDimension, initialNormalVector);  
+                    // if parallax is enabled apply some texture coordinates offsetting to make illusion of depth
+                    if(curTexIsPBR){
+                        diffuseMapCoord = parallax(viewDir, texture0, uv0, diffuseMapCoord, textureSize, initialNormalVector, depthmap);
+                        diffuseMap = texelFetch(texture0, ivec2(diffuseMapCoord), 0);
+                        diffuseMap.rgb *= 1.0 - depthmap;
+                    }
                 #endif
             #endif
-            //texelFetch gets non interpolated samples (sharp texture)
-            diffuseMap = texelFetch(texture0, ivec2((uv0 - diffuseMapCoord) * TEXTURE_DIMENSIONS.xy), 0);
-
+           
         #else
             //if no PBR feature enabled than read default texture dirrectly without offsetting UV coordinates
             diffuseMap = texelFetch(texture0, ivec2(uv0 * TEXTURE_DIMENSIONS.xy), 0);
@@ -259,30 +280,30 @@
                         reliefMap = mapWaterNormals(texture0);
                     #endif
                 }else{
-                    highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
-                    reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
+                    vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize, 0.0);
+                    reliefMap = texelFetch(texture0, ivec2(reliefMapCoord), 0).rgb;
                 }
             #else
-                // Bottom left texture - default diffuse
-                highp vec2 reliefMapCoord = diffuseMapCoord - vec2(0.0, invercedTextureDimension.y);
-                reliefMap = texelFetch(texture0, ivec2((uv0 - reliefMapCoord) * TEXTURE_DIMENSIONS.xy), 0).rgb;
+            if(curTexIsPBR){
+                vec2 reliefMapCoord = diffuseMapCoord + vec2(textureSize, 0.0);
+                reliefMap = texelFetch(texture0, ivec2(reliefMapCoord), 0).rgb;
+            }
             #endif
         #else
             #ifdef WATER_DETAILS_ENABLED
                 if(isWater >  0.9){
                     reliefMap = mapWaterNormals(texture0);
-                }else{
-                    reliefMap = vec3(0.0);
                 }
             #endif
         #endif
         
         #if defined(SPECULAR_MAPPING_ENABLED) & defined(PBR_FEATURE_ENABLED)
             // Top right texture - specular map
-            highp vec2 rmeMapCoord = diffuseMapCoord - vec2(invercedTextureDimension.x, 0.0);// 1.0/128.0
-            rmeMap = clamp(texelFetch(texture0, ivec2((uv0 - rmeMapCoord) * TEXTURE_DIMENSIONS.xy), 0),0.01, 1.0);
-        #else
-            rmeMap = vec4(0.0);
+            if(curTexIsPBR){
+                vec2 rmeMapCoord =  diffuseMapCoord + vec2(textureSize*2.0, 0.0);
+                rmeMap = texelFetch(texture0, ivec2(rmeMapCoord), 0);
+                rmeMap = max(rmeMap, 0.01);
+            }
         #endif 
     }
 		

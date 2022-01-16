@@ -77,28 +77,28 @@ void main()
 	#ifndef NO_TEXTURE
 		#if !defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)
 
-			#ifdef USE_OVERLAY
+			// #ifdef USE_OVERLAY
 			
-				#ifdef PBR_FEATURE_ENABLED
-					if(TEXTURE_DIMENSIONS.x > 1023.0){
-						highp vec2 uvhp = uv - fract(uv * TEXTURE_ATLAS_DIMENSION) / (TEXTURE_ATLAS_DIMENSION * 2.0);
-						color = texture2D( TEXTURE_0, uvhp);
-					}else{
-						color = texture2D(TEXTURE_0, uv);
-					}
-				#else
-					color = texture2D(TEXTURE_0, uv);
-				#endif
+				// #ifdef PBR_FEATURE_ENABLED
+				// 	if(TEXTURE_DIMENSIONS.x > 1023.0){
+				// 		highp vec2 uvhp = uv - fract(uv * TEXTURE_ATLAS_DIMENSION) / (TEXTURE_ATLAS_DIMENSION * 2.0);
+				// 		color = texture2D( TEXTURE_0, uvhp);
+				// 	}else{
+				// 		color = texture2D(TEXTURE_0, uv);
+				// 	}
+				// #else
+					// color = texture2D(TEXTURE_0, uv);
+				// #endif
 			//	color = vec4(1.0,0.0,0.0,1.0);
-			#else // Apply only for blocks in hand
-				#ifdef PBR_FEATURE_ENABLED
-					highp vec2 uvhp = uv - fract(uv * TEXTURE_ATLAS_DIMENSION) / (TEXTURE_ATLAS_DIMENSION * 2.0);
-					color = texture2D( TEXTURE_0, uvhp);
-				#else
+			// #else // Apply only for blocks in hand
+				// #ifdef PBR_FEATURE_ENABLED
+				// 	highp vec2 uvhp = uv - fract(uv * TEXTURE_ATLAS_DIMENSION) / (TEXTURE_ATLAS_DIMENSION * 2.0);
+				// 	color = texture2D( TEXTURE_0, uvhp);
+				// #else
 					color = texture2D( TEXTURE_0, uv);
-				#endif
+				// #endif
 			//	color = vec4(1.0, 0.0,0.0,1.0);
-			#endif
+			// #endif
 		#else
 			//color = texture2D_AA(TEXTURE_0, uv);
 		#endif //!defined(TEXEL_AA) || !defined(TEXEL_AA_FEATURE)

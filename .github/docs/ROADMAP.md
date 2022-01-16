@@ -83,11 +83,11 @@
 |                          |0.13.2       | Bugfixes                           |<span style="color:green">Ready</span>
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Parallax mapping          |0.14.0       | Simple parallax mapping            |<span style="color:green">Ready</span>
-|                          |0.14.1       | Point light direction detection    |<span style="color:green">**In progress**</span>|
-|                          |0.14.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
+|                          |0.14.1       | Point light direction detection    |<span style="color:red">Skipped</span>|
+|                          |0.14.2       | Bugfixes                           |<span style="color:red">Skipped</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
-|Compatibility improvement |0.15.0       | compatibility improvements         |<span style="color:orange">**Planned**</span>|
-|                          |0.15.1       | peresets system improvements       |<span style="color:orange">**Planned**</span>|
+|Compatibility improvement |0.15.0       | compatibility improvements         |<span style="color:green">Ready</span>
+|                          |0.15.1       | peresets system improvements       |<span style="color:green">**In progress**</span>|
 |                          |0.15.2       | Bugfixes                           |<span style="color:orange">**Planned**</span>|
 |━━━━━━━━━━━━━             |━━━━━━       |━━━━━━━━━━━━━━━━                    |━━━━━━━━|
 |Improved reflections      |0.16.0       | Fake terrain reflections           |<span style="color:orange">**Planned**</span>|
