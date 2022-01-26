@@ -5,7 +5,7 @@
 ![GitHub](https://img.shields.io/github/license/jebbyk/OSBES-minecraft-bedrock-edition-shader)
 <br>
 
-DOWNLOAD (support developers)(https://link-center.net/336645/osbesv0-15-0)
+- ### [DOWNLOAD (support developers)](https://link-center.net/336645/osbesv0-15-0)
 
 Open Source Bedrock Edition Shader<br>
 <sub>Note: You can use a tweaked version of the Vanilla Normals Renewed texturepack by [Poudingue](https://github.com/Poudingue) to supply normal and specular maps (https://github.com/jebbyk/Vanilla-Normals-Renewed-Bedrock-Edition)</sub>
